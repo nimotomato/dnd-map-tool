@@ -23,12 +23,14 @@ type Maprect = {
   y: number;
   width: number;
   height: number;
+  fullWidth: number;
+  fullHeight: number;
 };
 
 type Props = {
   mapRef: MutableRefObject<HTMLDivElement | null>;
-  setSprites: React.Dispatch<React.SetStateAction<Spriteinfo[] | null>>;
-  sprites: Spriteinfo[] | null;
+  setSprites: React.Dispatch<React.SetStateAction<Spriteinfo[]>>;
+  sprites: Spriteinfo[];
   mapRect: Maprect | null;
   map: string;
   mapPosX: number;
@@ -55,30 +57,30 @@ const DungeonMap = ({
   setHasLoaded,
 }: Props) => {
   // Stepsize in percentage
-  const defaultStepSize = useRef(5);
-
-  useEffect(() => {
-    console.log("window", window.innerWidth);
-    console.log("map", mapRect?.width);
-    console.log("mapPos %", mapPosX);
-    const newPos = (mapRect?.width * mapPosX) / 100;
-    console.log("step in px", newPos);
-    console.log("");
-  }, [mapPosX]);
+  const defaultStepSize = useRef(100);
 
   const handleOnMapNav = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
 
+    if (!mapRect) return;
+
     const target = event.currentTarget as HTMLButtonElement;
 
-    if (target.id === "right" && mapPosX < 100) {
-      setMapPosX((prev) => prev + defaultStepSize.current);
-    } else if (target.id === "left" && mapPosX > 0) {
+    if (
+      target.id === "right" &&
+      mapPosX > -mapRect.fullWidth - defaultStepSize.current * 3
+    ) {
       setMapPosX((prev) => prev - defaultStepSize.current);
-    } else if (target.id === "down" && mapPosY < 100) {
-      setMapPosY((prev) => prev + defaultStepSize.current);
-    } else if (target.id === "up" && mapPosY > 0) {
+    } else if (target.id === "left" && mapPosX < 0) {
+      setMapPosX((prev) => prev + defaultStepSize.current);
+    } else if (
+      target.id === "down" &&
+      mapPosY > -mapRect.fullHeight - defaultStepSize.current
+    ) {
       setMapPosY((prev) => prev - defaultStepSize.current);
+    } else if (target.id === "up" && mapPosY < 0) {
+      setMapPosY((prev) => prev + defaultStepSize.current);
+      console.log(mapPosY);
     }
   };
 
@@ -97,25 +99,27 @@ const DungeonMap = ({
               className="h-full w-full"
               style={{
                 backgroundImage: `${map}`,
-                backgroundPosition: `${mapPosX}% ${mapPosY}%`,
+                backgroundPosition: `${mapPosX}px ${mapPosY}px`,
                 backgroundSize: `${mapZoom * 100}%`,
               }}
             >
-              {sprites &&
-                sprites.map((sprite) => {
-                  return (
-                    <Sprite
-                      posX={sprite.posX - mapPosX}
-                      posY={sprite.posY - mapPosY}
-                      key={sprite.name}
-                      mapRect={mapRect}
-                      controller={sprite.controller}
-                      imgSrc={sprite.imgSrc}
-                      setSprites={setSprites}
-                      name={sprite.name}
-                    />
-                  );
-                })}
+              {sprites?.map((sprite) => {
+                return (
+                  <Sprite
+                    posX={sprite.posX}
+                    mapPosX={mapPosX}
+                    mapPosY={mapPosY}
+                    posY={sprite.posY}
+                    key={sprite.name}
+                    mapRect={mapRect}
+                    controller={sprite.controller}
+                    imgSrc={sprite.imgSrc}
+                    setSprites={setSprites}
+                    name={sprite.name}
+                    sprites={sprites}
+                  />
+                );
+              })}
             </div>
             <div>
               <button onClick={handleOnMapNav} className="nav-btn" id="up">

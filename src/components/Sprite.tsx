@@ -15,14 +15,26 @@ type Rect = {
   height: number;
 };
 
+type Maprect = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  fullWidth: number;
+  fullHeight: number;
+};
+
 type Props = {
   posX: number;
   posY: number;
   controller: string;
   name: string;
   setSprites: React.Dispatch<React.SetStateAction<Spriteinfo[]>>;
-  mapRect: Rect | null;
+  mapRect: Maprect | null;
   imgSrc: string;
+  mapPosX: number;
+  mapPosY: number;
+  sprites: Spriteinfo[];
 };
 const Sprite = ({
   mapRect,
@@ -32,11 +44,14 @@ const Sprite = ({
   name,
   controller,
   imgSrc,
+  mapPosX,
+  mapPosY,
 }: Props) => {
   const [offsetX, setOffsetX] = useState<number>(0);
   const [offsetY, setOffsetY] = useState<number>(0);
   const spriteRef = useRef<HTMLImageElement | null>(null);
   const [spriteRect, setSpriteRect] = useState<Rect | null>(null);
+  const [show, setShow] = useState(true);
 
   useEffect(() => {
     if (spriteRef.current) {
@@ -51,32 +66,38 @@ const Sprite = ({
     }
   }, []);
 
-  const handleMouseMove = (e) => {
-    if (!mapRect) return;
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!mapRect || !spriteRect) return;
     e.preventDefault();
 
     if (
       e.clientX - offsetX - mapRect.x > 0 &&
-      e.clientX + spriteRect?.width - offsetX < mapRect.x + mapRect.width
+      e.clientX + spriteRect.width - offsetX < mapRect.x + mapRect.width
     ) {
       setSprites((prevSprites) => {
         return prevSprites.map((sprite) => {
           if (sprite.name !== name) return sprite;
 
-          return { ...sprite, posX: e.clientX - mapRect.x - offsetX };
+          return {
+            ...sprite,
+            posX: e.clientX - mapRect.x - offsetX - mapPosX,
+          };
         });
       });
     }
 
     if (
       e.clientY - offsetY - mapRect.y > 0 &&
-      e.clientY + spriteRect?.height - offsetY < mapRect.y + mapRect.height
+      e.clientY + spriteRect.height - offsetY < mapRect.y + mapRect.height
     ) {
       setSprites((prevSprites) => {
         return prevSprites.map((sprite) => {
           if (sprite.name !== name) return sprite;
 
-          return { ...sprite, posY: e.clientY - mapRect.y - offsetY };
+          return {
+            ...sprite,
+            posY: e.clientY - mapRect.y - offsetY - mapPosY,
+          };
         });
       });
     }
@@ -93,7 +114,9 @@ const Sprite = ({
     document.removeEventListener("mouseup", handleDocumentMouseUp);
   };
 
-  const handleMouseDown = (e) => {
+  const handleMouseDown = (
+    e: React.MouseEvent<HTMLImageElement, MouseEvent>
+  ) => {
     if (!spriteRect) return;
 
     if (spriteRef.current) {
@@ -115,6 +138,29 @@ const Sprite = ({
     document.addEventListener("mouseup", handleDocumentMouseUp);
   };
 
+  // Make sprite not visible if outside of map
+  //  THis needs a debounce effect
+  useEffect(() => {
+    if (!mapRect) return;
+
+    if (posY + mapPosY < 0 || posY + mapPosY > mapRect.height) {
+      setShow(false);
+    } else {
+      setShow(true);
+    }
+  }, [mapPosY]);
+
+  // Make sprite not visible if outside of map
+  useEffect(() => {
+    if (!mapRect) return;
+
+    if (posX + mapPosX < 0 || posX + mapPosX > mapRect.width) {
+      setShow(false);
+    } else {
+      setShow(true);
+    }
+  }, [mapPosX]);
+
   return (
     <>
       <img
@@ -124,8 +170,10 @@ const Sprite = ({
         id={name}
         src={`${imgSrc}`}
         alt="sprite"
-        className={`absolute h-9 w-9 select-none`}
-        style={{ top: `${posY}px`, left: `${posX}px` }}
+        className={`absolute h-9 w-9 select-none ${
+          show ? "visible" : "invisible"
+        }`}
+        style={{ top: `${posY + mapPosY}px`, left: `${posX + mapPosX}px` }}
       />
     </>
   );

@@ -16,10 +16,12 @@ type Maprect = {
   y: number;
   width: number;
   height: number;
+  fullWidth: number;
+  fullHeight: number;
 };
 
 const Board = () => {
-  const [sprites, setSprites] = useState<Array<Spriteinfo> | null>([]);
+  const [sprites, setSprites] = useState<Array<Spriteinfo>>([]);
   const [mapRect, setMapRect] = useState<Maprect | null>(null);
   const [map, setMap] = useState(`url(${defaultMap})`);
   const [mapPosX, setMapPosX] = useState(0);
@@ -29,18 +31,25 @@ const Board = () => {
 
   const mapRef = useRef<HTMLDivElement | null>(null);
 
-  // Load the boundingclient from ref
+  // Load the dimensions for background
   useEffect(() => {
     const refreshBoundingClient = () => {
-      if (mapRef.current) {
+      if (mapRef.current && map) {
+        const img = new Image();
+        img.src = defaultMap;
+
         const boundingClient = mapRef.current.getBoundingClientRect();
 
-        setMapRect({
-          x: boundingClient.x,
-          y: boundingClient.y,
-          width: boundingClient.width,
-          height: boundingClient.height,
-        });
+        img.onload = () => {
+          setMapRect({
+            x: boundingClient.x,
+            y: boundingClient.y,
+            width: boundingClient.width,
+            height: boundingClient.height,
+            fullWidth: img.width,
+            fullHeight: img.height,
+          });
+        };
       }
     };
     refreshBoundingClient();
@@ -61,13 +70,13 @@ const Board = () => {
           imgSrc: "/img/goblin.png",
           controller: "dm",
         },
-        // {
-        //   name: "goblin2",
-        //   posX: 50,
-        //   posY: 0,
-        //   imgSrc: "/img/goblin.png",
-        //   controller: "dm",
-        // },
+        {
+          name: "goblin2",
+          posX: 50,
+          posY: 0,
+          imgSrc: "/img/goblin.png",
+          controller: "dm",
+        },
       ]);
     }
   }, [mapRect]);
