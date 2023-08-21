@@ -6,18 +6,32 @@ generator client {
 }
 
 datasource db {
-    provider = "sqlite"
-    // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
-    // Further reading:
-    // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
-    // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
-    url      = env("DATABASE_URL")
+    provider     = "mysql"
+    url          = env("DATABASE_URL")
+    relationMode = "prisma"
 }
 
-model Example {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+model Game {
+    id            String      @id @default(cuid())
+    createdAt     DateTime    @default(now())
+    updatedAt     DateTime    @updatedAt
+    mapSrc        String
+    mapPosX       Int
+    mapPosY       Int
+    dungeonMaster User        @relation(fields: [userId], references: [id])
+    Character     Character[]
+    userId        String
+}
+
+model Character {
+    id         String @id
+    positionX  Int
+    positionY  Int
+    imgSrc     String
+    initiative Int?
+    controller User   @relation(fields: [id], references: [id], onDelete: Cascade)
+    game       Game   @relation(fields: [gameId], references: [id])
+    gameId     String
 }
 
 // Necessary for Next auth
@@ -48,13 +62,15 @@ model Session {
 }
 
 model User {
-    id            String    @id @default(cuid())
+    id            String      @id @default(cuid())
     name          String?
-    email         String?   @unique
+    email         String?     @unique
     emailVerified DateTime?
     image         String?
     accounts      Account[]
     sessions      Session[]
+    Character     Character[]
+    Game          Game[]
 }
 
 model VerificationToken {

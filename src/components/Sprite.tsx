@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 type Spriteinfo = {
   name: string;
@@ -107,6 +107,7 @@ const Sprite = ({
     // TO DO: Send new sprite pos to DB
   };
 
+  // TO DO: Add animation to this
   const handleDocumentMouseUp = () => {
     handleMouseUp();
 
