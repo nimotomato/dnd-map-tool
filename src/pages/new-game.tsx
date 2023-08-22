@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 const NewGame = () => {
   return (
     <>
@@ -10,6 +12,7 @@ const NewGame = () => {
           <li>Start game</li>
         </ul>
       </form>
+      <Link href="/">Go back</Link>
     </>
   );
 };

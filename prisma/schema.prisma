@@ -12,19 +12,20 @@ datasource db {
 }
 
 model Game {
-    id            String      @id @default(cuid())
-    createdAt     DateTime    @default(now())
-    updatedAt     DateTime    @updatedAt
+    id            String       @id @default(cuid())
+    createdAt     DateTime     @default(now())
+    updatedAt     DateTime     @updatedAt
     mapSrc        String
     mapPosX       Int
     mapPosY       Int
-    dungeonMaster User        @relation(fields: [userId], references: [id])
+    dungeonMaster User         @relation(fields: [id], references: [id])
     Character     Character[]
-    userId        String
+    UserInGame    UserInGame[]
 }
 
 model Character {
-    id         String @id
+    id         String @id @default(cuid())
+    name       String
     positionX  Int
     positionY  Int
     imgSrc     String
@@ -32,6 +33,14 @@ model Character {
     controller User   @relation(fields: [id], references: [id], onDelete: Cascade)
     game       Game   @relation(fields: [gameId], references: [id])
     gameId     String
+}
+
+model UserInGame {
+    id     String @id @default(cuid())
+    game   Game   @relation(fields: [gameId], references: [id])
+    gameId String
+    user   User   @relation(fields: [userId], references: [id])
+    userId String
 }
 
 // Necessary for Next auth
@@ -62,14 +71,15 @@ model Session {
 }
 
 model User {
-    id            String      @id @default(cuid())
+    id            String       @id @default(cuid())
     name          String?
-    email         String?     @unique
+    email         String?      @unique
     emailVerified DateTime?
     image         String?
     accounts      Account[]
     sessions      Session[]
     Character     Character[]
+    UserInGame    UserInGame[]
     Game          Game[]
 }
 
