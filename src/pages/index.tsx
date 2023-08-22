@@ -5,6 +5,9 @@ import { api } from "~/utils/api";
 import Board from "../components/Board";
 
 export default function Home() {
+  const session = useSession();
+  const user = session.data?.user;
+
   return (
     <>
       <Head>
@@ -13,6 +16,25 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="flex min-h-screen flex-col items-center justify-center bg-slate-600">
+        {user != null ? (
+          <>
+            <h1>{`Welcome ${user.name}`}</h1>
+            <ul>
+              <li>
+                <Link href="/new-game">Start new game</Link>
+              </li>
+              <li>
+                <Link href="/active">See active games</Link>
+              </li>
+            </ul>{" "}
+            <button onClick={() => void signOut()}>Log out</button>
+          </>
+        ) : (
+          <>
+            <button onClick={() => void signIn()}>Log in</button>
+          </>
+        )}
+
         <Board />
       </main>
     </>
