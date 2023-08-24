@@ -11,27 +11,26 @@ import { api } from "~/utils/api";
 import DungeonMap from "~/components/DungeonMap";
 import useGetMapRect from "../hooks/useGetMapRect";
 
-type Maprect = {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  fullWidth: number;
-  fullHeight: number;
+type MapProps = {
+  imgSrc: string;
+  posX: number;
+  posY: number;
+  zoom: number;
+  hasLoaded: boolean;
 };
 
 const NewGame = () => {
   // MAP STUFF
-  // TO DO: condense states into obj
-  const [map, setMap] = useState(
-    `https://i.pinimg.com/originals/9a/03/a8/9a03a864580616f502f17e78e5181b7f.jpg`
-  );
-  const [mapPosX, setMapPosX] = useState(0);
-  const [mapPosY, setMapPosY] = useState(0);
-  const [mapZoom, setMapZoom] = useState(6);
-  const [hasLoaded, setHasLoaded] = useState(false);
+  const [map, setMap] = useState<MapProps>({
+    imgSrc: `https://i.pinimg.com/originals/9a/03/a8/9a03a864580616f502f17e78e5181b7f.jpg`,
+    posX: 0,
+    posY: 0,
+    zoom: 6,
+    hasLoaded: false,
+  });
+
   const mapRef = useRef<HTMLDivElement | null>(null);
-  const mapRect = useGetMapRect(map, mapRef);
+  const mapRect = useGetMapRect(map.imgSrc, mapRef);
 
   // PLAYER STUFF
   const [players, setPlayers] = useState<string[]>([]);
@@ -99,13 +98,7 @@ const NewGame = () => {
               mapRef={mapRef}
               mapRect={mapRect}
               map={map}
-              mapPosX={mapPosX}
-              setMapPosX={setMapPosX}
-              setMapPosY={setMapPosY}
-              mapPosY={mapPosY}
-              mapZoom={mapZoom}
-              hasLoaded={hasLoaded}
-              setHasLoaded={setHasLoaded}
+              setMap={setMap}
             />
           </div>
           <button onClick={handleOnAddMap}>Add player</button>
