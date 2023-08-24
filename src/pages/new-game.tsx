@@ -20,12 +20,13 @@ type MapProps = {
   zoom: number;
   hasLoaded: boolean;
 };
+const defaultMap = "/img/dungeonmap.jpg";
 
 const NewGame = () => {
   const [step, setStep] = useState(0);
   // MAP STUFF
   const [map, setMap] = useState<MapProps>({
-    imgSrc: "defaultMap",
+    imgSrc: defaultMap,
     posX: 0,
     posY: 0,
     height: "h-96",

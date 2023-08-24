@@ -60,6 +60,15 @@ const DungeonMap = ({
 }: Props) => {
   // Stepsize in percentage
   const defaultStepSize = useRef(100);
+  const [imgError, setImgError] = useState(false);
+
+  useEffect(() => {
+    const tryLoad = new Image();
+    tryLoad.src = map.imgSrc;
+    tryLoad.onerror = () => {
+      setImgError(true);
+    };
+  });
 
   const handleOnMapNav = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -120,34 +129,39 @@ const DungeonMap = ({
       <div ref={mapRef} className={`${map.height} ${map.width} relative`}>
         {map.hasLoaded ? (
           <>
-            <div
-              className="h-full w-full"
-              style={{
-                backgroundImage: `url(${map.imgSrc})`,
-                backgroundPosition: `${map.posX}px ${map.posY}px`,
-                backgroundSize: `${map.zoom * 100}%`,
-              }}
-            >
-              {sprites?.map((sprite) => {
-                return (
-                  <Sprite
-                    posX={sprite.posX}
-                    height={sprite.height}
-                    width={sprite.width}
-                    mapPosX={map.posX}
-                    mapPosY={map.posY}
-                    posY={sprite.posY}
-                    key={sprite.name}
-                    mapRect={mapRect}
-                    controller={sprite.controller}
-                    imgSrc={sprite.imgSrc}
-                    setSprites={setSprites}
-                    name={sprite.name}
-                    sprites={sprites}
-                  />
-                );
-              })}
-            </div>
+            {!imgError ? (
+              <div
+                className="h-full w-full"
+                style={{
+                  backgroundImage: `url(${map.imgSrc})`,
+                  backgroundPosition: `${map.posX}px ${map.posY}px`,
+                  backgroundSize: `${map.zoom * 100}%`,
+                }}
+              >
+                {sprites?.map((sprite) => {
+                  return (
+                    <Sprite
+                      posX={sprite.posX}
+                      height={sprite.height}
+                      width={sprite.width}
+                      mapPosX={map.posX}
+                      mapPosY={map.posY}
+                      posY={sprite.posY}
+                      key={sprite.name}
+                      mapRect={mapRect}
+                      controller={sprite.controller}
+                      imgSrc={sprite.imgSrc}
+                      setSprites={setSprites}
+                      name={sprite.name}
+                      sprites={sprites}
+                    />
+                  );
+                })}
+              </div>
+            ) : (
+              <div>error loading image</div>
+            )}
+
             <div>
               <button onClick={handleOnMapNav} className="nav-btn" id="up">
                 <FaArrowUp />

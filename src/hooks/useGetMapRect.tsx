@@ -15,7 +15,6 @@ const useGetMapRect = (
   mapRef: MutableRefObject<HTMLDivElement | null>
 ) => {
   const [mapRect, setMapRect] = useState<Maprect | null>(null);
-  const [hasError, setHasError] = useState(false);
 
   // Load the dimensions for background
   useEffect(() => {
@@ -46,7 +45,7 @@ const useGetMapRect = (
     window.addEventListener("resize", refreshBoundingClient);
 
     return () => window.removeEventListener("resize", refreshBoundingClient);
-  }, [map, mapRef.current, hasError]);
+  }, [map, mapRef.current]);
 
   return mapRect;
 };
