@@ -16,6 +16,8 @@ type Spriteinfo = {
   name: string;
   posX: number;
   posY: number;
+  height: string;
+  width: string;
   imgSrc: string;
   controller: string;
 };
@@ -33,6 +35,8 @@ type MapProps = {
   imgSrc: string;
   posX: number;
   posY: number;
+  height: string;
+  width: string;
   zoom: number;
   hasLoaded: boolean;
 };
@@ -113,7 +117,7 @@ const DungeonMap = ({
 
   return (
     <>
-      <div ref={mapRef} className="relative h-96 w-96">
+      <div ref={mapRef} className={`${map.height} ${map.width} relative`}>
         {map.hasLoaded ? (
           <>
             <div
@@ -128,6 +132,8 @@ const DungeonMap = ({
                 return (
                   <Sprite
                     posX={sprite.posX}
+                    height={sprite.height}
+                    width={sprite.width}
                     mapPosX={map.posX}
                     mapPosY={map.posY}
                     posY={sprite.posY}

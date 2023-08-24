@@ -27,6 +27,8 @@ type Maprect = {
 type Props = {
   posX: number;
   posY: number;
+  height: string;
+  width: string;
   controller: string;
   name: string;
   setSprites: React.Dispatch<React.SetStateAction<Spriteinfo[]>>;
@@ -41,6 +43,8 @@ const Sprite = ({
   setSprites,
   posX,
   posY,
+  height,
+  width,
   name,
   controller,
   imgSrc,
@@ -171,7 +175,7 @@ const Sprite = ({
         id={name}
         src={`${imgSrc}`}
         alt="sprite"
-        className={`absolute h-9 w-9 select-none ${
+        className={`absolute ${height} ${width} select-none ${
           show ? "visible" : "invisible"
         }`}
         style={{ top: `${posY + mapPosY}px`, left: `${posX + mapPosX}px` }}

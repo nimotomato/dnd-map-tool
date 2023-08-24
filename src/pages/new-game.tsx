@@ -15,6 +15,8 @@ type MapProps = {
   imgSrc: string;
   posX: number;
   posY: number;
+  height: string;
+  width: string;
   zoom: number;
   hasLoaded: boolean;
 };
@@ -23,9 +25,11 @@ const NewGame = () => {
   const [step, setStep] = useState(0);
   // MAP STUFF
   const [map, setMap] = useState<MapProps>({
-    imgSrc: ``,
+    imgSrc: "defaultMap",
     posX: 0,
     posY: 0,
+    height: "h-96",
+    width: "w-96",
     zoom: 6,
     hasLoaded: false,
   });
@@ -35,6 +39,7 @@ const NewGame = () => {
 
   const handleOnAddMap = (e: ReactMouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    setMapInput("");
     setMap((prev) => ({ ...prev, imgSrc: mapInput }));
   };
 
@@ -108,17 +113,13 @@ const NewGame = () => {
               ></input>
               <button onClick={handleOnAddMap}>Fetch</button>
               <div className="m-6">
-                {mapRect?.hasError ? (
-                  <p>Error!</p>
-                ) : (
-                  <DungeonMap
-                    key={JSON.stringify(mapRect)}
-                    mapRef={mapRef}
-                    mapRect={mapRect}
-                    map={map}
-                    setMap={setMap}
-                  />
-                )}
+                <DungeonMap
+                  key={JSON.stringify(mapRect)}
+                  mapRef={mapRef}
+                  mapRect={mapRect}
+                  map={map}
+                  setMap={setMap}
+                />
               </div>
               <br></br>
               <label>Invite players</label>

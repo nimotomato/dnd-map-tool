@@ -8,6 +8,8 @@ type Spriteinfo = {
   name: string;
   posX: number;
   posY: number;
+  height: string;
+  width: string;
   imgSrc: string;
   controller: string;
 };
@@ -16,6 +18,8 @@ type MapProps = {
   imgSrc: string;
   posX: number;
   posY: number;
+  height: string;
+  width: string;
   zoom: number;
   hasLoaded: boolean;
 };
@@ -28,6 +32,8 @@ const Board = () => {
     imgSrc: defaultMap,
     posX: 0,
     posY: 0,
+    height: "h-96",
+    width: "w-96",
     zoom: 6,
     hasLoaded: false,
   });
@@ -43,6 +49,8 @@ const Board = () => {
           name: "goblin1",
           posX: 0,
           posY: 0,
+          height: "h-9",
+          width: "w-9",
           imgSrc: "/img/goblin.png",
           controller: "dm",
         },
@@ -50,6 +58,8 @@ const Board = () => {
           name: "goblin2",
           posX: 50,
           posY: 0,
+          height: "h-9",
+          width: "w-9",
           imgSrc: "/img/goblin.png",
           controller: "dm",
         },
