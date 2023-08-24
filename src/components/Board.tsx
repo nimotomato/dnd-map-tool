@@ -4,25 +4,7 @@ import DungeonMap from "./DungeonMap";
 import useGetMapRect from "../hooks/useGetMapRect";
 const defaultMap = "/img/dungeonmap.jpg";
 
-type Spriteinfo = {
-  name: string;
-  posX: number;
-  posY: number;
-  height: string;
-  width: string;
-  imgSrc: string;
-  controller: string;
-};
-
-type MapProps = {
-  imgSrc: string;
-  posX: number;
-  posY: number;
-  height: string;
-  width: string;
-  zoom: number;
-  hasLoaded: boolean;
-};
+import { Spriteinfo, MapProps } from "~/types";
 
 const Board = () => {
   const [sprites, setSprites] = useState<Array<Spriteinfo>>([]);

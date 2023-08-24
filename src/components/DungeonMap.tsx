@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import type { MouseEvent, MutableRefObject, SetStateAction } from "react";
 
 import Sprite from "./Sprite";
+import { Spriteinfo, MapProps, Maprect } from "~/types";
 
 import {
   FaArrowRight,
@@ -11,35 +12,6 @@ import {
 } from "react-icons/fa6";
 
 import { GoZoomIn, GoZoomOut } from "react-icons/go";
-
-type Spriteinfo = {
-  name: string;
-  posX: number;
-  posY: number;
-  height: string;
-  width: string;
-  imgSrc: string;
-  controller: string;
-};
-
-type Maprect = {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  fullWidth: number;
-  fullHeight: number;
-};
-
-type MapProps = {
-  imgSrc: string;
-  posX: number;
-  posY: number;
-  height: string;
-  width: string;
-  zoom: number;
-  hasLoaded: boolean;
-};
 
 type Props = {
   mapRef: MutableRefObject<HTMLDivElement | null>;
@@ -62,6 +34,7 @@ const DungeonMap = ({
   const defaultStepSize = useRef(100);
   const [imgError, setImgError] = useState(false);
 
+  // USE UseTryLoadImg
   useEffect(() => {
     const tryLoad = new Image();
     tryLoad.src = map.imgSrc;

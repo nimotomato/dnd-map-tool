@@ -1,27 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 
-type Spriteinfo = {
-  name: string;
-  posX: number;
-  posY: number;
-  imgSrc: string;
-  controller: string;
-};
+import { Spriteinfo, Maprect } from "~/types";
 
 type Rect = {
   x: number;
   y: number;
   width: number;
   height: number;
-};
-
-type Maprect = {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  fullWidth: number;
-  fullHeight: number;
 };
 
 type Props = {

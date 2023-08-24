@@ -1,30 +1,20 @@
 import Link from "next/link";
 import Head from "next/head";
-import React, {
-  MouseEvent as ReactMouseEvent,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { MouseEvent as ReactMouseEvent, useRef, useState } from "react";
 import { api } from "~/utils/api";
 
 import DungeonMap from "~/components/DungeonMap";
+import Sprite from "../components/Sprite";
 import useGetMapRect from "../hooks/useGetMapRect";
+import useTryLoadImg from "~/hooks/useTryLoadImg";
 
-type MapProps = {
-  imgSrc: string;
-  posX: number;
-  posY: number;
-  height: string;
-  width: string;
-  zoom: number;
-  hasLoaded: boolean;
-};
+import { Spriteinfo, MapProps } from "~/types";
+
 const defaultMap = "/img/dungeonmap.jpg";
 
 const NewGame = () => {
-  const [step, setStep] = useState(0);
   // MAP STUFF
+  // SIZING MUST BE MULTIPLIER OF DEFAULT
   const [map, setMap] = useState<MapProps>({
     imgSrc: defaultMap,
     posX: 0,
@@ -94,6 +84,47 @@ const NewGame = () => {
     });
   };
 
+  // STEP STUFF
+  const [step, setStep] = useState(1);
+
+  const handleNextStep = (e: ReactMouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    setStep(2);
+    setMap((prev) => ({ ...prev, width: "w-[55rem]", height: "h-[55rem]" }));
+  };
+
+  // SPRITE STUFF
+  const [sprites, setSprites] = useState<Array<Spriteinfo>>([]);
+  const [NPCNameInput, setNPCNameInput] = useState("");
+  const [NPCSrcInput, setNPCSrcInput] = useState("");
+
+  // has error might not work
+  const hasError = useTryLoadImg(NPCSrcInput);
+
+  const handleOnChangeNPCSrc = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNPCSrcInput(e.target.value);
+  };
+
+  const handleOnChangeNPCName = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNPCNameInput(e.target.value);
+  };
+
+  const handleOnLoadNPC = (e: ReactMouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+
+    // SIZING NEEDS TO BE CALCULATED
+    const newSprite: Spriteinfo = {
+      name: `${NPCNameInput}`,
+      posX: 0,
+      posY: 0,
+      height: "h-9",
+      width: "w-9",
+      imgSrc: `${NPCSrcInput}`,
+      controller: "dm",
+    };
+    setSprites((prev) => [...prev, newSprite]);
+  };
+
   return (
     <>
       <Head>
@@ -102,7 +133,7 @@ const NewGame = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="flex min-h-screen flex-col items-center justify-center bg-slate-600">
-        {step === 0 && (
+        {step === 1 && (
           <>
             <h1>Create new game!</h1>
             <form>
@@ -150,8 +181,30 @@ const NewGame = () => {
             </form>
             <div className="flex space-x-1">
               <Link href="/">Go back</Link>
-              <button>Next step</button>
+              <button onClick={handleNextStep}>Next step</button>
             </div>
+          </>
+        )}
+        {step === 2 && (
+          <>
+            <div>NPC planner</div>
+            <div className="m-6">
+              <DungeonMap
+                key={JSON.stringify(mapRect)}
+                sprites={sprites}
+                setSprites={setSprites}
+                mapRef={mapRef}
+                mapRect={mapRect}
+                map={map}
+                setMap={setMap}
+              />
+            </div>
+            <form>
+              <input onChange={handleOnChangeNPCName} placeholder="NPC name" />
+
+              <input onChange={handleOnChangeNPCSrc} placeholder="img url" />
+              <button onClick={handleOnLoadNPC}>Load NPC</button>
+            </form>
           </>
         )}
       </main>
