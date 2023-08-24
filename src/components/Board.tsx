@@ -12,27 +12,28 @@ type Spriteinfo = {
   controller: string;
 };
 
-type Maprect = {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  fullWidth: number;
-  fullHeight: number;
+type MapProps = {
+  imgSrc: string;
+  posX: number;
+  posY: number;
+  zoom: number;
+  hasLoaded: boolean;
 };
 
 const Board = () => {
   const [sprites, setSprites] = useState<Array<Spriteinfo>>([]);
   // TO DO: Condense states into obj
 
-  const [map, setMap] = useState(defaultMap);
-  const [mapPosX, setMapPosX] = useState(0);
-  const [mapPosY, setMapPosY] = useState(0);
-  const [mapZoom, setMapZoom] = useState(6);
-  const [hasLoaded, setHasLoaded] = useState(false);
+  const [map, setMap] = useState<MapProps>({
+    imgSrc: defaultMap,
+    posX: 0,
+    posY: 0,
+    zoom: 6,
+    hasLoaded: false,
+  });
 
   const mapRef = useRef<HTMLDivElement | null>(null);
-  const mapRect = useGetMapRect(map, mapRef);
+  const mapRect = useGetMapRect(map.imgSrc, mapRef);
 
   // Create sprites
   useEffect(() => {
@@ -65,13 +66,7 @@ const Board = () => {
         sprites={sprites}
         mapRect={mapRect}
         map={map}
-        mapPosX={mapPosX}
-        setMapPosX={setMapPosX}
-        setMapPosY={setMapPosY}
-        mapPosY={mapPosY}
-        mapZoom={mapZoom}
-        hasLoaded={hasLoaded}
-        setHasLoaded={setHasLoaded}
+        setMap={setMap}
       />
     </>
   );
