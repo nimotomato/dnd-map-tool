@@ -19,6 +19,7 @@ const NewGame = () => {
     if (
       !getUser.data ||
       getUser.data.length === 0 ||
+      // Verify username exists in database
       players.includes(getUser.data[0]?.name as string)
     ) {
       setBorder({ color: "rose-500", size: 2 });
