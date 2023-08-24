@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 
 import DungeonMap from "./DungeonMap";
+import useGetMapRect from "../hooks/useGetMapRect";
 const defaultMap = "/img/dungeonmap.jpg";
 
 type Spriteinfo = {
@@ -22,42 +23,16 @@ type Maprect = {
 
 const Board = () => {
   const [sprites, setSprites] = useState<Array<Spriteinfo>>([]);
-  const [mapRect, setMapRect] = useState<Maprect | null>(null);
-  const [map, setMap] = useState(`url(${defaultMap})`);
+  // TO DO: Condense states into obj
+
+  const [map, setMap] = useState(defaultMap);
   const [mapPosX, setMapPosX] = useState(0);
   const [mapPosY, setMapPosY] = useState(0);
   const [mapZoom, setMapZoom] = useState(6);
   const [hasLoaded, setHasLoaded] = useState(false);
 
   const mapRef = useRef<HTMLDivElement | null>(null);
-
-  // Load the dimensions for background
-  useEffect(() => {
-    const refreshBoundingClient = () => {
-      if (mapRef.current && map) {
-        const img = new Image();
-        img.src = defaultMap;
-
-        const boundingClient = mapRef.current.getBoundingClientRect();
-
-        img.onload = () => {
-          setMapRect({
-            x: boundingClient.x,
-            y: boundingClient.y,
-            width: boundingClient.width,
-            height: boundingClient.height,
-            fullWidth: img.width,
-            fullHeight: img.height,
-          });
-        };
-      }
-    };
-    refreshBoundingClient();
-
-    window.addEventListener("resize", refreshBoundingClient);
-
-    return () => window.removeEventListener("resize", refreshBoundingClient);
-  }, []);
+  const mapRect = useGetMapRect(map, mapRef);
 
   // Create sprites
   useEffect(() => {
