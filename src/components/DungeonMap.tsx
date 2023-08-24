@@ -29,8 +29,8 @@ type Maprect = {
 
 type Props = {
   mapRef: MutableRefObject<HTMLDivElement | null>;
-  setSprites: React.Dispatch<React.SetStateAction<Spriteinfo[]>>;
-  sprites: Spriteinfo[];
+  setSprites?: React.Dispatch<React.SetStateAction<Spriteinfo[]>>;
+  sprites?: Spriteinfo[];
   mapRect: Maprect | null;
   map: string;
   mapPosX: number;
@@ -98,7 +98,7 @@ const DungeonMap = ({
             <div
               className="h-full w-full"
               style={{
-                backgroundImage: `${map}`,
+                backgroundImage: `url(${map})`,
                 backgroundPosition: `${mapPosX}px ${mapPosY}px`,
                 backgroundSize: `${mapZoom * 100}%`,
               }}

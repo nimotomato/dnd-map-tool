@@ -3,15 +3,46 @@ import Head from "next/head";
 import React, {
   MouseEvent as ReactMouseEvent,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import { api } from "~/utils/api";
 
+import DungeonMap from "~/components/DungeonMap";
+import useGetMapRect from "../hooks/useGetMapRect";
+
+type Maprect = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  fullWidth: number;
+  fullHeight: number;
+};
+
 const NewGame = () => {
+  // MAP STUFF
+  // TO DO: condense states into obj
+  const [map, setMap] = useState(
+    `https://i.pinimg.com/originals/9a/03/a8/9a03a864580616f502f17e78e5181b7f.jpg`
+  );
+  const [mapPosX, setMapPosX] = useState(0);
+  const [mapPosY, setMapPosY] = useState(0);
+  const [mapZoom, setMapZoom] = useState(6);
+  const [hasLoaded, setHasLoaded] = useState(false);
+  const mapRef = useRef<HTMLDivElement | null>(null);
+  const mapRect = useGetMapRect(map, mapRef);
+
+  // PLAYER STUFF
   const [players, setPlayers] = useState<string[]>([]);
   const [input, setInput] = useState("");
-  const [border, setBorder] = useState({ color: "black", size: 1 });
+  const [border, setBorder] = useState({
+    color: "border-black",
+    size: "border",
+  });
   const [errorText, setErrorText] = useState("");
+
+  // Magic API
   const getUser = api.user.getAll.useQuery({ userName: input });
 
   const handleOnAddPlayer = (e: ReactMouseEvent<HTMLButtonElement>) => {
@@ -22,13 +53,13 @@ const NewGame = () => {
       // Verify username exists in database
       players.includes(getUser.data[0]?.name as string)
     ) {
-      setBorder({ color: "rose-500", size: 2 });
+      setBorder({ color: "border-rose-500", size: "border-2" });
       setErrorText("Username not found, try again.");
       return;
     }
 
     setPlayers((prev) => [...prev, input]);
-    setBorder({ color: "black", size: 1 });
+    setBorder({ color: "border-black", size: "border-2" });
     setErrorText("");
     setInput("");
   };
@@ -39,6 +70,16 @@ const NewGame = () => {
 
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value);
+  };
+
+  const handleOnRemove = (
+    e: ReactMouseEvent<HTMLButtonElement>,
+    player: string
+  ) => {
+    e.preventDefault();
+    setPlayers((prev) => {
+      return prev.filter((name) => name !== player);
+    });
   };
 
   return (
@@ -52,7 +93,21 @@ const NewGame = () => {
         <h1>Starting?</h1>
         <form>
           <label>Select map</label>
-          <div>MAP PREVIEW</div>
+          <div className="m-6">
+            <DungeonMap
+              key={JSON.stringify(mapRect)}
+              mapRef={mapRef}
+              mapRect={mapRect}
+              map={map}
+              mapPosX={mapPosX}
+              setMapPosX={setMapPosX}
+              setMapPosY={setMapPosY}
+              mapPosY={mapPosY}
+              mapZoom={mapZoom}
+              hasLoaded={hasLoaded}
+              setHasLoaded={setHasLoaded}
+            />
+          </div>
           <button onClick={handleOnAddMap}>Add player</button>
           <input
             type="text"
@@ -65,12 +120,21 @@ const NewGame = () => {
           <div>
             {players.length > 0 &&
               players.map((player) => {
-                return <p key={players.indexOf(player)}>Player 1: {player}</p>;
+                return (
+                  <div key={players.indexOf(player)}>
+                    <p>
+                      Player {`${players.indexOf(player) + 1}`} {player}
+                    </p>
+                    <button onClick={(e) => handleOnRemove(e, player)}>
+                      Remove player
+                    </button>
+                  </div>
+                );
               })}
             <input
               type="text"
-              className={`border-${border.size} border-${border.color}`}
-              value={input || ""}
+              className={`${border.size} ${border.color}`}
+              value={input}
               onChange={handleOnChange}
             ></input>
             {errorText && <p>{errorText}</p>}
