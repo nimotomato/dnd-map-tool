@@ -10,6 +10,8 @@ import {
   FaArrowDown,
 } from "react-icons/fa6";
 
+import { GoZoomIn, GoZoomOut } from "react-icons/go";
+
 type Spriteinfo = {
   name: string;
   posX: number;
@@ -87,6 +89,20 @@ const DungeonMap = ({
     }
   };
 
+  const handleOnMapZoom = (e: MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+
+    if (e.currentTarget.id === "in" && map.zoom < 10) {
+      setMap((prev) => {
+        return { ...prev, zoom: prev.zoom + 1 };
+      });
+    } else if (e.currentTarget.id === "out" && map.zoom > 1) {
+      setMap((prev) => {
+        return { ...prev, zoom: prev.zoom - 1 };
+      });
+    }
+  };
+
   useEffect(() => {
     if (!mapRef.current) return;
 
@@ -138,6 +154,12 @@ const DungeonMap = ({
               </button>
               <button onClick={handleOnMapNav} className="nav-btn" id="right">
                 <FaArrowRight />
+              </button>
+              <button onClick={handleOnMapZoom} className="nav-btn" id="in">
+                <GoZoomIn />
+              </button>
+              <button onClick={handleOnMapZoom} className="nav-btn" id="out">
+                <GoZoomOut />
               </button>
             </div>
           </>

@@ -6,6 +6,7 @@ type Maprect = {
   height: number;
   fullWidth: number;
   fullHeight: number;
+  hasError: boolean;
 };
 
 // Takes url as image and reference to the div containing the image
@@ -15,6 +16,7 @@ const useGetMapRect = (
   mapRef: MutableRefObject<HTMLDivElement | null>
 ) => {
   const [mapRect, setMapRect] = useState<Maprect | null>(null);
+  const [hasError, setHasError] = useState(false);
 
   // Load the dimensions for background
   useEffect(() => {
@@ -37,7 +39,12 @@ const useGetMapRect = (
           height: boundingClient.height,
           fullWidth: img.width,
           fullHeight: img.height,
+          hasError: hasError,
         });
+      };
+
+      img.onerror = () => {
+        setHasError(true);
       };
     };
     refreshBoundingClient();
@@ -45,7 +52,7 @@ const useGetMapRect = (
     window.addEventListener("resize", refreshBoundingClient);
 
     return () => window.removeEventListener("resize", refreshBoundingClient);
-  }, []);
+  }, [map, mapRef.current, hasError]);
 
   return mapRect;
 };
