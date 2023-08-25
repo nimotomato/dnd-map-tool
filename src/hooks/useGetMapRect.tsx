@@ -34,6 +34,8 @@ const useGetMapRect = (
     };
     refreshBoundingClient();
 
+    console.log("Getting mapRect");
+
     window.addEventListener("resize", refreshBoundingClient);
 
     return () => window.removeEventListener("resize", refreshBoundingClient);

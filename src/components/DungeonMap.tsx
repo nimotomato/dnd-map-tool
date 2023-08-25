@@ -13,7 +13,6 @@ import {
 } from "react-icons/fa6";
 
 import { GoZoomIn, GoZoomOut } from "react-icons/go";
-import useGetMapRect from "~/hooks/useGetMapRect";
 
 type Props = {
   mapRef: MutableRefObject<HTMLDivElement | null>;
@@ -88,8 +87,6 @@ const DungeonMap = ({
 
         setSprites((prevSprites) => {
           return prevSprites.map((sprite) => {
-            console.log("sprite posY", sprite.posY * relativeHeight);
-            console.log("spriteposX", sprite.posX * relativeWidth);
             return {
               ...sprite,
               height: sprite.height * relativeHeight,
@@ -156,24 +153,25 @@ const DungeonMap = ({
                   backgroundSize: `${map.zoom * 100}%`,
                 }}
               >
-                {sprites?.map((sprite) => {
-                  return (
-                    <Sprite
-                      posX={sprite.posX}
-                      height={sprite.height}
-                      width={sprite.width}
-                      map={map}
-                      posY={sprite.posY}
-                      key={sprite.name}
-                      mapRect={mapRect}
-                      controller={sprite.controller}
-                      imgSrc={sprite.imgSrc}
-                      setSprites={setSprites}
-                      name={sprite.name}
-                      sprites={sprites}
-                    />
-                  );
-                })}
+                {setSprites &&
+                  sprites?.map((sprite) => {
+                    return (
+                      <Sprite
+                        posX={sprite.posX}
+                        height={sprite.height}
+                        width={sprite.width}
+                        map={map}
+                        posY={sprite.posY}
+                        key={sprite.name}
+                        mapRect={mapRect}
+                        controller={sprite.controller}
+                        imgSrc={sprite.imgSrc}
+                        setSprites={setSprites}
+                        name={sprite.name}
+                        sprites={sprites}
+                      />
+                    );
+                  })}
               </div>
             ) : (
               <div>error loading image</div>

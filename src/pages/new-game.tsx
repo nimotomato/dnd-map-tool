@@ -9,7 +9,6 @@ import React, {
 import { api } from "~/utils/api";
 
 import DungeonMap from "~/components/DungeonMap";
-import Board from "~/components/Board";
 import useGetMapRect from "../hooks/useGetMapRect";
 import useTryLoadImg from "~/hooks/useTryLoadImg";
 
@@ -88,75 +87,6 @@ const NewGame = () => {
     });
   };
 
-  // STEP STUFF
-  const [step, setStep] = useState(1);
-
-  const handleNextStep = (e: ReactMouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    setStep(2);
-  };
-
-  // SPRITE STUFF
-  const [sprites, setSprites] = useState<Array<Spriteinfo>>([]);
-  const [NPCNameInput, setNPCNameInput] = useState("");
-  const [NPCSrcInput, setNPCSrcInput] = useState("");
-
-  // has error might not work
-  const hasError = useTryLoadImg(NPCSrcInput);
-
-  const handleOnChangeNPCSrc = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNPCSrcInput(e.target.value);
-  };
-
-  const handleOnChangeNPCName = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNPCNameInput(e.target.value);
-  };
-  // Create sprites
-  useEffect(() => {
-    if (mapRect && !sprites?.length) {
-      setSprites([
-        {
-          name: "goblin1",
-          posX: 0,
-          posY: 0,
-          height: 0,
-          width: 0,
-          imgSrc: "/img/goblin.png",
-          controller: "dm",
-        },
-      ]);
-    }
-  }, [mapRect]);
-
-  const handleOnLoadNPC = (e: ReactMouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-
-    const newSprite: Spriteinfo = {
-      name: `${NPCNameInput}`,
-      posX: 0,
-      posY: 0,
-      height: 0,
-      width: 0,
-      imgSrc: `${NPCSrcInput}`,
-      controller: "dm",
-    };
-
-    // Make sure name is unique
-    if (sprites.some((sprite) => sprite.name === NPCNameInput)) {
-      alert("Name already exists.");
-      return;
-    }
-
-    if (NPCNameInput === "" || NPCSrcInput === "") {
-      alert("invalid entry");
-      return;
-    }
-
-    setSprites((prev) => [...prev, newSprite]);
-    setNPCNameInput("");
-    setNPCSrcInput("");
-  };
-
   return (
     <>
       <Head>
@@ -165,87 +95,56 @@ const NewGame = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="flex min-h-screen flex-col items-center justify-center bg-slate-600">
-        {step === 1 && (
-          <>
-            <h1>Create new game!</h1>
-            <form>
-              <label>Select map</label>
-              <input
-                placeholder="img url here"
-                onChange={handleOnMapChange}
-                value={mapInput}
-              ></input>
-              <button onClick={handleOnAddMap}>Fetch</button>
-              <div className="m-6">
-                <DungeonMap
-                  key={JSON.stringify(mapRect)}
-                  mapRef={mapRef}
-                  mapRect={mapRect}
-                  map={map}
-                  setMap={setMap}
-                />
-              </div>
-              <br></br>
-              <label>Invite players</label>
-              <div>
-                {players.length > 0 &&
-                  players.map((player) => {
-                    return (
-                      <div key={players.indexOf(player)}>
-                        <p>
-                          Player {`${players.indexOf(player) + 1}`} {player}
-                        </p>
-                        <button onClick={(e) => handleOnRemove(e, player)}>
-                          Remove player
-                        </button>
-                      </div>
-                    );
-                  })}
-                <input
-                  type="text"
-                  className={`${border.size} ${border.color}`}
-                  value={playerInput}
-                  onChange={handleOnPlayerChange}
-                ></input>
-                {errorText && <p>{errorText}</p>}
-                <button onClick={handleOnAddPlayer}>Add player</button>
-              </div>
-            </form>
-            <div className="flex space-x-1">
-              <Link href="/">Go back</Link>
-              <button onClick={handleNextStep}>Next step</button>
-            </div>
-          </>
-        )}
-        {step === 2 && (
-          <>
-            <div>NPC planner</div>
+        <>
+          <h1>Create new game!</h1>
+          <form>
+            <label>Select map</label>
+            <input
+              placeholder="img url here"
+              onChange={handleOnMapChange}
+              value={mapInput}
+            ></input>
+            <button onClick={handleOnAddMap}>Fetch</button>
             <div className="m-6">
               <DungeonMap
                 key={JSON.stringify(mapRect)}
-                sprites={sprites}
-                setSprites={setSprites}
                 mapRef={mapRef}
                 mapRect={mapRect}
                 map={map}
                 setMap={setMap}
               />
             </div>
-            <form>
+            <br></br>
+            <label>Invite players</label>
+            <div>
+              {players.length > 0 &&
+                players.map((player) => {
+                  return (
+                    <div key={players.indexOf(player)}>
+                      <p>
+                        Player {`${players.indexOf(player) + 1}`} {player}
+                      </p>
+                      <button onClick={(e) => handleOnRemove(e, player)}>
+                        Remove player
+                      </button>
+                    </div>
+                  );
+                })}
               <input
-                onChange={handleOnChangeNPCName}
-                value={NPCNameInput}
-                placeholder="NPC name"
-              />
-              <input
-                onChange={handleOnChangeNPCSrc}
-                value={NPCSrcInput}
-                placeholder="img url"
-              />
-              <button onClick={handleOnLoadNPC}>Load NPC</button>
-            </form>
-          </>
-        )}
+                type="text"
+                className={`${border.size} ${border.color}`}
+                value={playerInput}
+                onChange={handleOnPlayerChange}
+              ></input>
+              {errorText && <p>{errorText}</p>}
+              <button onClick={handleOnAddPlayer}>Add player</button>
+            </div>
+          </form>
+          <div className="flex space-x-1">
+            <Link href="/">Go back</Link>
+            <Link href="/new-game-place-npc">Next step</Link>
+          </div>
+        </>
       </main>
     </>
   );
