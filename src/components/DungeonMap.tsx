@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import type { MouseEvent, MutableRefObject, SetStateAction } from "react";
 
 import Sprite from "./Sprite";
+import useTryLoadImg from "~/hooks/useTryLoadImg";
 import { Spriteinfo, MapProps, Maprect } from "~/types";
 
 import {
@@ -32,16 +33,7 @@ const DungeonMap = ({
 }: Props) => {
   // Stepsize in percentage
   const defaultStepSize = useRef(100);
-  const [imgError, setImgError] = useState(false);
-
-  // USE UseTryLoadImg
-  useEffect(() => {
-    const tryLoad = new Image();
-    tryLoad.src = map.imgSrc;
-    tryLoad.onerror = () => {
-      setImgError(true);
-    };
-  });
+  const imgError = useTryLoadImg(map.imgSrc);
 
   const handleOnMapNav = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -75,6 +67,17 @@ const DungeonMap = ({
     }
   };
 
+  const calculateSpriteZoom = (mapZoom: number): number => {
+    const defaultZoom = 6;
+    if (mapZoom > defaultZoom) {
+      return defaultZoom - mapZoom;
+    } else {
+      return mapZoom / defaultZoom;
+    }
+
+    return 1;
+  };
+
   const handleOnMapZoom = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
@@ -82,12 +85,40 @@ const DungeonMap = ({
       setMap((prev) => {
         return { ...prev, zoom: prev.zoom + 1 };
       });
+      if (!setSprites) return;
+      setSprites((prev) => {
+        return prev.map((sprite) => ({
+          ...sprite,
+          height: sprite.height * calculateSpriteZoom(map.zoom),
+          width: sprite.width * calculateSpriteZoom(map.zoom),
+        }));
+      });
     } else if (e.currentTarget.id === "out" && map.zoom > 1) {
       setMap((prev) => {
         return { ...prev, zoom: prev.zoom - 1 };
       });
+      if (!setSprites) return;
+      setSprites((prev) => {
+        return prev.map((sprite) => ({
+          ...sprite,
+          height: sprite.height * calculateSpriteZoom(map.zoom),
+          width: sprite.width * calculateSpriteZoom(map.zoom),
+        }));
+      });
     }
   };
+
+  // useEffect(() => {
+  //   if (!setSprites) return;
+
+  //   setSprites((prev) => {
+  //     return prev.map((sprite) => ({
+  //       ...sprite,
+  //       height: sprite.height * calculateSpriteZoom(map.zoom),
+  //       width: sprite.width * calculateSpriteZoom(map.zoom),
+  //     }));
+  //   });
+  // }, [map.zoom]);
 
   useEffect(() => {
     if (!mapRef.current) return;
@@ -96,10 +127,18 @@ const DungeonMap = ({
       return { ...prev, hasLoaded: true };
     });
   }, []);
+  console.log(map.height, map.width);
 
   return (
     <>
-      <div ref={mapRef} className={`${map.height} ${map.width} relative`}>
+      <div
+        ref={mapRef}
+        className={`relative`}
+        style={{
+          height: `${map.height}rem`,
+          width: `${map.width}rem`,
+        }}
+      >
         {map.hasLoaded ? (
           <>
             {!imgError ? (

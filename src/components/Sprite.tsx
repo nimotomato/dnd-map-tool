@@ -12,8 +12,8 @@ type Rect = {
 type Props = {
   posX: number;
   posY: number;
-  height: string;
-  width: string;
+  height: number;
+  width: number;
   controller: string;
   name: string;
   setSprites: React.Dispatch<React.SetStateAction<Spriteinfo[]>>;
@@ -160,10 +160,13 @@ const Sprite = ({
         id={name}
         src={`${imgSrc}`}
         alt="sprite"
-        className={`absolute ${height} ${width} select-none ${
-          show ? "visible" : "invisible"
-        }`}
-        style={{ top: `${posY + mapPosY}px`, left: `${posX + mapPosX}px` }}
+        className={`absolute select-none ${show ? "visible" : "invisible"}`}
+        style={{
+          height: `${height}rem`,
+          width: `${width}rem`,
+          top: `${posY + mapPosY}px`,
+          left: `${posX + mapPosX}px`,
+        }}
       />
     </>
   );

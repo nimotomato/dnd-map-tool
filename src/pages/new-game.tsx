@@ -13,14 +13,19 @@ import { Spriteinfo, MapProps } from "~/types";
 const defaultMap = "/img/dungeonmap.jpg";
 
 const NewGame = () => {
+  // ZOOM STUFF
+  const sizeMultiplierRef = useRef(1.5);
+  const sizeMultiplication = (value: number) => {
+    return value * sizeMultiplierRef.current;
+  };
+
   // MAP STUFF
-  // SIZING MUST BE MULTIPLIER OF DEFAULT
   const [map, setMap] = useState<MapProps>({
     imgSrc: defaultMap,
     posX: 0,
     posY: 0,
-    height: "h-96",
-    width: "w-96",
+    height: 25,
+    width: 25,
     zoom: 6,
     hasLoaded: false,
   });
@@ -90,13 +95,18 @@ const NewGame = () => {
   const handleNextStep = (e: ReactMouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setStep(2);
-    setMap((prev) => ({ ...prev, width: "w-[55rem]", height: "h-[55rem]" }));
+    setMap((prev) => ({
+      ...prev,
+      width: sizeMultiplication(prev.width),
+      height: sizeMultiplication(prev.height),
+    }));
   };
 
   // SPRITE STUFF
   const [sprites, setSprites] = useState<Array<Spriteinfo>>([]);
   const [NPCNameInput, setNPCNameInput] = useState("");
   const [NPCSrcInput, setNPCSrcInput] = useState("");
+  const defaultSpriteSizeRef = useRef(2.5);
 
   // has error might not work
   const hasError = useTryLoadImg(NPCSrcInput);
@@ -112,16 +122,16 @@ const NewGame = () => {
   const handleOnLoadNPC = (e: ReactMouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
-    // SIZING NEEDS TO BE CALCULATED
     const newSprite: Spriteinfo = {
       name: `${NPCNameInput}`,
       posX: 0,
       posY: 0,
-      height: "h-9",
-      width: "w-9",
+      height: sizeMultiplication(defaultSpriteSizeRef.current),
+      width: sizeMultiplication(defaultSpriteSizeRef.current),
       imgSrc: `${NPCSrcInput}`,
       controller: "dm",
     };
+
     setSprites((prev) => [...prev, newSprite]);
   };
 

@@ -2,8 +2,8 @@ export type Spriteinfo = {
   name: string;
   posX: number;
   posY: number;
-  height: string;
-  width: string;
+  height: number;
+  width: number;
   imgSrc: string;
   controller: string;
 };
@@ -12,8 +12,8 @@ export type MapProps = {
   imgSrc: string;
   posX: number;
   posY: number;
-  height: string;
-  width: string;
+  height: number;
+  width: number;
   zoom: number;
   hasLoaded: boolean;
 };
