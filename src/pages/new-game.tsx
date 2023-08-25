@@ -1,10 +1,15 @@
 import Link from "next/link";
 import Head from "next/head";
-import React, { MouseEvent as ReactMouseEvent, useRef, useState } from "react";
+import React, {
+  MouseEvent as ReactMouseEvent,
+  useRef,
+  useState,
+  useEffect,
+} from "react";
 import { api } from "~/utils/api";
 
 import DungeonMap from "~/components/DungeonMap";
-import Sprite from "../components/Sprite";
+import Board from "~/components/Board";
 import useGetMapRect from "../hooks/useGetMapRect";
 import useTryLoadImg from "~/hooks/useTryLoadImg";
 
@@ -106,6 +111,22 @@ const NewGame = () => {
   const handleOnChangeNPCName = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNPCNameInput(e.target.value);
   };
+  // Create sprites
+  useEffect(() => {
+    if (mapRect && !sprites?.length) {
+      setSprites([
+        {
+          name: "goblin1",
+          posX: 0,
+          posY: 0,
+          height: 0,
+          width: 0,
+          imgSrc: "/img/goblin.png",
+          controller: "dm",
+        },
+      ]);
+    }
+  }, [mapRect]);
 
   const handleOnLoadNPC = (e: ReactMouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -120,7 +141,20 @@ const NewGame = () => {
       controller: "dm",
     };
 
+    // Make sure name is unique
+    if (sprites.some((sprite) => sprite.name === NPCNameInput)) {
+      alert("Name already exists.");
+      return;
+    }
+
+    if (NPCNameInput === "" || NPCSrcInput === "") {
+      alert("invalid entry");
+      return;
+    }
+
     setSprites((prev) => [...prev, newSprite]);
+    setNPCNameInput("");
+    setNPCSrcInput("");
   };
 
   return (
@@ -198,9 +232,16 @@ const NewGame = () => {
               />
             </div>
             <form>
-              <input onChange={handleOnChangeNPCName} placeholder="NPC name" />
-
-              <input onChange={handleOnChangeNPCSrc} placeholder="img url" />
+              <input
+                onChange={handleOnChangeNPCName}
+                value={NPCNameInput}
+                placeholder="NPC name"
+              />
+              <input
+                onChange={handleOnChangeNPCSrc}
+                value={NPCSrcInput}
+                placeholder="img url"
+              />
               <button onClick={handleOnLoadNPC}>Load NPC</button>
             </form>
           </>

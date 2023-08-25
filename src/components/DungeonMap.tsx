@@ -13,6 +13,7 @@ import {
 } from "react-icons/fa6";
 
 import { GoZoomIn, GoZoomOut } from "react-icons/go";
+import useGetMapRect from "~/hooks/useGetMapRect";
 
 type Props = {
   mapRef: MutableRefObject<HTMLDivElement | null>;
@@ -86,13 +87,17 @@ const DungeonMap = ({
         const relativeWidth = newImageWidth / imageWidth;
 
         setSprites((prevSprites) => {
-          return prevSprites.map((sprite) => ({
-            ...sprite,
-            height: sprite.height * relativeHeight,
-            width: sprite.width * relativeWidth,
-            posX: sprite.posX * relativeWidth,
-            posY: sprite.posY * relativeHeight,
-          }));
+          return prevSprites.map((sprite) => {
+            console.log("sprite posY", sprite.posY * relativeHeight);
+            console.log("spriteposX", sprite.posX * relativeWidth);
+            return {
+              ...sprite,
+              height: sprite.height * relativeHeight,
+              width: sprite.width * relativeWidth,
+              posX: sprite.posX * relativeWidth,
+              posY: sprite.posY * relativeHeight,
+            };
+          });
         });
         return newMap;
       });
@@ -121,8 +126,6 @@ const DungeonMap = ({
       });
     }
   };
-
-  useEffect(() => {}, [map.zoom]);
 
   useEffect(() => {
     if (!mapRef.current) return;
