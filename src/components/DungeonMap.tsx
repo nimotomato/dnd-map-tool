@@ -76,15 +76,14 @@ const DungeonMap = ({
     if (e.currentTarget.id === "in" && map.zoom < 10) {
       setMap((prev) => {
         const newMap = { ...prev, zoom: prev.zoom + 1 };
+
+        // Allow sprites to zoom relative to map zoom
         if (!setSprites) return newMap;
 
         const newImageHeight = mapRect.fullHeight * (prev.zoom + 1) * 100;
         const newImageWidth = mapRect.fullWidth * (prev.zoom + 1) * 100;
-
         const relativeHeight = newImageHeight / imageHeight;
         const relativeWidth = newImageWidth / imageWidth;
-
-        console.log(relativeHeight, relativeWidth);
 
         setSprites((prevSprites) => {
           return prevSprites.map((sprite) => ({
@@ -100,15 +99,14 @@ const DungeonMap = ({
     } else if (e.currentTarget.id === "out" && map.zoom > 1) {
       setMap((prev) => {
         const newMap = { ...prev, zoom: prev.zoom - 1 };
+
         if (!setSprites) return newMap;
 
+        // Allow sprites to zoom relative to map zoom
         const newImageHeight = mapRect.fullHeight * (prev.zoom - 1) * 100;
         const newImageWidth = mapRect.fullWidth * (prev.zoom - 1) * 100;
-
         const relativeHeight = newImageHeight / imageHeight;
         const relativeWidth = newImageWidth / imageWidth;
-
-        console.log(imageHeight, newImageHeight, relativeHeight);
 
         setSprites((prevSprites) => {
           return prevSprites.map((sprite) => ({

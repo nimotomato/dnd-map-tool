@@ -13,12 +13,6 @@ import { Spriteinfo, MapProps } from "~/types";
 const defaultMap = "/img/dungeonmap.jpg";
 
 const NewGame = () => {
-  // ZOOM STUFF
-  const sizeMultiplierRef = useRef(1.5);
-  const sizeMultiplication = (value: number) => {
-    return value * sizeMultiplierRef.current;
-  };
-
   // MAP STUFF
   const [map, setMap] = useState<MapProps>({
     imgSrc: defaultMap,
@@ -95,18 +89,12 @@ const NewGame = () => {
   const handleNextStep = (e: ReactMouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setStep(2);
-    setMap((prev) => ({
-      ...prev,
-      width: sizeMultiplication(prev.width),
-      height: sizeMultiplication(prev.height),
-    }));
   };
 
   // SPRITE STUFF
   const [sprites, setSprites] = useState<Array<Spriteinfo>>([]);
   const [NPCNameInput, setNPCNameInput] = useState("");
   const [NPCSrcInput, setNPCSrcInput] = useState("");
-  const defaultSpriteSizeRef = useRef(2.5);
 
   // has error might not work
   const hasError = useTryLoadImg(NPCSrcInput);
@@ -126,8 +114,8 @@ const NewGame = () => {
       name: `${NPCNameInput}`,
       posX: 0,
       posY: 0,
-      height: sizeMultiplication(defaultSpriteSizeRef.current),
-      width: sizeMultiplication(defaultSpriteSizeRef.current),
+      height: 0,
+      width: 0,
       imgSrc: `${NPCSrcInput}`,
       controller: "dm",
     };
