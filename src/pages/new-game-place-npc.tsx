@@ -31,32 +31,6 @@ const PlaceNpc = () => {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const mapRect = useGetMapRect(map.imgSrc, mapRef);
 
-  // Create sprites
-  useEffect(() => {
-    if (mapRect && !sprites?.length) {
-      setSprites([
-        {
-          name: "goblin1",
-          posX: 0,
-          posY: 0,
-          height: 0,
-          width: 0,
-          imgSrc: "/img/goblin.png",
-          controller: "dm",
-        },
-        {
-          name: "goblin2",
-          posX: 50,
-          posY: 0,
-          height: 0,
-          width: 0,
-          imgSrc: "/img/goblin.png",
-          controller: "dm",
-        },
-      ]);
-    }
-  }, [mapRect]);
-
   // SPRITE STUFF
 
   const [NPCNameInput, setNPCNameInput] = useState("");
