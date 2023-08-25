@@ -67,58 +67,64 @@ const DungeonMap = ({
     }
   };
 
-  const calculateSpriteZoom = (mapZoom: number): number => {
-    const defaultZoom = 6;
-    if (mapZoom > defaultZoom) {
-      return defaultZoom - mapZoom;
-    } else {
-      return mapZoom / defaultZoom;
-    }
-
-    return 1;
-  };
-
   const handleOnMapZoom = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    if (!mapRect) return;
+    const imageHeight = mapRect.fullHeight * map.zoom * 100;
+    const imageWidth = mapRect.fullWidth * map.zoom * 100;
 
     if (e.currentTarget.id === "in" && map.zoom < 10) {
       setMap((prev) => {
-        return { ...prev, zoom: prev.zoom + 1 };
-      });
-      if (!setSprites) return;
-      setSprites((prev) => {
-        return prev.map((sprite) => ({
-          ...sprite,
-          height: sprite.height * calculateSpriteZoom(map.zoom),
-          width: sprite.width * calculateSpriteZoom(map.zoom),
-        }));
+        const newMap = { ...prev, zoom: prev.zoom + 1 };
+        if (!setSprites) return newMap;
+
+        const newImageHeight = mapRect.fullHeight * (prev.zoom + 1) * 100;
+        const newImageWidth = mapRect.fullWidth * (prev.zoom + 1) * 100;
+
+        const relativeHeight = newImageHeight / imageHeight;
+        const relativeWidth = newImageWidth / imageWidth;
+
+        console.log(relativeHeight, relativeWidth);
+
+        setSprites((prevSprites) => {
+          return prevSprites.map((sprite) => ({
+            ...sprite,
+            height: sprite.height * relativeHeight,
+            width: sprite.width * relativeWidth,
+            posX: sprite.posX * relativeWidth,
+            posY: sprite.posY * relativeHeight,
+          }));
+        });
+        return newMap;
       });
     } else if (e.currentTarget.id === "out" && map.zoom > 1) {
       setMap((prev) => {
-        return { ...prev, zoom: prev.zoom - 1 };
-      });
-      if (!setSprites) return;
-      setSprites((prev) => {
-        return prev.map((sprite) => ({
-          ...sprite,
-          height: sprite.height * calculateSpriteZoom(map.zoom),
-          width: sprite.width * calculateSpriteZoom(map.zoom),
-        }));
+        const newMap = { ...prev, zoom: prev.zoom - 1 };
+        if (!setSprites) return newMap;
+
+        const newImageHeight = mapRect.fullHeight * (prev.zoom - 1) * 100;
+        const newImageWidth = mapRect.fullWidth * (prev.zoom - 1) * 100;
+
+        const relativeHeight = newImageHeight / imageHeight;
+        const relativeWidth = newImageWidth / imageWidth;
+
+        console.log(imageHeight, newImageHeight, relativeHeight);
+
+        setSprites((prevSprites) => {
+          return prevSprites.map((sprite) => ({
+            ...sprite,
+            height: sprite.height * relativeHeight,
+            width: sprite.width * relativeWidth,
+            posX: sprite.posX * relativeWidth,
+            posY: sprite.posY * relativeHeight,
+          }));
+        });
+        return newMap;
       });
     }
   };
 
-  // useEffect(() => {
-  //   if (!setSprites) return;
-
-  //   setSprites((prev) => {
-  //     return prev.map((sprite) => ({
-  //       ...sprite,
-  //       height: sprite.height * calculateSpriteZoom(map.zoom),
-  //       width: sprite.width * calculateSpriteZoom(map.zoom),
-  //     }));
-  //   });
-  // }, [map.zoom]);
+  useEffect(() => {}, [map.zoom]);
 
   useEffect(() => {
     if (!mapRef.current) return;
@@ -127,7 +133,6 @@ const DungeonMap = ({
       return { ...prev, hasLoaded: true };
     });
   }, []);
-  console.log(map.height, map.width);
 
   return (
     <>
@@ -156,8 +161,7 @@ const DungeonMap = ({
                       posX={sprite.posX}
                       height={sprite.height}
                       width={sprite.width}
-                      mapPosX={map.posX}
-                      mapPosY={map.posY}
+                      map={map}
                       posY={sprite.posY}
                       key={sprite.name}
                       mapRect={mapRect}
