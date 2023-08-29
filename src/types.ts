@@ -26,3 +26,21 @@ export type Maprect = {
   fullWidth: number;
   fullHeight: number;
 };
+
+export type Game = {
+  name?: string;
+  mapSrc?: string;
+  mapPosX: number;
+  mapPosY: number;
+  players?: string[];
+  dungeonMaster?: string;
+};
+
+export type Character = {
+  name: string;
+  posX: number;
+  posY: number;
+  imgSrc: string;
+  initiative: number;
+  controller: string;
+};

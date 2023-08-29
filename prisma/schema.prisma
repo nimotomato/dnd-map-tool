@@ -30,7 +30,7 @@ model Character {
     positionX  Int
     positionY  Int
     imgSrc     String
-    initiative Int?
+    initiative Int
     controller User   @relation(fields: [id], references: [id], onDelete: Cascade)
     game       Game   @relation(fields: [gameId], references: [id])
     gameId     String

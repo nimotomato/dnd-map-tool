@@ -2,12 +2,22 @@ import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
 export const gameRouter = createTRPCRouter({
-  getAll: publicProcedure
-    .input(z.object({ userName: z.string() }))
-    .query(({ ctx, input }) => {
-      return ctx.prisma.user.findMany({
-        where: {
-          name: input.userName,
+  createGame: publicProcedure
+    .input(
+      z.object({
+        data: z.object({
+          name: z.string(),
+          mapSrc: z.string(),
+          mapPosX: z.number(),
+          mapPosY: z.number(),
+          dungeonMaster: z.string(),
+        }),
+      })
+    )
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.game.create({
+        data: {
+          ...input,
         },
       });
     }),
