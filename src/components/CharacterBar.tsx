@@ -1,16 +1,41 @@
-import { Spriteinfo } from "~/types";
-import Sprite from "./Sprite";
+import React from "react";
+import { Spriteinfo, MapProps, Maprect } from "~/types";
 
 type Props = {
   sprites: Spriteinfo[];
-  setSprites: React.Dispatch<React.SetStateAction<Spriteinfo[]>>;
+  setMap: React.Dispatch<React.SetStateAction<MapProps>>;
+  mapRect: Maprect | null;
+  map: MapProps;
 };
 
-const CharacterBar = ({ sprites, setSprites }: Props) => {
+const CharacterBar = ({ sprites, setMap, mapRect, map }: Props) => {
+  const handleOnClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+
+    sprites.map((sprite) => {
+      if (e.currentTarget.id !== sprite.name || !mapRect) return; // Find correct sprite
+
+      // Calculate relative positioning of map
+      const newX = -sprite.posX + mapRect.width / 2;
+      const newY = -sprite.posY + mapRect.height / 2;
+      setMap((prevMap) => ({ ...prevMap, posX: newX, posY: newY }));
+    });
+  };
+
   return (
-    <div className="flex flex-row">
+    <div className="flex w-20 flex-col">
       {sprites?.map((sprite) => {
-        return <img src={sprite.imgSrc}></img>;
+        return (
+          <div className="m-2" key={sprite.name}>
+            <img
+              id={sprite.name}
+              onClick={handleOnClick}
+              className="h-14 w-14"
+              src={sprite.imgSrc}
+            />
+            <p>{sprite.name}</p>
+          </div>
+        );
       })}
     </div>
   );

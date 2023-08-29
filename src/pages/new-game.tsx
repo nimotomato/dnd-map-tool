@@ -12,7 +12,7 @@ import DungeonMap from "~/components/DungeonMap";
 import useGetMapRect from "../hooks/useGetMapRect";
 import useTryLoadImg from "~/hooks/useTryLoadImg";
 
-import { Spriteinfo, MapProps } from "~/types";
+import { MapProps } from "~/types";
 
 const defaultMap = "/img/dungeonmap.jpg";
 
@@ -87,6 +87,12 @@ const NewGame = () => {
     });
   };
 
+  // Game name
+  const [gameName, setGameName] = useState("");
+  const handleGameName = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setGameName(e.target.value);
+  };
+
   return (
     <>
       <Head>
@@ -98,6 +104,12 @@ const NewGame = () => {
         <>
           <h1>Create new game!</h1>
           <form>
+            <label>Game Name: </label>
+            <input
+              placeholder="game name here"
+              onChange={handleGameName}
+              value={gameName}
+            ></input>
             <label>Select map</label>
             <input
               placeholder="img url here"
