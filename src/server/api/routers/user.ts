@@ -2,24 +2,26 @@ import { contextProps } from "@trpc/react-query/shared";
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
-const userInGameSchema = z.object({ gameId: z.string(), userId: z.string() });
-
 export const userRouter = createTRPCRouter({
-  getAll: publicProcedure
-    .input(z.object({ userName: z.string() }))
+  // Get user
+  getUser: publicProcedure
+    .input(z.object({ userEmail: z.string() }))
     .query(({ ctx, input }) => {
-      return ctx.prisma.user.findMany({
+      return ctx.prisma.user.findFirst({
         where: {
-          name: input.userName,
+          email: input.userEmail,
         },
       });
     }),
 
-  connectUserToGame: publicProcedure
-    .input(z.array(userInGameSchema))
-    .mutation(({ ctx, input }) => {
-      return ctx.prisma.userInGame.createMany({
-        data: input,
+  // Get many users, takes in emails
+  getManyUsers: publicProcedure
+    .input(z.array(z.object({ email: z.string() })))
+    .query(({ ctx, input }) => {
+      return ctx.prisma.user.findMany({
+        where: {
+          OR: input,
+        },
       });
     }),
 

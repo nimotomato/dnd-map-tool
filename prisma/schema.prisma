@@ -12,27 +12,28 @@ datasource db {
 }
 
 model Game {
-    id            String       @id @default(cuid())
+    id            String       @id
     createdAt     DateTime     @default(now())
     updatedAt     DateTime     @updatedAt
     name          String
     mapSrc        String
-    mapPosX       Int
-    mapPosY       Int
+    mapPosX       Decimal
+    mapPosY       Decimal
+    isPaused      Boolean
     dungeonMaster User         @relation(fields: [id], references: [id])
     Character     Character[]
     UserInGame    UserInGame[]
 }
 
 model Character {
-    id         String @id @default(cuid())
+    id         String  @id @default(cuid())
     name       String
-    positionX  Int
-    positionY  Int
+    positionX  Decimal
+    positionY  Decimal
     imgSrc     String
     initiative Int
-    controller User   @relation(fields: [id], references: [id], onDelete: Cascade)
-    game       Game   @relation(fields: [gameId], references: [id])
+    controller User    @relation(fields: [id], references: [id], onDelete: Cascade)
+    game       Game    @relation(fields: [gameId], references: [id])
     gameId     String
 }
 

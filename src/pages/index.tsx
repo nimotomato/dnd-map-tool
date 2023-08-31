@@ -1,7 +1,6 @@
 import { signIn, signOut, useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
-import { api } from "~/utils/api";
 import Board from "../components/Board";
 
 export default function Home() {
@@ -26,7 +25,7 @@ export default function Home() {
               <li>
                 <Link href="/active">See active games</Link>
               </li>
-            </ul>{" "}
+            </ul>
             <button onClick={() => void signOut()}>Log out</button>
           </>
         ) : (

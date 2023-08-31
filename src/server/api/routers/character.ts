@@ -14,6 +14,7 @@ const characterSchema = z.object({
 const characterArraySchema = z.array(characterSchema);
 
 export const characterRouter = createTRPCRouter({
+  // Upload characters to database.
   createCharacters: publicProcedure
     .input(characterArraySchema)
     .mutation(({ ctx, input }) => {

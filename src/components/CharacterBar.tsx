@@ -15,6 +15,8 @@ const CharacterBar = ({ sprites, setMap, mapRect, map }: Props) => {
     sprites.map((sprite) => {
       if (e.currentTarget.id !== sprite.name || !mapRect) return; // Find correct sprite
 
+      // TO DO:
+      // Check we are within bounds of map, eg 0.0 shouldnt be centered, but stay bound to left corner
       // Calculate relative positioning of map
       const newX = -sprite.posX + mapRect.width / 2;
       const newY = -sprite.posY + mapRect.height / 2;

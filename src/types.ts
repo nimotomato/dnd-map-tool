@@ -1,3 +1,5 @@
+import { string } from "zod";
+
 export type Spriteinfo = {
   name: string;
   posX: number;
@@ -28,19 +30,22 @@ export type Maprect = {
 };
 
 export type Game = {
-  name?: string;
-  mapSrc?: string;
+  id: string;
+  name: string;
+  mapSrc: string;
   mapPosX: number;
   mapPosY: number;
-  players?: string[];
-  dungeonMaster?: string;
+  players: string[];
+  isPaused: boolean;
+  dungeonMaster: string;
 };
 
 export type Character = {
   name: string;
-  posX: number;
-  posY: number;
+  positionX: number;
+  positionY: number;
   imgSrc: string;
   initiative: number;
   controller: string;
+  gameId: string;
 };

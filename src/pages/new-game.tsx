@@ -5,9 +5,9 @@ import React, {
   useRef,
   useState,
   useEffect,
-  use,
 } from "react";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import { v4 as uuidv4 } from "uuid";
 
 import { api } from "~/utils/api";
 
@@ -83,18 +83,25 @@ const NewGame = () => {
   const [errorText, setErrorText] = useState("");
 
   // Magic API
-  const getUser = api.user.getAll.useQuery({ userName: playerInput });
+  // Get user specifically asked for in input
+  const getUser = api.user.getUser.useQuery({ userEmail: playerInput });
+  // Get all users added to players
+  const getManyUsers = api.user.getManyUsers.useQuery(
+    players.map((player) => ({
+      email: player,
+    }))
+  );
 
   const handleOnAddPlayer = (e: ReactMouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (
       !getUser.data ||
-      getUser.data.length === 0 ||
       // Verify username exists in database
-      players.includes(getUser.data[0]?.name as string)
+      players.includes(getUser.data.email as string)
     ) {
       setBorder({ color: "border-rose-500", size: "border-2" });
-      setErrorText("Username not found, try again.");
+      setErrorText("User email not found, try again.");
+
       return;
     }
 
@@ -171,12 +178,24 @@ const NewGame = () => {
   };
 
   // GAME DATA
-  const [characters, setCharacters] = useState<Character[] | []>([]);
+  const gameID = useRef(uuidv4());
+  const [characters, setCharacters] = useState<Character[]>([]);
   const [game, setGame] = useState<Game>({
+    id: gameID.current,
+    name: "",
+    mapSrc: "",
     mapPosX: 0,
     mapPosY: 0,
+    isPaused: true,
     players: [],
+    dungeonMaster: "",
   });
+  const [sendToDb, setSendToDb] = useState(false);
+
+  // DB queries
+  const createGameMutation = api.game.createGame.useMutation();
+  const createCharactersMutation = api.character.createCharacters.useMutation();
+  const connectPlayersMutation = api.game.connectUserToGame.useMutation();
 
   // Send data to DB
   const createGame = (e: React.MouseEvent) => {
@@ -190,11 +209,6 @@ const NewGame = () => {
 
     if (players.length === 0 || players.length > 4) {
       alert("Not enough players.");
-      return;
-    }
-
-    if (mapInput === "") {
-      alert("No map input.");
       return;
     }
 
@@ -212,16 +226,45 @@ const NewGame = () => {
       setCharacters((prev) => {
         const nextChar: Character = {
           name: sprite.name,
-          posX: sprite.posX,
-          posY: sprite.posY,
+          positionX: sprite.posX,
+          positionY: sprite.posY,
           imgSrc: sprite.imgSrc,
           controller: "dm",
           initiative: 0,
+          gameId: gameID.current,
         };
         return [...prev, nextChar];
       });
     });
+
+    setSendToDb(true);
   };
+
+  useEffect(() => {
+    if (!sendToDb) return;
+
+    // Upload game to database.
+    createGameMutation.mutate(game);
+
+    // Connect players to database.
+    //Make sure user data exists
+    if (!getManyUsers.data) {
+      alert("Error getting user IDs...");
+      return;
+    }
+
+    // Map with gameID
+    const usersInGame = getManyUsers.data.map((user) => ({
+      gameId: gameID.current,
+      userId: user.id,
+    }));
+
+    // Send data to database
+    connectPlayersMutation.mutate(usersInGame);
+
+    //Upload characters to database.
+    createCharactersMutation.mutate(characters);
+  }, [sendToDb]);
 
   return (
     <>
@@ -275,6 +318,7 @@ const NewGame = () => {
                   })}
                 <input
                   type="text"
+                  placeholder="discord email here"
                   className={`${border.size} ${border.color}`}
                   value={playerInput}
                   onChange={handleOnPlayerChange}
@@ -331,6 +375,7 @@ const NewGame = () => {
                     value={`X: ${Math.abs(game.mapPosX)}, Y: ${Math.abs(
                       game.mapPosY
                     )}`}
+                    readOnly
                   ></input>
                   <button onClick={handleOnLockCoordinates}>
                     {lockedCoordinates
