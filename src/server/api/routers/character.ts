@@ -7,7 +7,7 @@ const characterSchema = z.object({
   positionY: z.number(),
   imgSrc: z.string(),
   initiative: z.number(),
-  controller: z.string(),
+  controllerId: z.string(),
   gameId: z.string(),
 });
 

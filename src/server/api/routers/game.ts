@@ -4,7 +4,7 @@ import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 const userInGameSchema = z.object({ gameId: z.string(), userId: z.string() });
 
 const gameSchema = z.object({
-  id: z.string(),
+  gameId: z.string(),
   name: z.string(),
   mapSrc: z.string(),
   mapPosX: z.number(),

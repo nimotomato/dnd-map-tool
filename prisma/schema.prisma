@@ -12,37 +12,39 @@ datasource db {
 }
 
 model Game {
-    id            String       @id
-    createdAt     DateTime     @default(now())
-    updatedAt     DateTime     @updatedAt
-    name          String
-    mapSrc        String
-    mapPosX       Decimal
-    mapPosY       Decimal
-    isPaused      Boolean
-    dungeonMaster User         @relation(fields: [id], references: [id])
-    Character     Character[]
-    UserInGame    UserInGame[]
+    gameId          String       @id
+    createdAt       DateTime     @default(now())
+    updatedAt       DateTime     @updatedAt
+    name            String
+    mapSrc          String
+    mapPosX         Decimal
+    mapPosY         Decimal
+    isPaused        Boolean
+    dungeonMaster   User         @relation(fields: [dungeonMasterId], references: [id])
+    dungeonMasterId String
+    Character       Character[]
+    UserInGame      UserInGame[]
 }
 
 model Character {
-    id         String  @id @default(cuid())
-    name       String
-    positionX  Decimal
-    positionY  Decimal
-    imgSrc     String
-    initiative Int
-    controller User    @relation(fields: [id], references: [id], onDelete: Cascade)
-    game       Game    @relation(fields: [gameId], references: [id])
-    gameId     String
+    characterId  String  @id @default(cuid())
+    name         String
+    positionX    Decimal
+    positionY    Decimal
+    imgSrc       String
+    initiative   Int
+    controllerId String
+    controller   User    @relation(fields: [controllerId], references: [id], onDelete: Cascade)
+    game         Game    @relation(fields: [gameId], references: [gameId])
+    gameId       String
 }
 
 model UserInGame {
-    id     String @id @default(cuid())
-    game   Game   @relation(fields: [gameId], references: [id])
-    gameId String
-    user   User   @relation(fields: [userId], references: [id])
-    userId String
+    userInGameId String @id @default(cuid())
+    game         Game   @relation(fields: [gameId], references: [gameId])
+    gameId       String
+    user         User   @relation(fields: [userId], references: [id])
+    userId       String
 }
 
 // Necessary for Next auth
