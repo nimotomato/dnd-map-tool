@@ -123,6 +123,7 @@ const NewGame = () => {
 
     setGameState((prev) => ({ ...prev, dungeonMaster: userId }));
   }, [getUser]);
+
   // Get all users added to players
   const getManyUsers = api.user.getManyUsers.useQuery(
     gameState.players.map((player) => ({
@@ -251,6 +252,16 @@ const NewGame = () => {
       return;
     }
     console.log(gameState);
+    createGameMutation.mutate({
+      gameId: gameState.id,
+      name: gameState.name,
+      mapSrc: gameState.map.imgSrc,
+      mapPosX: gameState.map.posX,
+      mapPosY: gameState.map.posY,
+      mapZoom: gameState.map.zoom,
+      isPaused: gameState.isPaused,
+      dungeonMasterId: gameState.dungeonMaster,
+    });
   };
 
   return (
