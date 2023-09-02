@@ -3,7 +3,7 @@ import type { MouseEvent, MutableRefObject, SetStateAction } from "react";
 
 import Sprite from "./Sprite";
 import useTryLoadImg from "~/hooks/useTryLoadImg";
-import { Spriteinfo, MapProps, Maprect } from "~/types";
+import { Spriteinfo, MapProps, Maprect, Game } from "~/types";
 
 import {
   FaArrowRight,
@@ -21,6 +21,7 @@ type Props = {
   mapRect: Maprect | null;
   map: MapProps;
   setMap: React.Dispatch<React.SetStateAction<MapProps>>;
+  mapSrc: string;
 };
 
 const DungeonMap = ({
@@ -30,10 +31,11 @@ const DungeonMap = ({
   mapRef,
   map,
   setMap,
+  mapSrc,
 }: Props) => {
   // Stepsize in percentage
   const defaultStepSize = useRef(100);
-  const imgError = useTryLoadImg(map.imgSrc);
+  const imgError = useTryLoadImg(mapSrc);
 
   const handleOnMapNav = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -148,7 +150,7 @@ const DungeonMap = ({
               <div
                 className="h-full w-full"
                 style={{
-                  backgroundImage: `url(${map.imgSrc})`,
+                  backgroundImage: `url(${mapSrc})`,
                   backgroundPosition: `${map.posX}px ${map.posY}px`,
                   backgroundSize: `${map.zoom * 100}%`,
                 }}

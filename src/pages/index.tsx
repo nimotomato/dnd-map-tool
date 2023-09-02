@@ -1,7 +1,6 @@
 import { signIn, signOut, useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
-import Board from "../components/Board";
 
 export default function Home() {
   const session = useSession();
@@ -33,8 +32,6 @@ export default function Home() {
             <button onClick={() => void signIn()}>Log in</button>
           </>
         )}
-
-        <Board />
       </main>
     </>
   );

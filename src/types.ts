@@ -10,8 +10,16 @@ export type Spriteinfo = {
   controller: string;
 };
 
-export type MapProps = {
+export type DbMapProps = {
   imgSrc: string;
+  posX: number;
+  posY: number;
+  height: number;
+  width: number;
+  zoom: number;
+};
+
+export type MapProps = {
   posX: number;
   posY: number;
   height: number;
@@ -32,18 +40,17 @@ export type Maprect = {
 export type Game = {
   id: string;
   name: string;
-  mapSrc: string;
-  mapPosX: number;
-  mapPosY: number;
+  map: DbMapProps;
   players: string[];
   isPaused: boolean;
   dungeonMaster: string;
+  characters: Character[];
 };
 
 export type Character = {
   name: string;
-  positionX: number;
-  positionY: number;
+  posX: number;
+  posY: number;
   imgSrc: string;
   initiative: number;
   controller: string;

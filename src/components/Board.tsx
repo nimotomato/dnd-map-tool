@@ -11,7 +11,6 @@ const Board = () => {
   // TO DO: Condense states into obj
 
   const [map, setMap] = useState<MapProps>({
-    imgSrc: defaultMap,
     posX: 0,
     posY: 0,
     height: 25,

@@ -5,6 +5,7 @@ import React, {
   useRef,
   useState,
   useEffect,
+  use,
 } from "react";
 import { useSession } from "next-auth/react";
 import { v4 as uuidv4 } from "uuid";
@@ -17,6 +18,7 @@ import useGetMapRect from "../hooks/useGetMapRect";
 import useTryLoadImg from "~/hooks/useTryLoadImg";
 
 import { MapProps, Spriteinfo, Game, Character } from "~/types";
+import { get } from "http";
 
 const defaultMap = "/img/dungeonmap.jpg";
 
@@ -27,7 +29,7 @@ const NewGame = () => {
   const [step, setStep] = useState(0);
   const nextStep = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (gameName === "") {
+    if (gameState.name === "") {
       alert("Must enter game name");
       return;
     }
@@ -40,9 +42,27 @@ const NewGame = () => {
     setStep(0);
   };
 
-  // MAP STUFF
+  // GAME DATA
+  const gameID = useRef(uuidv4());
+  const [gameState, setGameState] = useState<Game>({
+    id: gameID.current,
+    name: "",
+    map: {
+      imgSrc: defaultMap,
+      posX: 0,
+      posY: 0,
+      height: 25,
+      width: 25,
+      zoom: 6,
+    },
+    isPaused: true,
+    players: [],
+    dungeonMaster: "",
+    characters: [],
+  });
+
+  // LOCAL MAP STUFF
   const [map, setMap] = useState<MapProps>({
-    imgSrc: defaultMap,
     posX: 0,
     posY: 0,
     height: 25,
@@ -51,21 +71,32 @@ const NewGame = () => {
     hasLoaded: false,
   });
 
+  // Game name
+  const handleGameName = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setGameState((prev) => ({
+      ...prev,
+      name: e.target.value,
+    }));
+  };
+
   const mapRef = useRef<HTMLDivElement | null>(null);
-  const mapRect = useGetMapRect(map.imgSrc, mapRef);
-  const [lockedCoordinates, setLockedCoordinates] = useState(false);
+  const mapRect = useGetMapRect(gameState.map.imgSrc, mapRef);
 
   const handleOnLockCoordinates = (e: React.MouseEvent) => {
-    if (!lockedCoordinates) {
-      setGame((prev) => ({ ...prev, mapPosX: map.posX, mapPosY: map.posY }));
-    }
-    setLockedCoordinates((prev) => !prev);
+    // Loads local state to game state to "save"
+    setGameState((prev) => ({
+      ...prev,
+      map: { ...prev.map, posX: map.posX, posY: map.posY },
+    }));
   };
 
   const handleOnAddMap = (e: ReactMouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setMapInput("");
-    setMap((prev) => ({ ...prev, imgSrc: mapInput }));
+    setGameState((prev) => ({
+      ...prev,
+      map: { ...prev.map, imgSrc: mapInput },
+    }));
   };
 
   const handleOnMapChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,7 +104,6 @@ const NewGame = () => {
   };
 
   // PLAYER STUFF
-  const [players, setPlayers] = useState<string[]>([]);
   const [playerInput, setPlayerInput] = useState("");
   const [mapInput, setMapInput] = useState("");
   const [border, setBorder] = useState({
@@ -85,19 +115,28 @@ const NewGame = () => {
   // Magic API
   // Get user specifically asked for in input
   const getUser = api.user.getUser.useQuery({ userEmail: playerInput });
+
+  useEffect(() => {
+    if (!getUser || !getUser.data || !getUser.data.id) return;
+
+    const userId = getUser.data.id;
+
+    setGameState((prev) => ({ ...prev, dungeonMaster: userId }));
+  }, [getUser]);
   // Get all users added to players
   const getManyUsers = api.user.getManyUsers.useQuery(
-    players.map((player) => ({
+    gameState.players.map((player) => ({
       email: player,
     }))
   );
 
   const handleOnAddPlayer = (e: ReactMouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+
     if (
       !getUser.data ||
       // Verify username exists in database
-      players.includes(getUser.data.email as string)
+      gameState.players.includes(getUser.data.email as string)
     ) {
       setBorder({ color: "border-rose-500", size: "border-2" });
       setErrorText("User email not found, try again.");
@@ -105,7 +144,10 @@ const NewGame = () => {
       return;
     }
 
-    setPlayers((prev) => [...prev, playerInput]);
+    setGameState((prev) => ({
+      ...prev,
+      players: [...prev.players, playerInput],
+    }));
     setBorder({ color: "border-black", size: "border-2" });
     setErrorText("");
     setPlayerInput("");
@@ -120,15 +162,12 @@ const NewGame = () => {
     player: string
   ) => {
     e.preventDefault();
-    setPlayers((prev) => {
-      return prev.filter((name) => name !== player);
-    });
-  };
+    const filteredPlaters = gameState.players.filter((name) => name !== player);
 
-  // Game name
-  const [gameName, setGameName] = useState("");
-  const handleGameName = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setGameName(e.target.value);
+    setGameState((prev) => ({
+      ...prev,
+      players: [...filteredPlaters],
+    }));
   };
 
   // SPRITE STUFF
@@ -150,6 +189,12 @@ const NewGame = () => {
       controller: "dm",
     };
 
+    const newChar: Character = {
+      ...newSprite,
+      gameId: gameState.id,
+      initiative: 0,
+    };
+
     // Make sure name is unique
     if (sprites.some((sprite) => sprite.name === NPCNameInput)) {
       alert("Name already exists.");
@@ -161,7 +206,15 @@ const NewGame = () => {
       return;
     }
 
+    // Add sprite to local sprites
     setSprites((prev) => [...prev, newSprite]);
+
+    // Add sprite to chracter
+    setGameState((prev) => ({
+      ...prev,
+      characters: [...prev.characters, newChar],
+    }));
+
     setNPCNameInput("");
     setNPCSrcInput("");
   };
@@ -177,94 +230,28 @@ const NewGame = () => {
     setNPCNameInput(e.target.value);
   };
 
-  // GAME DATA
-  const gameID = useRef(uuidv4());
-  const [characters, setCharacters] = useState<Character[]>([]);
-  const [game, setGame] = useState<Game>({
-    id: gameID.current,
-    name: "",
-    mapSrc: "",
-    mapPosX: 0,
-    mapPosY: 0,
-    isPaused: true,
-    players: [],
-    dungeonMaster: "",
-  });
-  const [sendToDb, setSendToDb] = useState(false);
-
   // DB queries
   const createGameMutation = api.game.createGame.useMutation();
   const createCharactersMutation = api.character.createCharacters.useMutation();
   const connectPlayersMutation = api.game.connectUserToGame.useMutation();
 
   // Send data to DB
+  // Redo this shit
   const createGame = (e: React.MouseEvent) => {
     e.preventDefault();
     if (!user || !user.name || user.name === "") return;
 
-    if (gameName === "") {
+    if (gameState.name === "") {
       alert("No game name.");
       return;
     }
 
-    if (players.length === 0 || players.length > 4) {
+    if (gameState.players.length === 0 || gameState.players.length > 4) {
       alert("Not enough players.");
       return;
     }
-
-    setGame((prev) => {
-      return {
-        ...prev,
-        players: [...players, user.name!],
-        mapSrc: mapInput.trim(),
-        name: gameName,
-        dungeonMaster: user.name!,
-      };
-    });
-
-    sprites.map((sprite) => {
-      setCharacters((prev) => {
-        const nextChar: Character = {
-          name: sprite.name,
-          positionX: sprite.posX,
-          positionY: sprite.posY,
-          imgSrc: sprite.imgSrc,
-          controller: "dm",
-          initiative: 0,
-          gameId: gameID.current,
-        };
-        return [...prev, nextChar];
-      });
-    });
-
-    setSendToDb(true);
+    console.log(gameState);
   };
-
-  useEffect(() => {
-    if (!sendToDb) return;
-
-    // Upload game to database.
-    createGameMutation.mutate(game);
-
-    // Connect players to database.
-    //Make sure user data exists
-    if (!getManyUsers.data) {
-      alert("Error getting user IDs...");
-      return;
-    }
-
-    // Map with gameID
-    const usersInGame = getManyUsers.data.map((user) => ({
-      gameId: gameID.current,
-      userId: user.id,
-    }));
-
-    // Send data to database
-    connectPlayersMutation.mutate(usersInGame);
-
-    //Upload characters to database.
-    createCharactersMutation.mutate(characters);
-  }, [sendToDb]);
 
   return (
     <>
@@ -282,7 +269,7 @@ const NewGame = () => {
               <input
                 placeholder="game name here"
                 onChange={handleGameName}
-                value={gameName}
+                value={gameState.name}
               ></input>
               <label>Select map</label>
               <input
@@ -298,17 +285,19 @@ const NewGame = () => {
                   mapRect={mapRect}
                   map={map}
                   setMap={setMap}
+                  mapSrc={gameState.map.imgSrc}
                 />
               </div>
               <br></br>
               <label>Invite players</label>
               <div>
-                {players.length > 0 &&
-                  players.map((player) => {
+                {gameState.players.length > 0 &&
+                  gameState.players.map((player) => {
                     return (
-                      <div key={players.indexOf(player)}>
+                      <div key={gameState.players.indexOf(player)}>
                         <p>
-                          Player {`${players.indexOf(player) + 1}`} {player}
+                          Player {`${gameState.players.indexOf(player) + 1}`}{" "}
+                          {player}
                         </p>
                         <button onClick={(e) => handleOnRemove(e, player)}>
                           Remove player
@@ -355,6 +344,7 @@ const NewGame = () => {
                     mapRect={mapRect}
                     map={map}
                     setMap={setMap}
+                    mapSrc={gameState.map.imgSrc}
                   />
                 </div>
                 <div className="mt-6">
@@ -372,15 +362,13 @@ const NewGame = () => {
                     <button onClick={handleOnLoadNPC}>Load NPC</button>
                   </form>
                   <input
-                    value={`X: ${Math.abs(game.mapPosX)}, Y: ${Math.abs(
-                      game.mapPosY
+                    value={`X: ${Math.abs(gameState.map.posX)}, Y: ${Math.abs(
+                      gameState.map.posY
                     )}`}
                     readOnly
                   ></input>
                   <button onClick={handleOnLockCoordinates}>
-                    {lockedCoordinates
-                      ? "Unlock starting coordinates."
-                      : "Lock starting coordinates."}
+                    Lock starting coordinates.
                   </button>
                 </div>
                 <button onClick={prevStep}>Go back</button>
