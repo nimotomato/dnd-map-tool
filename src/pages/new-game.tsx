@@ -18,6 +18,7 @@ import useGetMapRect from "../hooks/useGetMapRect";
 import useTryLoadImg from "~/hooks/useTryLoadImg";
 
 import { MapProps, Spriteinfo, Game, Character } from "~/types";
+import { posix } from "path";
 
 const defaultMap = "/img/dungeonmap.jpg";
 
@@ -208,6 +209,9 @@ const NewGame = () => {
     const newChar: Character = {
       ...newSprite,
       gameId: gameState.id,
+      positionX: newSprite.posX,
+      positionY: newSprite.posY,
+      controllerId: newSprite.controller,
       initiative: 0,
     };
 
@@ -246,10 +250,8 @@ const NewGame = () => {
     setNPCNameInput(e.target.value);
   };
 
-  // DB queries
-  const createGameMutation = api.game.createGame.useMutation();
-  const createCharactersMutation = api.character.createCharacters.useMutation();
-  const connectPlayersMutation = api.game.connectUserToGame.useMutation();
+  // DB queries to create a new gaMe
+  const createGameMutation = api.game.createNewGame.useMutation();
 
   // Send data to DB
   // Redo this shit
@@ -268,15 +270,19 @@ const NewGame = () => {
     }
 
     createGameMutation.mutate({
-      gameId: gameState.id,
-      name: gameState.name,
-      mapSrc: gameState.map.imgSrc,
-      mapPosX: gameState.map.posX,
-      mapPosY: gameState.map.posY,
-      mapZoom: gameState.map.zoom,
-      spriteSize: gameState.map.spriteSize,
-      isPaused: gameState.isPaused,
-      dungeonMasterId: gameState.dungeonMaster,
+      gameData: {
+        gameId: gameState.id,
+        name: gameState.name,
+        mapSrc: gameState.map.imgSrc,
+        mapPosX: gameState.map.posX,
+        mapPosY: gameState.map.posY,
+        mapZoom: gameState.map.zoom,
+        spriteSize: gameState.map.spriteSize,
+        isPaused: gameState.isPaused,
+        dungeonMasterId: gameState.dungeonMaster,
+      },
+      characterData: gameState.characters,
+      userIds: gameState.players,
     });
   };
 

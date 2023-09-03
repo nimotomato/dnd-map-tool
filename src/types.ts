@@ -50,10 +50,10 @@ export type Game = {
 
 export type Character = {
   name: string;
-  posX: number;
-  posY: number;
+  positionX: number;
+  positionY: number;
   imgSrc: string;
   initiative: number;
-  controller: string;
+  controllerId: string;
   gameId: string;
 };
