@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 
-import { Spriteinfo, Maprect, MapProps } from "~/types";
+import { Spriteinfo, Maprect, MapProps, Game } from "~/types";
 
 type Rect = {
   x: number;
@@ -21,6 +21,8 @@ type Props = {
   imgSrc: string;
   map: MapProps;
   sprites: Spriteinfo[];
+  gameState: Game;
+  setGameState: React.Dispatch<React.SetStateAction<Game>>;
 };
 const Sprite = ({
   mapRect,
@@ -33,13 +35,14 @@ const Sprite = ({
   controller,
   imgSrc,
   map,
+  gameState,
+  setGameState,
 }: Props) => {
   const [offsetX, setOffsetX] = useState<number>(0);
   const [offsetY, setOffsetY] = useState<number>(0);
   const spriteRef = useRef<HTMLImageElement | null>(null);
   const [spriteRect, setSpriteRect] = useState<Rect | null>(null);
   const [show, setShow] = useState(true);
-  const [spriteSize, setSpriteSize] = useState(10);
 
   useEffect(() => {
     if (spriteRef.current) {
@@ -61,11 +64,11 @@ const Sprite = ({
     setSprites((prev) => {
       return prev.map((sprite) => ({
         ...sprite,
-        height: mapRect.height / spriteSize,
-        width: mapRect.width / spriteSize,
+        height: (mapRect.height * gameState.map.spriteSize) / 100,
+        width: (mapRect.width * gameState.map.spriteSize) / 100,
       }));
     });
-  }, [mapRect?.height, mapRect?.width]);
+  }, [mapRect?.height, mapRect?.width, gameState.map]);
 
   const handleMouseMove = (e: MouseEvent) => {
     if (!mapRect || !spriteRect) return;

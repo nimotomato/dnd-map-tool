@@ -1,5 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
-import type { MouseEvent, MutableRefObject, SetStateAction } from "react";
+import type {
+  ButtonHTMLAttributes,
+  MouseEvent,
+  MutableRefObject,
+  SetStateAction,
+} from "react";
 
 import Sprite from "./Sprite";
 import useTryLoadImg from "~/hooks/useTryLoadImg";
@@ -10,6 +15,8 @@ import {
   FaArrowLeft,
   FaArrowUp,
   FaArrowDown,
+  FaPlus,
+  FaMinus,
 } from "react-icons/fa6";
 
 import { GoZoomIn, GoZoomOut } from "react-icons/go";
@@ -21,7 +28,8 @@ type Props = {
   mapRect: Maprect | null;
   map: MapProps;
   setMap: React.Dispatch<React.SetStateAction<MapProps>>;
-  mapSrc: string;
+  gameState: Game;
+  setGameState: React.Dispatch<React.SetStateAction<Game>>;
 };
 
 const DungeonMap = ({
@@ -31,11 +39,12 @@ const DungeonMap = ({
   mapRef,
   map,
   setMap,
-  mapSrc,
+  gameState,
+  setGameState,
 }: Props) => {
   // Stepsize in percentage
   const defaultStepSize = useRef(100);
-  const imgError = useTryLoadImg(mapSrc);
+  const imgError = useTryLoadImg(gameState.map.imgSrc);
 
   const handleOnMapNav = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -69,63 +78,6 @@ const DungeonMap = ({
     }
   };
 
-  const handleOnMapZoom = (e: MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    if (!mapRect) return;
-    const imageHeight = mapRect.fullHeight * map.zoom * 100;
-    const imageWidth = mapRect.fullWidth * map.zoom * 100;
-
-    if (e.currentTarget.id === "in" && map.zoom < 10) {
-      setMap((prev) => {
-        const newMap = { ...prev, zoom: prev.zoom + 1 };
-
-        // Allow sprites to zoom relative to map zoom
-        if (!setSprites) return newMap;
-
-        const newImageHeight = mapRect.fullHeight * (prev.zoom + 1) * 100;
-        const newImageWidth = mapRect.fullWidth * (prev.zoom + 1) * 100;
-        const relativeHeight = newImageHeight / imageHeight;
-        const relativeWidth = newImageWidth / imageWidth;
-
-        setSprites((prevSprites) => {
-          return prevSprites.map((sprite) => {
-            return {
-              ...sprite,
-              height: sprite.height * relativeHeight,
-              width: sprite.width * relativeWidth,
-              posX: sprite.posX * relativeWidth,
-              posY: sprite.posY * relativeHeight,
-            };
-          });
-        });
-        return newMap;
-      });
-    } else if (e.currentTarget.id === "out" && map.zoom > 1) {
-      setMap((prev) => {
-        const newMap = { ...prev, zoom: prev.zoom - 1 };
-
-        if (!setSprites) return newMap;
-
-        // Allow sprites to zoom relative to map zoom
-        const newImageHeight = mapRect.fullHeight * (prev.zoom - 1) * 100;
-        const newImageWidth = mapRect.fullWidth * (prev.zoom - 1) * 100;
-        const relativeHeight = newImageHeight / imageHeight;
-        const relativeWidth = newImageWidth / imageWidth;
-
-        setSprites((prevSprites) => {
-          return prevSprites.map((sprite) => ({
-            ...sprite,
-            height: sprite.height * relativeHeight,
-            width: sprite.width * relativeWidth,
-            posX: sprite.posX * relativeWidth,
-            posY: sprite.posY * relativeHeight,
-          }));
-        });
-        return newMap;
-      });
-    }
-  };
-
   useEffect(() => {
     if (!mapRef.current) return;
 
@@ -133,6 +85,21 @@ const DungeonMap = ({
       return { ...prev, hasLoaded: true };
     });
   }, []);
+
+  const handleOnSpritesizeChange = (e: MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (e.currentTarget.id === "increase") {
+      setGameState((prev) => ({
+        ...prev,
+        map: { ...prev.map, spriteSize: prev.map.spriteSize + 1 },
+      }));
+    } else if (e.currentTarget.id === "decrease") {
+      setGameState((prev) => ({
+        ...prev,
+        map: { ...prev.map, spriteSize: prev.map.spriteSize - 1 },
+      }));
+    }
+  };
 
   return (
     <>
@@ -150,7 +117,7 @@ const DungeonMap = ({
               <div
                 className="h-full w-full"
                 style={{
-                  backgroundImage: `url(${mapSrc})`,
+                  backgroundImage: `url(${gameState.map.imgSrc})`,
                   backgroundPosition: `${map.posX}px ${map.posY}px`,
                   backgroundSize: `${map.zoom * 100}%`,
                 }}
@@ -171,6 +138,8 @@ const DungeonMap = ({
                         setSprites={setSprites}
                         name={sprite.name}
                         sprites={sprites}
+                        gameState={gameState}
+                        setGameState={setGameState}
                       />
                     );
                   })}
@@ -192,11 +161,20 @@ const DungeonMap = ({
               <button onClick={handleOnMapNav} className="nav-btn" id="right">
                 <FaArrowRight />
               </button>
-              <button onClick={handleOnMapZoom} className="nav-btn" id="in">
-                <GoZoomIn />
+
+              <button
+                onClick={handleOnSpritesizeChange}
+                className="nav-btn"
+                id="increase"
+              >
+                <FaPlus />
               </button>
-              <button onClick={handleOnMapZoom} className="nav-btn" id="out">
-                <GoZoomOut />
+              <button
+                onClick={handleOnSpritesizeChange}
+                className="nav-btn"
+                id="decrease"
+              >
+                <FaMinus />
               </button>
             </div>
           </>

@@ -20,6 +20,7 @@ model Game {
     mapPosX         Decimal
     mapPosY         Decimal
     mapZoom         Int
+    spriteSize      Int
     isPaused        Boolean
     dungeonMaster   User         @relation(fields: [dungeonMasterId], references: [id])
     dungeonMasterId String

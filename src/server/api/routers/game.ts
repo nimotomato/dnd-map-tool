@@ -10,6 +10,7 @@ const gameSchema = z.object({
   mapPosX: z.number(),
   mapPosY: z.number(),
   mapZoom: z.number(),
+  spriteSize: z.number(),
   isPaused: z.boolean(),
   dungeonMasterId: z.string(),
 });

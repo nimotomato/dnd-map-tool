@@ -18,7 +18,6 @@ import useGetMapRect from "../hooks/useGetMapRect";
 import useTryLoadImg from "~/hooks/useTryLoadImg";
 
 import { MapProps, Spriteinfo, Game, Character } from "~/types";
-import { get } from "http";
 
 const defaultMap = "/img/dungeonmap.jpg";
 
@@ -54,6 +53,7 @@ const NewGame = () => {
       height: 25,
       width: 25,
       zoom: 6,
+      spriteSize: 10,
     },
     isPaused: true,
     players: [],
@@ -180,10 +180,25 @@ const NewGame = () => {
   const handleOnLoadNPC = (e: ReactMouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
+    let mapRectWidth = mapRect?.width;
+    let mapRectHeight = mapRect?.height;
+
+    if (!mapRectWidth) {
+      mapRectWidth = 0;
+    } else {
+      mapRectWidth = mapRectWidth / 2;
+    }
+
+    if (!mapRectHeight) {
+      mapRectHeight = 0;
+    } else {
+      mapRectHeight = mapRectHeight / 2;
+    }
+
     const newSprite: Spriteinfo = {
       name: `${NPCNameInput}`,
-      posX: 0,
-      posY: 0,
+      posX: mapRectWidth,
+      posY: mapRectHeight,
       height: 0,
       width: 0,
       imgSrc: `${NPCSrcInput}`,
@@ -251,7 +266,7 @@ const NewGame = () => {
       alert("Not enough players.");
       return;
     }
-    console.log(gameState);
+
     createGameMutation.mutate({
       gameId: gameState.id,
       name: gameState.name,
@@ -259,6 +274,7 @@ const NewGame = () => {
       mapPosX: gameState.map.posX,
       mapPosY: gameState.map.posY,
       mapZoom: gameState.map.zoom,
+      spriteSize: gameState.map.spriteSize,
       isPaused: gameState.isPaused,
       dungeonMasterId: gameState.dungeonMaster,
     });
@@ -296,7 +312,8 @@ const NewGame = () => {
                   mapRect={mapRect}
                   map={map}
                   setMap={setMap}
-                  mapSrc={gameState.map.imgSrc}
+                  gameState={gameState}
+                  setGameState={setGameState}
                 />
               </div>
               <br></br>
@@ -355,7 +372,8 @@ const NewGame = () => {
                     mapRect={mapRect}
                     map={map}
                     setMap={setMap}
-                    mapSrc={gameState.map.imgSrc}
+                    gameState={gameState}
+                    setGameState={setGameState}
                   />
                 </div>
                 <div className="mt-6">

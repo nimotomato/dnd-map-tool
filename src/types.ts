@@ -17,6 +17,7 @@ export type DbMapProps = {
   height: number;
   width: number;
   zoom: number;
+  spriteSize: number;
 };
 
 export type MapProps = {
