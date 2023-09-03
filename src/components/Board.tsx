@@ -4,30 +4,17 @@ import DungeonMap from "./DungeonMap";
 import useGetMapRect from "../hooks/useGetMapRect";
 const defaultMap = "/img/dungeonmap.jpg";
 
-type Spriteinfo = {
-  name: string;
-  posX: number;
-  posY: number;
-  imgSrc: string;
-  controller: string;
-};
-
-type MapProps = {
-  imgSrc: string;
-  posX: number;
-  posY: number;
-  zoom: number;
-  hasLoaded: boolean;
-};
+import { Spriteinfo, MapProps } from "~/types";
 
 const Board = () => {
   const [sprites, setSprites] = useState<Array<Spriteinfo>>([]);
   // TO DO: Condense states into obj
 
   const [map, setMap] = useState<MapProps>({
-    imgSrc: defaultMap,
     posX: 0,
     posY: 0,
+    height: 25,
+    width: 25,
     zoom: 6,
     hasLoaded: false,
   });
@@ -43,6 +30,8 @@ const Board = () => {
           name: "goblin1",
           posX: 0,
           posY: 0,
+          height: 0,
+          width: 0,
           imgSrc: "/img/goblin.png",
           controller: "dm",
         },
@@ -50,6 +39,8 @@ const Board = () => {
           name: "goblin2",
           posX: 50,
           posY: 0,
+          height: 0,
+          width: 0,
           imgSrc: "/img/goblin.png",
           controller: "dm",
         },

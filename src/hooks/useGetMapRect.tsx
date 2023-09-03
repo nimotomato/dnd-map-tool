@@ -1,13 +1,5 @@
 import { useState, useEffect, MutableRefObject } from "react";
-type Maprect = {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  fullWidth: number;
-  fullHeight: number;
-};
-
+import { Maprect } from "~/types";
 // Takes url as image and reference to the div containing the image
 // Returns BoundiNgClientRect for the image
 const useGetMapRect = (
@@ -45,7 +37,7 @@ const useGetMapRect = (
     window.addEventListener("resize", refreshBoundingClient);
 
     return () => window.removeEventListener("resize", refreshBoundingClient);
-  }, []);
+  }, [map, mapRef.current]);
 
   return mapRect;
 };

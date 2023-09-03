@@ -1,12 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 
-type Spriteinfo = {
-  name: string;
-  posX: number;
-  posY: number;
-  imgSrc: string;
-  controller: string;
-};
+import { Spriteinfo, Maprect, MapProps, Game } from "~/types";
 
 type Rect = {
   x: number;
@@ -15,37 +9,34 @@ type Rect = {
   height: number;
 };
 
-type Maprect = {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  fullWidth: number;
-  fullHeight: number;
-};
-
 type Props = {
   posX: number;
   posY: number;
+  height: number;
+  width: number;
   controller: string;
   name: string;
   setSprites: React.Dispatch<React.SetStateAction<Spriteinfo[]>>;
   mapRect: Maprect | null;
   imgSrc: string;
-  mapPosX: number;
-  mapPosY: number;
+  map: MapProps;
   sprites: Spriteinfo[];
+  gameState: Game;
+  setGameState: React.Dispatch<React.SetStateAction<Game>>;
 };
 const Sprite = ({
   mapRect,
   setSprites,
   posX,
   posY,
+  height,
+  width,
   name,
   controller,
   imgSrc,
-  mapPosX,
-  mapPosY,
+  map,
+  gameState,
+  setGameState,
 }: Props) => {
   const [offsetX, setOffsetX] = useState<number>(0);
   const [offsetY, setOffsetY] = useState<number>(0);
@@ -66,6 +57,19 @@ const Sprite = ({
     }
   }, []);
 
+  // Handle sprite sizes
+  useEffect(() => {
+    if (!mapRect) return;
+
+    setSprites((prev) => {
+      return prev.map((sprite) => ({
+        ...sprite,
+        height: (mapRect.height * gameState.map.spriteSize) / 100,
+        width: (mapRect.width * gameState.map.spriteSize) / 100,
+      }));
+    });
+  }, [mapRect?.height, mapRect?.width, gameState.map]);
+
   const handleMouseMove = (e: MouseEvent) => {
     if (!mapRect || !spriteRect) return;
     e.preventDefault();
@@ -80,7 +84,7 @@ const Sprite = ({
 
           return {
             ...sprite,
-            posX: e.clientX - mapRect.x - offsetX - mapPosX,
+            posX: e.clientX - mapRect.x - offsetX - map.posX,
           };
         });
       });
@@ -96,7 +100,7 @@ const Sprite = ({
 
           return {
             ...sprite,
-            posY: e.clientY - mapRect.y - offsetY - mapPosY,
+            posY: e.clientY - mapRect.y - offsetY - map.posY,
           };
         });
       });
@@ -144,23 +148,23 @@ const Sprite = ({
   useEffect(() => {
     if (!mapRect) return;
 
-    if (posY + mapPosY < 0 || posY + mapPosY > mapRect.height) {
+    if (posY + map.posY < 0 || posY + map.posY > mapRect.height) {
       setShow(false);
     } else {
       setShow(true);
     }
-  }, [mapPosY]);
+  }, [map.posY]);
 
   // Make sprite not visible if outside of map
   useEffect(() => {
     if (!mapRect) return;
 
-    if (posX + mapPosX < 0 || posX + mapPosX > mapRect.width) {
+    if (posX + map.posX < 0 || posX + map.posX > mapRect.width) {
       setShow(false);
     } else {
       setShow(true);
     }
-  }, [mapPosX]);
+  }, [map.posX]);
 
   return (
     <>
@@ -171,10 +175,13 @@ const Sprite = ({
         id={name}
         src={`${imgSrc}`}
         alt="sprite"
-        className={`absolute h-9 w-9 select-none ${
-          show ? "visible" : "invisible"
-        }`}
-        style={{ top: `${posY + mapPosY}px`, left: `${posX + mapPosX}px` }}
+        className={`absolute select-none ${show ? "visible" : "invisible"}`}
+        style={{
+          height: `${height}px`,
+          width: `${width}px`,
+          top: `${posY + map.posY}px`,
+          left: `${posX + map.posX}px`,
+        }}
       />
     </>
   );

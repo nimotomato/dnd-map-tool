@@ -1,39 +1,25 @@
 import React, { useState, useRef, useEffect } from "react";
-import type { MouseEvent, MutableRefObject, SetStateAction } from "react";
+import type {
+  ButtonHTMLAttributes,
+  MouseEvent,
+  MutableRefObject,
+  SetStateAction,
+} from "react";
 
 import Sprite from "./Sprite";
+import useTryLoadImg from "~/hooks/useTryLoadImg";
+import { Spriteinfo, MapProps, Maprect, Game } from "~/types";
 
 import {
   FaArrowRight,
   FaArrowLeft,
   FaArrowUp,
   FaArrowDown,
+  FaPlus,
+  FaMinus,
 } from "react-icons/fa6";
 
-type Spriteinfo = {
-  name: string;
-  posX: number;
-  posY: number;
-  imgSrc: string;
-  controller: string;
-};
-
-type Maprect = {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  fullWidth: number;
-  fullHeight: number;
-};
-
-type MapProps = {
-  imgSrc: string;
-  posX: number;
-  posY: number;
-  zoom: number;
-  hasLoaded: boolean;
-};
+import { GoZoomIn, GoZoomOut } from "react-icons/go";
 
 type Props = {
   mapRef: MutableRefObject<HTMLDivElement | null>;
@@ -42,6 +28,8 @@ type Props = {
   mapRect: Maprect | null;
   map: MapProps;
   setMap: React.Dispatch<React.SetStateAction<MapProps>>;
+  gameState: Game;
+  setGameState: React.Dispatch<React.SetStateAction<Game>>;
 };
 
 const DungeonMap = ({
@@ -51,9 +39,12 @@ const DungeonMap = ({
   mapRef,
   map,
   setMap,
+  gameState,
+  setGameState,
 }: Props) => {
   // Stepsize in percentage
   const defaultStepSize = useRef(100);
+  const imgError = useTryLoadImg(gameState.map.imgSrc);
 
   const handleOnMapNav = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -95,37 +86,68 @@ const DungeonMap = ({
     });
   }, []);
 
+  const handleOnSpritesizeChange = (e: MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (e.currentTarget.id === "increase") {
+      setGameState((prev) => ({
+        ...prev,
+        map: { ...prev.map, spriteSize: prev.map.spriteSize + 1 },
+      }));
+    } else if (e.currentTarget.id === "decrease") {
+      setGameState((prev) => ({
+        ...prev,
+        map: { ...prev.map, spriteSize: prev.map.spriteSize - 1 },
+      }));
+    }
+  };
+
   return (
     <>
-      <div ref={mapRef} className="relative h-96 w-96">
+      <div
+        ref={mapRef}
+        className={`relative`}
+        style={{
+          height: `${map.height}rem`,
+          width: `${map.width}rem`,
+        }}
+      >
         {map.hasLoaded ? (
           <>
-            <div
-              className="h-full w-full"
-              style={{
-                backgroundImage: `url(${map.imgSrc})`,
-                backgroundPosition: `${map.posX}px ${map.posY}px`,
-                backgroundSize: `${map.zoom * 100}%`,
-              }}
-            >
-              {sprites?.map((sprite) => {
-                return (
-                  <Sprite
-                    posX={sprite.posX}
-                    mapPosX={map.posX}
-                    mapPosY={map.posY}
-                    posY={sprite.posY}
-                    key={sprite.name}
-                    mapRect={mapRect}
-                    controller={sprite.controller}
-                    imgSrc={sprite.imgSrc}
-                    setSprites={setSprites}
-                    name={sprite.name}
-                    sprites={sprites}
-                  />
-                );
-              })}
-            </div>
+            {!imgError ? (
+              <div
+                className="h-full w-full"
+                style={{
+                  backgroundImage: `url(${gameState.map.imgSrc})`,
+                  backgroundPosition: `${map.posX}px ${map.posY}px`,
+                  backgroundSize: `${map.zoom * 100}%`,
+                }}
+              >
+                {setSprites &&
+                  sprites?.map((sprite) => {
+                    return (
+                      <Sprite
+                        posX={sprite.posX}
+                        height={sprite.height}
+                        width={sprite.width}
+                        map={map}
+                        posY={sprite.posY}
+                        key={sprite.name}
+                        mapRect={mapRect}
+                        controller={sprite.controller}
+                        imgSrc={sprite.imgSrc}
+                        setSprites={setSprites}
+                        name={sprite.name}
+                        sprites={sprites}
+                        gameState={gameState}
+                        setGameState={setGameState}
+                      />
+                    );
+                  })}
+              </div>
+            ) : (
+              <div>error loading image</div>
+            )}
+
             <div>
               <button onClick={handleOnMapNav} className="nav-btn" id="up">
                 <FaArrowUp />
@@ -138,6 +160,21 @@ const DungeonMap = ({
               </button>
               <button onClick={handleOnMapNav} className="nav-btn" id="right">
                 <FaArrowRight />
+              </button>
+
+              <button
+                onClick={handleOnSpritesizeChange}
+                className="nav-btn"
+                id="increase"
+              >
+                <FaPlus />
+              </button>
+              <button
+                onClick={handleOnSpritesizeChange}
+                className="nav-btn"
+                id="decrease"
+              >
+                <FaMinus />
               </button>
             </div>
           </>
