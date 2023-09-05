@@ -10,9 +10,9 @@ const useGetMapRect = (
 
   // Load the dimensions for background
   useEffect(() => {
-    if (!mapRef || !mapRef.current || !map) return;
+    if (!map) return;
 
-    const currentMapRef = mapRef.current;
+    const currentMapRef = mapRef?.current;
     if (!currentMapRef) return;
 
     const refreshBoundingClient = () => {

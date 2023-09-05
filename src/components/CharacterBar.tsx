@@ -1,5 +1,5 @@
 import React from "react";
-import { Spriteinfo, MapProps, Maprect } from "~/types";
+import type { Spriteinfo, MapProps, Maprect } from "~/types";
 
 type Props = {
   sprites: Spriteinfo[];

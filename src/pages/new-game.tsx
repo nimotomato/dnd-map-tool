@@ -18,7 +18,6 @@ import useGetMapRect from "../hooks/useGetMapRect";
 import useTryLoadImg from "~/hooks/useTryLoadImg";
 
 import { MapProps, Spriteinfo, Game, Character } from "~/types";
-import { posix } from "path";
 
 const defaultMap = "/img/dungeonmap.jpg";
 
@@ -118,19 +117,12 @@ const NewGame = () => {
   const getUser = api.user.getUser.useQuery({ userEmail: playerInput });
 
   useEffect(() => {
-    if (!getUser || !getUser.data || !getUser.data.id) return;
+    const userId = getUser?.data?.id;
 
-    const userId = getUser.data.id;
+    if (!userId) return;
 
     setGameState((prev) => ({ ...prev, dungeonMaster: userId }));
   }, [getUser]);
-
-  // Get all users added to players
-  const getManyUsers = api.user.getManyUsers.useQuery(
-    gameState.players.map((player) => ({
-      email: player,
-    }))
-  );
 
   const handleOnAddPlayer = (e: ReactMouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -138,6 +130,7 @@ const NewGame = () => {
     if (
       !getUser.data ||
       // Verify username exists in database
+      // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
       gameState.players.includes(getUser.data.email as string)
     ) {
       setBorder({ color: "border-rose-500", size: "border-2" });
