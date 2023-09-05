@@ -1,6 +1,17 @@
 import Link from "next/link";
+import { useSession } from "next-auth/react";
+
+import { api } from "~/utils/api";
 
 const ActiveGames = () => {
+  const session = useSession();
+  const user = session.data?.user;
+
+  // Get all games a user is in.
+  const games = api.game.getGames.useQuery({ userId: user?.id || "" });
+
+  console.log(games.data);
+
   return (
     <>
       <h1>Active games</h1>

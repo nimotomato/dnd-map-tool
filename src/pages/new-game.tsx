@@ -5,7 +5,6 @@ import React, {
   useRef,
   useState,
   useEffect,
-  use,
 } from "react";
 import { useSession } from "next-auth/react";
 import { v4 as uuidv4 } from "uuid";

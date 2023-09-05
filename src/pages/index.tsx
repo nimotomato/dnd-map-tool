@@ -22,7 +22,7 @@ export default function Home() {
                 <Link href="/new-game">Start new game</Link>
               </li>
               <li>
-                <Link href="/active">See active games</Link>
+                <Link href="/active-games">See active games</Link>
               </li>
             </ul>
             <button onClick={() => void signOut()}>Log out</button>

@@ -39,9 +39,16 @@ const newGameSchema = z.object({
 
 export const gameRouter = createTRPCRouter({
   // Upload game data to database. DOES NOT INCLUDE CHARACTERS
-  createGame: publicProcedure.input(gameSchema).mutation(({ ctx, input }) => {
-    return ctx.prisma.game.create({
-      data: input,
+  getGames: publicProcedure.input(z.object({userId: z.string()})).query(({ ctx, input }) => {
+    return ctx.prisma.userInGame.findMany({
+      where: {
+        userId: {
+          equals: input.userId,
+        }
+      },
+      select: {
+        gameId: true,
+      }
     });
   }),
 
