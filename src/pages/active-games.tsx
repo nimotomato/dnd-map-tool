@@ -14,13 +14,25 @@ const ActiveGames = () => {
 
   return (
     <>
-      <h1>Active games</h1>
-      {/* Get API call for all games where user */}
-      <ul>
-        <li>Game 1...</li>
-        <li>Game 2...</li>
-      </ul>
-      <Link href="/">Go back</Link>
+      <main className="flex min-h-screen flex-col items-center justify-center bg-slate-600">
+        <h1>Active games</h1>
+        {/* Get API call for all games where user */}
+        {games?.data && games.data.length > 0 ? (
+          <ul>
+            {games.data.map((game) => {
+              return (
+                <div>
+                  <li>{game.gameId}</li>;<button className="">Join game</button>
+                </div>
+              );
+            })}
+          </ul>
+        ) : (
+          <h2> No active games found. </h2>
+        )}
+        <ul></ul>
+        <Link href="/">Go back</Link>
+      </main>
     </>
   );
 };
