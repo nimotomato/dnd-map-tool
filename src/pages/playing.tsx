@@ -8,7 +8,8 @@ import { api } from "~/utils/api";
 
 import DungeonMap from "~/components/DungeonMap";
 import useGetMapRect from "../hooks/useGetMapRect";
-import { MapProps, Game } from "~/types";
+import { MapProps, Game, Spriteinfo } from "~/types";
+import CharacterBar from "~/components/CharacterBar";
 
 const GameBoard = () => {
   const session = useSession();
@@ -171,27 +172,30 @@ const GameBoard = () => {
     characters: [],
   });
 
+  // Local sprites
+
   useEffect(() => {
     if (!gameData.data || !users.data || !charactersInGame.data) return;
 
     const data = gameData.data;
+    const characters = charactersInGame.data;
 
     const currentUsers = users.data.map((user) => ({
       id: user.user.id,
       name: user.user.name ?? "anon",
     }));
 
-    const characterData = charactersInGame.data.map((character) => ({
+    const characterData = characters.map((character) => ({
       ...character,
-      positionX: character.positionX.toNumber(),
-      positionY: character.positionY.toNumber(),
+      positionX: Number(character.positionX),
+      positionY: Number(character.positionY),
     }));
 
     setMap({
-      posX: data.mapPosX.toNumber(),
-      posY: data.mapPosY.toNumber(),
+      posX: Number(data.mapPosX),
+      posY: Number(data.mapPosY),
       zoom: data.mapZoom,
-      hasLoaded: false,
+      hasLoaded: true,
     });
 
     setLocalGameState((prev) => ({
@@ -200,8 +204,8 @@ const GameBoard = () => {
       map: {
         ...prev.map,
         imgSrc: data.mapSrc,
-        posX: data.mapPosX.toNumber(),
-        posY: data.mapPosY.toNumber(),
+        posX: Number(data.mapPosX),
+        posY: Number(data.mapPosY),
         zoom: data.mapZoom,
       },
       isPaused: data.isPaused,
@@ -211,7 +215,33 @@ const GameBoard = () => {
     }));
   }, [gameData.data]);
 
-  // Keep track of whos turn it is with [{playerId: string, initiative: number}]
+  const [sprites, setSprites] = useState<Spriteinfo[]>([]);
+
+  useEffect(() => {
+    if (!charactersInGame.data) return;
+    const characterData = charactersInGame.data.map((character) => ({
+      ...character,
+      positionX: Number(character.positionX),
+      positionY: Number(character.positionY),
+    }));
+
+    characterData.map((character) => {
+      setSprites((prev) => [
+        ...prev,
+        {
+          name: character.name,
+          posX: character.positionX,
+          posY: character.positionY,
+          height: 0,
+          width: 0,
+          imgSrc: character.imgSrc,
+          controller: character.controllerId,
+          initiative: character.initiative,
+        },
+      ]);
+    });
+  }, [charactersInGame.data]);
+
   // Allow one player to move and end their turn on a button click.
   // Update character position
 
@@ -224,9 +254,16 @@ const GameBoard = () => {
       </Head>
 
       <main className="flex min-h-screen flex-col items-center justify-center bg-slate-600">
-        <div>
-          {renderPause()}
-
+        {renderPause()}
+        <div className="flex">
+          <div>
+            <CharacterBar
+              sprites={sprites}
+              setMap={setMap}
+              map={map}
+              mapRect={mapRect}
+            />
+          </div>
           <DungeonMap
             key={JSON.stringify(mapRect)}
             mapRef={mapRef}

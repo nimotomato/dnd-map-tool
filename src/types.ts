@@ -6,6 +6,7 @@ export type Spriteinfo = {
   width: number;
   imgSrc: string;
   controller: string;
+  initiative?: number;
 };
 
 export type DbMapProps = {

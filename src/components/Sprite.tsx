@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useSession } from "next-auth/react";
 
 import { Spriteinfo, Maprect, MapProps, Game } from "~/types";
 
@@ -38,6 +39,9 @@ const Sprite = ({
   gameState,
   setGameState,
 }: Props) => {
+  const session = useSession();
+  const currentUser = session.data?.user;
+
   const [offsetX, setOffsetX] = useState<number>(0);
   const [offsetY, setOffsetY] = useState<number>(0);
   const spriteRef = useRef<HTMLImageElement | null>(null);
