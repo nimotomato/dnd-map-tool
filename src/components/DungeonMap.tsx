@@ -31,6 +31,9 @@ type Props = {
   isDm: boolean;
   gameState: Game;
   setGameState: React.Dispatch<React.SetStateAction<Game>>;
+  createMode: boolean;
+  userTurnIndex: number;
+  setUserTurnIndex: React.Dispatch<React.SetStateAction<number>>;
 };
 
 const DungeonMap = ({
@@ -43,6 +46,9 @@ const DungeonMap = ({
   setMap,
   gameState,
   setGameState,
+  createMode,
+  userTurnIndex,
+  setUserTurnIndex,
 }: Props) => {
   // Stepsize in percentage
   const defaultStepSize = useRef(100);
@@ -142,6 +148,9 @@ const DungeonMap = ({
                         sprites={sprites}
                         gameState={gameState}
                         setGameState={setGameState}
+                        createMode={createMode}
+                        userTurnIndex={userTurnIndex}
+                        setUserTurnIndex={setUserTurnIndex}
                       />
                     );
                   })}

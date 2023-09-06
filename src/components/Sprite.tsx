@@ -24,6 +24,9 @@ type Props = {
   sprites: Spriteinfo[];
   gameState: Game;
   setGameState: React.Dispatch<React.SetStateAction<Game>>;
+  createMode: boolean;
+  userTurnIndex: number;
+  setUserTurnIndex: React.Dispatch<React.SetStateAction<number>>;
 };
 const Sprite = ({
   mapRect,
@@ -38,6 +41,10 @@ const Sprite = ({
   map,
   gameState,
   setGameState,
+  sprites,
+  createMode,
+  userTurnIndex,
+  setUserTurnIndex,
 }: Props) => {
   const session = useSession();
   const currentUser = session.data?.user;
@@ -47,6 +54,11 @@ const Sprite = ({
   const spriteRef = useRef<HTMLImageElement | null>(null);
   const [spriteRect, setSpriteRect] = useState<Rect | null>(null);
   const [show, setShow] = useState(true);
+  const [userQueue, setUserQueue] = useState(
+    gameState.characters.sort((a, b) => {
+      return a.initiative - b.initiative;
+    })
+  );
 
   useEffect(() => {
     if (spriteRef.current) {
@@ -126,7 +138,7 @@ const Sprite = ({
   const handleMouseDown = (
     e: React.MouseEvent<HTMLImageElement, MouseEvent>
   ) => {
-    if (!spriteRect) return;
+    if ((!createMode && !gameState.isPaused) || !spriteRect) return;
 
     if (spriteRef.current) {
       const boundingClient = spriteRef.current.getBoundingClientRect();

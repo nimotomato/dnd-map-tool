@@ -26,6 +26,9 @@ const NewGame = () => {
   const user = session.data?.user;
   const router = useRouter();
 
+  // Dummy values for bad code structure
+  const [userTurnIndex, setUserTurnIndex] = useState(0);
+
   const [step, setStep] = useState(0);
   const nextStep = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -324,6 +327,9 @@ const NewGame = () => {
                   gameState={gameState}
                   setGameState={setGameState}
                   isDm={true}
+                  createMode={true}
+                  userTurnIndex={userTurnIndex}
+                  setUserTurnIndex={setUserTurnIndex}
                 />
               </div>
               <br></br>
@@ -393,6 +399,9 @@ const NewGame = () => {
                     gameState={gameState}
                     setGameState={setGameState}
                     isDm={true}
+                    createMode={true}
+                    userTurnIndex={userTurnIndex}
+                    setUserTurnIndex={setUserTurnIndex}
                   />
                 </div>
                 <div className="mt-6">
