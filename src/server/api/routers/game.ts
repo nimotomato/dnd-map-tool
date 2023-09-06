@@ -38,7 +38,6 @@ const newGameSchema = z.object({
 });
 
 export const gameRouter = createTRPCRouter({
-  // Upload game data to database. DOES NOT INCLUDE CHARACTERS
   getGames: publicProcedure
     .input(z.object({ userId: z.string() }))
     .query(({ ctx, input }) => {
@@ -50,6 +49,11 @@ export const gameRouter = createTRPCRouter({
         },
         select: {
           gameId: true,
+          game: {
+            select: {
+              name: true,
+            },
+          },
         },
       });
     }),
