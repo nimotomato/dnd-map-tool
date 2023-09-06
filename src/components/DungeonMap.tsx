@@ -28,6 +28,7 @@ type Props = {
   mapRect: Maprect | null;
   map: MapProps;
   setMap: React.Dispatch<React.SetStateAction<MapProps>>;
+  isDm: boolean;
   gameState: Game;
   setGameState: React.Dispatch<React.SetStateAction<Game>>;
 };
@@ -38,6 +39,7 @@ const DungeonMap = ({
   mapRect,
   mapRef,
   map,
+  isDm,
   setMap,
   gameState,
   setGameState,
@@ -107,8 +109,8 @@ const DungeonMap = ({
         ref={mapRef}
         className={`relative`}
         style={{
-          height: `${map.height}rem`,
-          width: `${map.width}rem`,
+          height: `${25}rem`,
+          width: `${25}rem`,
         }}
       >
         {map.hasLoaded ? (
@@ -147,36 +149,37 @@ const DungeonMap = ({
             ) : (
               <div>error loading image</div>
             )}
+            {isDm && (
+              <div>
+                <button onClick={handleOnMapNav} className="nav-btn" id="up">
+                  <FaArrowUp />
+                </button>
+                <button onClick={handleOnMapNav} className="nav-btn" id="down">
+                  <FaArrowDown />
+                </button>
+                <button onClick={handleOnMapNav} className="nav-btn" id="left">
+                  <FaArrowLeft />
+                </button>
+                <button onClick={handleOnMapNav} className="nav-btn" id="right">
+                  <FaArrowRight />
+                </button>
 
-            <div>
-              <button onClick={handleOnMapNav} className="nav-btn" id="up">
-                <FaArrowUp />
-              </button>
-              <button onClick={handleOnMapNav} className="nav-btn" id="down">
-                <FaArrowDown />
-              </button>
-              <button onClick={handleOnMapNav} className="nav-btn" id="left">
-                <FaArrowLeft />
-              </button>
-              <button onClick={handleOnMapNav} className="nav-btn" id="right">
-                <FaArrowRight />
-              </button>
-
-              <button
-                onClick={handleOnSpritesizeChange}
-                className="nav-btn"
-                id="increase"
-              >
-                <FaPlus />
-              </button>
-              <button
-                onClick={handleOnSpritesizeChange}
-                className="nav-btn"
-                id="decrease"
-              >
-                <FaMinus />
-              </button>
-            </div>
+                <button
+                  onClick={handleOnSpritesizeChange}
+                  className="nav-btn"
+                  id="increase"
+                >
+                  <FaPlus />
+                </button>
+                <button
+                  onClick={handleOnSpritesizeChange}
+                  className="nav-btn"
+                  id="decrease"
+                >
+                  <FaMinus />
+                </button>
+              </div>
+            )}
           </>
         ) : (
           <h1>Loading map</h1>

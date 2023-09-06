@@ -15,12 +15,17 @@ export const userRouter = createTRPCRouter({
     }),
 
   // Get many users, takes in emails
-  getManyUsers: publicProcedure
-    .input(z.array(z.object({ email: z.string() })))
+  getUsersInGame: publicProcedure
+    .input(z.object({ gameId: z.string() }))
     .query(({ ctx, input }) => {
-      return ctx.prisma.user.findMany({
+      return ctx.prisma.userInGame.findMany({
         where: {
-          OR: input,
+          gameId: {
+            equals: input.gameId,
+          },
+        },
+        select: {
+          user: true,
         },
       });
     }),

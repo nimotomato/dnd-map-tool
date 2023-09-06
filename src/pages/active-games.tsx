@@ -11,8 +11,6 @@ const ActiveGames = () => {
   // Get all games a user is in.
   const games = api.game.getGames.useQuery({ userId: user?.id ?? "" });
 
-  console.log(games.data);
-
   return (
     <>
       <Head>
@@ -29,7 +27,15 @@ const ActiveGames = () => {
               return (
                 <div key={game.gameId}>
                   <li>
-                    {game.game.name} <button className="">Join game</button>{" "}
+                    {game.game.name}{" "}
+                    <Link
+                      href={{
+                        pathname: "/playing",
+                        query: { data: JSON.stringify(game.gameId) },
+                      }}
+                    >
+                      Join game
+                    </Link>
                     <button className="">Leave game</button>
                   </li>
                 </div>

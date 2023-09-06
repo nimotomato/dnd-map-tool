@@ -1,5 +1,3 @@
-import { string } from "zod";
-
 export type Spriteinfo = {
   name: string;
   posX: number;
@@ -14,8 +12,6 @@ export type DbMapProps = {
   imgSrc: string;
   posX: number;
   posY: number;
-  height: number;
-  width: number;
   zoom: number;
   spriteSize: number;
 };
@@ -23,8 +19,6 @@ export type DbMapProps = {
 export type MapProps = {
   posX: number;
   posY: number;
-  height: number;
-  width: number;
   zoom: number;
   hasLoaded: boolean;
 };

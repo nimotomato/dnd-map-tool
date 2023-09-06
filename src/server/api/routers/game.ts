@@ -38,6 +38,18 @@ const newGameSchema = z.object({
 });
 
 export const gameRouter = createTRPCRouter({
+  getGame: publicProcedure
+    .input(z.object({ gameId: z.string() }))
+    .query(({ ctx, input }) => {
+      return ctx.prisma.game.findFirst({
+        where: {
+          gameId: {
+            equals: input.gameId,
+          },
+        },
+      });
+    }),
+
   getGames: publicProcedure
     .input(z.object({ userId: z.string() }))
     .query(({ ctx, input }) => {
@@ -82,9 +94,29 @@ export const gameRouter = createTRPCRouter({
       return prisma.$transaction([gameIds, game, characters]);
     }),
 
-  // TO DO:
-  // Get map position
-  // Change map position
-  // Get map src
-  // Change map src
+  pauseGame: publicProcedure
+    .input(z.object({ gameId: z.string() }))
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.game.update({
+        where: {
+          gameId: input.gameId,
+        },
+        data: {
+          isPaused: true,
+        },
+      });
+    }),
+
+  unPauseGame: publicProcedure
+    .input(z.object({ gameId: z.string() }))
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.game.update({
+        where: {
+          gameId: input.gameId,
+        },
+        data: {
+          isPaused: false,
+        },
+      });
+    }),
 });

@@ -23,10 +23,34 @@ export const characterRouter = createTRPCRouter({
       });
     }),
 
-  // TO DO:
-  // Get all characters in game
-  // Change initiative of characters in game
-  // Get initiative of characters in game
-  // Change position of characters in game
-  // Get positions of characters in game
+  getCharactersInGame: publicProcedure
+    .input(z.object({ gameId: z.string() }))
+    .query(({ ctx, input }) => {
+      return ctx.prisma.character.findMany({
+        where: {
+          gameId: {
+            equals: input.gameId,
+          },
+        },
+      });
+    }),
+
+  updateInitiative: publicProcedure
+    .input(
+      z.array(z.object({ characterId: z.string(), initiative: z.number() }))
+    )
+    .mutation(({ ctx, input }) => {
+      const initiatives = input.map((char) => {
+        return ctx.prisma.character.update({
+          where: {
+            characterId: char.characterId,
+          },
+          data: {
+            initiative: char.initiative,
+          },
+        });
+      });
+
+      return ctx.prisma.$transaction(initiatives);
+    }),
 });

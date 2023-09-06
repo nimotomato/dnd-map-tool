@@ -51,8 +51,6 @@ const NewGame = () => {
       imgSrc: defaultMap,
       posX: 0,
       posY: 0,
-      height: 25,
-      width: 25,
       zoom: 6,
       spriteSize: 10,
     },
@@ -66,8 +64,6 @@ const NewGame = () => {
   const [map, setMap] = useState<MapProps>({
     posX: 0,
     posY: 0,
-    height: 25,
-    width: 25,
     zoom: 6,
     hasLoaded: false,
   });
@@ -327,6 +323,7 @@ const NewGame = () => {
                   setMap={setMap}
                   gameState={gameState}
                   setGameState={setGameState}
+                  isDm={true}
                 />
               </div>
               <br></br>
@@ -395,6 +392,7 @@ const NewGame = () => {
                     setMap={setMap}
                     gameState={gameState}
                     setGameState={setGameState}
+                    isDm={true}
                   />
                 </div>
                 <div className="mt-6">
