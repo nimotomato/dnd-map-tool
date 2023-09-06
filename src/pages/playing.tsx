@@ -8,9 +8,9 @@ import { api } from "~/utils/api";
 
 import DungeonMap from "~/components/DungeonMap";
 import useGetMapRect from "../hooks/useGetMapRect";
-import { MapProps } from "~/types";
+import { MapProps, Game } from "~/types";
 
-const Game = () => {
+const GameBoard = () => {
   const session = useSession();
   const currentUser = session.data?.user;
 
@@ -25,7 +25,7 @@ const Game = () => {
   const users = api.user.getUsersInGame.useQuery({ gameId: gameIdParam ?? "" });
 
   // Filter out the userIds
-  const userIds = users.data?.map((user) => user.user.id) || [];
+  const userIds = users.data?.map((user) => user.user.id) ?? [];
 
   // Error and return to index if userId is not in the game
   if (
@@ -154,10 +154,38 @@ const Game = () => {
     hasLoaded: false,
   });
 
+  // Local game state
+  const [localGameState, setLocalGameState] = useState<Game>({
+    id: gameIdParam ?? "",
+    name: "",
+    map: {
+      imgSrc: "",
+      posX: 0,
+      posY: 0,
+      zoom: 6,
+      spriteSize: 10,
+    },
+    isPaused: true,
+    players: [],
+    dungeonMaster: "",
+    characters: [],
+  });
+
   useEffect(() => {
-    if (!gameData.data) return;
+    if (!gameData.data || !users.data || !charactersInGame.data) return;
 
     const data = gameData.data;
+
+    const currentUsers = users.data.map((user) => ({
+      id: user.user.id,
+      name: user.user.name ?? "anon",
+    }));
+
+    const characterData = charactersInGame.data.map((character) => ({
+      ...character,
+      positionX: character.positionX.toNumber(),
+      positionY: character.positionY.toNumber(),
+    }));
 
     setMap({
       posX: data.mapPosX.toNumber(),
@@ -165,6 +193,22 @@ const Game = () => {
       zoom: data.mapZoom,
       hasLoaded: false,
     });
+
+    setLocalGameState((prev) => ({
+      ...prev,
+      name: data.name,
+      map: {
+        ...prev.map,
+        imgSrc: data.mapSrc,
+        posX: data.mapPosX.toNumber(),
+        posY: data.mapPosY.toNumber(),
+        zoom: data.mapZoom,
+      },
+      isPaused: data.isPaused,
+      players: currentUsers,
+      dungeonMaster: data.dungeonMasterId,
+      characters: characterData,
+    }));
   }, [gameData.data]);
 
   // Keep track of whos turn it is with [{playerId: string, initiative: number}]
@@ -189,9 +233,11 @@ const Game = () => {
             mapRect={mapRect}
             map={map}
             setMap={setMap}
-            gameState={gameState}
-            setGameState={setGameState}
+            gameState={localGameState}
+            setGameState={setLocalGameState}
             isDm={true}
+            sprites={sprites}
+            setSprites={setSprites}
           />
         </div>
         <Link href="/">Main menu</Link>
@@ -200,4 +246,4 @@ const Game = () => {
   );
 };
 
-export default Game;
+export default GameBoard;

@@ -43,6 +43,7 @@ export type Game = {
 };
 
 export type Character = {
+  id?: string;
   name: string;
   positionX: number;
   positionY: number;
