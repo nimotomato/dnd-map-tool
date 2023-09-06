@@ -42,7 +42,7 @@ export type Game = {
   id: string;
   name: string;
   map: DbMapProps;
-  players: string[];
+  players: { name: string; id: string }[];
   isPaused: boolean;
   dungeonMaster: string;
   characters: Character[];

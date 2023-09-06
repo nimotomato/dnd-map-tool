@@ -5,9 +5,9 @@ import React, {
   useRef,
   useState,
   useEffect,
-  use,
 } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
 import { v4 as uuidv4 } from "uuid";
 
 import { api } from "~/utils/api";
@@ -24,6 +24,7 @@ const defaultMap = "/img/dungeonmap.jpg";
 const NewGame = () => {
   const session = useSession();
   const user = session.data?.user;
+  const router = useRouter();
 
   const [step, setStep] = useState(0);
   const nextStep = (e: React.MouseEvent) => {
@@ -117,21 +118,25 @@ const NewGame = () => {
   const getUser = api.user.getUser.useQuery({ userEmail: playerInput });
 
   useEffect(() => {
-    const userId = getUser?.data?.id;
+    if (!user?.id || gameState.dungeonMaster !== "") return;
 
-    if (!userId) return;
-
-    setGameState((prev) => ({ ...prev, dungeonMaster: userId }));
+    setGameState((prev) => ({
+      ...prev,
+      dungeonMaster: user.id,
+      players: [...prev.players, { id: user.id, name: user.name ?? "anon" }],
+    }));
   }, [getUser]);
 
   const handleOnAddPlayer = (e: ReactMouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
+    const playerIds = gameState.players.map((player) => player.id);
+
     if (
       !getUser.data ||
       // Verify username exists in database
       // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
-      gameState.players.includes(getUser.data.email as string)
+      playerIds.includes(getUser.data.id)
     ) {
       setBorder({ color: "border-rose-500", size: "border-2" });
       setErrorText("User email not found, try again.");
@@ -139,9 +144,14 @@ const NewGame = () => {
       return;
     }
 
+    const userData = getUser.data;
+
     setGameState((prev) => ({
       ...prev,
-      players: [...prev.players, playerInput],
+      players: [
+        ...prev.players,
+        { id: userData.id, name: userData.name ?? "anon" },
+      ],
     }));
     setBorder({ color: "border-black", size: "border-2" });
     setErrorText("");
@@ -154,10 +164,12 @@ const NewGame = () => {
 
   const handleOnRemove = (
     e: ReactMouseEvent<HTMLButtonElement>,
-    player: string
+    name: string
   ) => {
     e.preventDefault();
-    const filteredPlaters = gameState.players.filter((name) => name !== player);
+    const filteredPlaters = gameState.players.filter(
+      (player) => player.name !== name
+    );
 
     setGameState((prev) => ({
       ...prev,
@@ -262,6 +274,8 @@ const NewGame = () => {
       return;
     }
 
+    const playerIds = gameState.players.map((player) => player.id);
+
     createGameMutation.mutate({
       gameData: {
         gameId: gameState.id,
@@ -275,7 +289,7 @@ const NewGame = () => {
         dungeonMasterId: gameState.dungeonMaster,
       },
       characterData: gameState.characters,
-      userIds: gameState.players,
+      userIds: playerIds,
     });
   };
 
@@ -322,13 +336,21 @@ const NewGame = () => {
                   gameState.players.map((player) => {
                     return (
                       <div key={gameState.players.indexOf(player)}>
-                        <p>
-                          Player {`${gameState.players.indexOf(player) + 1}`}{" "}
-                          {player}
-                        </p>
-                        <button onClick={(e) => handleOnRemove(e, player)}>
-                          Remove player
-                        </button>
+                        {gameState.players.indexOf(player) === 0 ? (
+                          <p>{`Dungeon Master: ${player.name}`} </p>
+                        ) : (
+                          <>
+                            <p>
+                              {`Player ${gameState.players.indexOf(player)}: `}
+                              {player.name}
+                            </p>
+                            <button
+                              onClick={(e) => handleOnRemove(e, player.name)}
+                            >
+                              Remove player
+                            </button>
+                          </>
+                        )}
                       </div>
                     );
                   })}
@@ -403,7 +425,14 @@ const NewGame = () => {
               </div>
             </div>
             <div>
-              <button onClick={createGame}>Create game</button>
+              <button
+                onClick={(e) => {
+                  createGame(e);
+                  void router.push("/");
+                }}
+              >
+                Create game
+              </button>
             </div>
           </>
         )}

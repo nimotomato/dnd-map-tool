@@ -16,7 +16,7 @@ model Game {
     createdAt       DateTime     @default(now())
     updatedAt       DateTime     @updatedAt
     name            String
-    mapSrc          String
+    mapSrc          String       @db.Text
     mapPosX         Decimal
     mapPosY         Decimal
     mapZoom         Int
@@ -33,7 +33,7 @@ model Character {
     name         String
     positionX    Decimal
     positionY    Decimal
-    imgSrc       String
+    imgSrc       String  @db.Text
     initiative   Int
     controllerId String
     controller   User    @relation(fields: [controllerId], references: [id], onDelete: Cascade)
