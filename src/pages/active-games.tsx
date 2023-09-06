@@ -9,7 +9,7 @@ const ActiveGames = () => {
   const user = session.data?.user;
 
   // Get all games a user is in.
-  const games = api.game.getGames.useQuery({ userId: user?.id || "" });
+  const games = api.game.getGames.useQuery({ userId: user?.id ?? "" });
 
   console.log(games.data);
 
@@ -27,7 +27,7 @@ const ActiveGames = () => {
           <ul>
             {games.data.map((game) => {
               return (
-                <div>
+                <div key={game.gameId}>
                   <li>
                     {game.game.name} <button className="">Join game</button>{" "}
                     <button className="">Leave game</button>

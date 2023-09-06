@@ -123,7 +123,7 @@ const NewGame = () => {
     setGameState((prev) => ({
       ...prev,
       dungeonMaster: user.id,
-      players: [...prev.players, { id: user.id, name: user.name || "anon" }],
+      players: [...prev.players, { id: user.id, name: user.name ?? "anon" }],
     }));
   }, [getUser]);
 
@@ -136,7 +136,7 @@ const NewGame = () => {
       !getUser.data ||
       // Verify username exists in database
       // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
-      playerIds.includes(getUser.data.id as string)
+      playerIds.includes(getUser.data.id)
     ) {
       setBorder({ color: "border-rose-500", size: "border-2" });
       setErrorText("User email not found, try again.");
@@ -150,7 +150,7 @@ const NewGame = () => {
       ...prev,
       players: [
         ...prev.players,
-        { id: userData.id, name: userData.name || "anon" },
+        { id: userData.id, name: userData.name ?? "anon" },
       ],
     }));
     setBorder({ color: "border-black", size: "border-2" });
@@ -291,8 +291,6 @@ const NewGame = () => {
       characterData: gameState.characters,
       userIds: playerIds,
     });
-
-    router.push("/");
   };
 
   return (
@@ -427,7 +425,14 @@ const NewGame = () => {
               </div>
             </div>
             <div>
-              <button onClick={createGame}>Create game</button>
+              <button
+                onClick={(e) => {
+                  createGame(e);
+                  void router.push("/");
+                }}
+              >
+                Create game
+              </button>
             </div>
           </>
         )}
