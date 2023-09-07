@@ -1,14 +1,3 @@
-export type Spriteinfo = {
-  name: string;
-  posX: number;
-  posY: number;
-  height: number;
-  width: number;
-  imgSrc: string;
-  controller: string;
-  initiative?: number;
-};
-
 export type DbMapProps = {
   imgSrc: string;
   posX: number;
@@ -44,7 +33,7 @@ export type Game = {
 };
 
 export type Character = {
-  id?: string;
+  characterId: string;
   name: string;
   positionX: number;
   positionY: number;

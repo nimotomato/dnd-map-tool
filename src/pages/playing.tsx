@@ -8,12 +8,14 @@ import { api } from "~/utils/api";
 
 import DungeonMap from "~/components/DungeonMap";
 import useGetMapRect from "../hooks/useGetMapRect";
-import { MapProps, Game, Spriteinfo } from "~/types";
+import { MapProps, Game, Character } from "~/types";
 import CharacterBar from "~/components/CharacterBar";
 
 const GameBoard = () => {
   const session = useSession();
   const currentUser = session.data?.user;
+
+  // Make the gameboard refresh, resulting in new api calls etc
 
   // get gameId through search params
   const gameIdParam = useSearchParams().get("data")?.replace(/"/g, "");
@@ -81,18 +83,6 @@ const GameBoard = () => {
     // Update inititative on DB
     updateInitiative.mutate(initiativeRolls);
   };
-
-  // Keep track of whose turn it is.
-  const [userTurnIndex, setUserTurnIndex] = useState(0);
-
-  // If all characters have had their turn, reset the counter.
-  useEffect(() => {
-    if (!charactersInGame.data) return;
-
-    if (userTurnIndex > charactersInGame.data.length) {
-      setUserTurnIndex(0);
-    }
-  }, [userTurnIndex]);
 
   // Allow DM to pause and unpause the game
   // Prepare API call
@@ -201,6 +191,7 @@ const GameBoard = () => {
       name: user.user.name ?? "anon",
     }));
 
+    // Convert decimal to number
     const characterData = characters.map((character) => ({
       ...character,
       positionX: Number(character.positionX),
@@ -231,35 +222,65 @@ const GameBoard = () => {
     }));
   }, [gameData.data]);
 
-  const [sprites, setSprites] = useState<Spriteinfo[]>([]);
+  const [sprites, setSprites] = useState<Character[]>([]);
 
   useEffect(() => {
     if (!charactersInGame.data) return;
+
     const characterData = charactersInGame.data.map((character) => ({
       ...character,
       positionX: Number(character.positionX),
       positionY: Number(character.positionY),
     }));
 
-    characterData.map((character) => {
-      setSprites((prev) => [
-        ...prev,
-        {
-          name: character.name,
-          posX: character.positionX,
-          posY: character.positionY,
-          height: 0,
-          width: 0,
-          imgSrc: character.imgSrc,
-          controller: character.controllerId,
-          initiative: character.initiative,
-        },
-      ]);
-    });
+    setSprites(characterData);
   }, [charactersInGame.data]);
 
   // Allow one player to move and end their turn on a button click.
-  // Update character position
+  const [userQueue, setUserQueue] = useState(
+    localGameState.characters.sort((a, b) => {
+      return b.initiative - a.initiative;
+    })
+  );
+
+  // Keep track of whose turn it is.
+  const [userTurnIndex, setUserTurnIndex] = useState(0);
+
+  // Allow user to end their turn.
+  const endTurn = (e: React.MouseEvent) => {
+    if (!localGameState || localGameState.isPaused) return;
+
+    if (!charactersInGame || !charactersInGame.data) return;
+
+    setUserTurnIndex((prev) => {
+      if (prev >= charactersInGame.data.length - 1) {
+        return 0;
+      }
+
+      return prev + 1;
+    });
+  };
+
+  // Sort the queue
+  useEffect(() => {
+    setUserQueue(
+      localGameState.characters.sort((a, b) => {
+        return b.initiative - a.initiative;
+      })
+    );
+  }, [localGameState.characters]);
+
+  //Refreshes game and character data
+  useEffect(() => {
+    const timer = setInterval(() => {
+      gameData.refetch();
+      charactersInGame.refetch();
+    }, 3000);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
 
   return (
     <>
@@ -298,9 +319,16 @@ const GameBoard = () => {
             createMode={false}
             userTurnIndex={userTurnIndex}
             setUserTurnIndex={setUserTurnIndex}
+            userQueue={userQueue}
           />
+          <div>
+            <p>{`Current turn: ${userQueue[userTurnIndex]?.name}`} </p>
+            {userQueue[userTurnIndex]?.controllerId === currentUser?.id && (
+              <button onClick={endTurn}>End turn</button>
+            )}
+          </div>
         </div>
-        <div>
+        <div className="m-12">
           <Link href="/">Main menu</Link>
         </div>
       </main>

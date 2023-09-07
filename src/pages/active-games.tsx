@@ -10,6 +10,7 @@ const ActiveGames = () => {
 
   // Get all games a user is in.
   const games = api.game.getGames.useQuery({ userId: user?.id ?? "" });
+  console.log("api pure;", games);
 
   return (
     <>
@@ -24,17 +25,18 @@ const ActiveGames = () => {
         {games?.data && games.data.length > 0 ? (
           <ul>
             {games.data.map((game) => {
+              console.log(game);
               return (
-                <div key={game.gameId}>
-                  <li>
-                    {game.game.name}{" "}
+                <div key={game.game.gameId}>
+                  <li className="mb-3 grid grid-cols-3 gap-4">
+                    {game.game.name}
                     <Link
                       href={{
                         pathname: "/playing",
-                        query: { data: JSON.stringify(game.gameId) },
+                        query: { data: JSON.stringify(game.game.gameId) },
                       }}
                     >
-                      Join game
+                      <span>Join game</span>
                     </Link>
                     <button className="">Leave game</button>
                   </li>

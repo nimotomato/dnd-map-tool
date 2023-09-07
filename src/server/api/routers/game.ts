@@ -9,6 +9,7 @@ const userInGameSchema = z.object({
 
 const characterSchema = z.array(
   z.object({
+    characterId: z.string(),
     name: z.string(),
     positionX: z.number(),
     positionY: z.number(),
@@ -59,11 +60,12 @@ export const gameRouter = createTRPCRouter({
             equals: input.userId,
           },
         },
+        distinct: ["gameId"],
         select: {
-          gameId: true,
           game: {
             select: {
               name: true,
+              gameId: true,
             },
           },
         },

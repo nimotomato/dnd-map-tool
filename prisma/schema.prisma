@@ -29,7 +29,7 @@ model Game {
 }
 
 model Character {
-    characterId  String  @id @default(cuid())
+    characterId  String  @id
     name         String
     positionX    Decimal
     positionY    Decimal

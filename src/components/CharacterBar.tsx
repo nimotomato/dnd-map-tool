@@ -1,8 +1,8 @@
 import React from "react";
-import type { Spriteinfo, MapProps, Maprect } from "~/types";
+import type { Character, MapProps, Maprect } from "~/types";
 
 type Props = {
-  sprites: Spriteinfo[];
+  sprites: Character[];
   setMap: React.Dispatch<React.SetStateAction<MapProps>>;
   mapRect: Maprect | null;
   map: MapProps;
@@ -18,9 +18,9 @@ const CharacterBar = ({ sprites, setMap, mapRect, map }: Props) => {
       // TO DO:
       // Check we are within bounds of map, eg 0.0 shouldnt be centered, but stay bound to left corner
       // Calculate relative positioning of map
-      const newX = -sprite.posX + mapRect.width / 2;
-      const newY = -sprite.posY + mapRect.height / 2;
-      setMap((prevMap) => ({ ...prevMap, posX: newX, posY: newY }));
+      const newX = -sprite.positionX + mapRect.width / 2;
+      const newY = -sprite.positionY + mapRect.height / 2;
+      setMap((prevMap) => ({ ...prevMap, positionX: newX, positionY: newY }));
     });
   };
 
@@ -36,6 +36,7 @@ const CharacterBar = ({ sprites, setMap, mapRect, map }: Props) => {
               src={sprite.imgSrc}
             />
             <p>{sprite.name}</p>
+            <p>{`Initiative: ${sprite.initiative}`}</p>
           </div>
         );
       })}

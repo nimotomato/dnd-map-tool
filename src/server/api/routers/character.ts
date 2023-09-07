@@ -2,6 +2,7 @@ import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
 const characterSchema = z.object({
+  characterId: z.string(),
   name: z.string(),
   positionX: z.number(),
   positionY: z.number(),
@@ -52,5 +53,24 @@ export const characterRouter = createTRPCRouter({
       });
 
       return ctx.prisma.$transaction(initiatives);
+    }),
+
+  updateCharacter: publicProcedure
+    .input(characterSchema.extend({ characterId: z.string() }))
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.character.update({
+        where: {
+          characterId: input.characterId,
+        },
+        data: {
+          name: input.name,
+          positionX: input.positionX,
+          positionY: input.positionY,
+          imgSrc: input.imgSrc,
+          initiative: input.initiative,
+          controllerId: input.controllerId,
+          gameId: input.gameId,
+        },
+      });
     }),
 });

@@ -17,17 +17,14 @@ import CharacterBar from "~/components/CharacterBar";
 import useGetMapRect from "../hooks/useGetMapRect";
 import useTryLoadImg from "~/hooks/useTryLoadImg";
 
-import { MapProps, Spriteinfo, Game, Character } from "~/types";
+import { MapProps, Game, Character } from "~/types";
 
 const defaultMap = "/img/dungeonmap.jpg";
 
 const NewGame = () => {
   const session = useSession();
-  const user = session.data?.user;
+  const currentUser = session.data?.user;
   const router = useRouter();
-
-  // Dummy values for bad code structure
-  const [userTurnIndex, setUserTurnIndex] = useState(0);
 
   const [step, setStep] = useState(0);
   const nextStep = (e: React.MouseEvent) => {
@@ -117,12 +114,15 @@ const NewGame = () => {
   const getUser = api.user.getUser.useQuery({ userEmail: playerInput });
 
   useEffect(() => {
-    if (!user?.id || gameState.dungeonMaster !== "") return;
+    if (!currentUser?.id || gameState.dungeonMaster !== "") return;
 
     setGameState((prev) => ({
       ...prev,
-      dungeonMaster: user.id,
-      players: [...prev.players, { id: user.id, name: user.name ?? "anon" }],
+      dungeonMaster: currentUser.id,
+      players: [
+        ...prev.players,
+        { id: currentUser.id, name: currentUser.name ?? "anon" },
+      ],
     }));
   }, [getUser]);
 
@@ -177,13 +177,17 @@ const NewGame = () => {
   };
 
   // SPRITE STUFF
-  const [sprites, setSprites] = useState<Array<Spriteinfo>>([]);
+  const [sprites, setSprites] = useState<Array<Character>>([]);
 
   const [NPCNameInput, setNPCNameInput] = useState("");
   const [NPCSrcInput, setNPCSrcInput] = useState("");
 
   const handleOnLoadNPC = (e: ReactMouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    if (!currentUser) {
+      alert("User not logged in.");
+      return;
+    }
 
     let mapRectWidth = mapRect?.width;
     let mapRectHeight = mapRect?.height;
@@ -200,22 +204,14 @@ const NewGame = () => {
       mapRectHeight = mapRectHeight / 2;
     }
 
-    const newSprite: Spriteinfo = {
-      name: `${NPCNameInput}`,
-      posX: mapRectWidth,
-      posY: mapRectHeight,
-      height: 0,
-      width: 0,
-      imgSrc: `${NPCSrcInput}`,
-      controller: "dm",
-    };
-
     const newChar: Character = {
-      ...newSprite,
+      characterId: uuidv4(),
+      name: `${NPCNameInput}`,
+      imgSrc: `${NPCSrcInput}`,
       gameId: gameState.id,
-      positionX: newSprite.posX,
-      positionY: newSprite.posY,
-      controllerId: newSprite.controller,
+      positionX: mapRectWidth,
+      positionY: mapRectHeight,
+      controllerId: currentUser.id,
       initiative: 0,
     };
 
@@ -231,9 +227,9 @@ const NewGame = () => {
     }
 
     // Add sprite to local sprites
-    setSprites((prev) => [...prev, newSprite]);
+    setSprites((prev) => [...prev, newChar]);
 
-    // Add sprite to chracter
+    // Add sprite to characters
     setGameState((prev) => ({
       ...prev,
       characters: [...prev.characters, newChar],
@@ -261,7 +257,7 @@ const NewGame = () => {
   // Redo this shit
   const createGame = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (!user || !user.name || user.name === "") return;
+    if (!currentUser || !currentUser.name || currentUser.name === "") return;
 
     if (gameState.name === "") {
       alert("No game name.");
@@ -328,8 +324,6 @@ const NewGame = () => {
                   setGameState={setGameState}
                   isDm={true}
                   createMode={true}
-                  userTurnIndex={userTurnIndex}
-                  setUserTurnIndex={setUserTurnIndex}
                 />
               </div>
               <br></br>
@@ -400,8 +394,6 @@ const NewGame = () => {
                     setGameState={setGameState}
                     isDm={true}
                     createMode={true}
-                    userTurnIndex={userTurnIndex}
-                    setUserTurnIndex={setUserTurnIndex}
                   />
                 </div>
                 <div className="mt-6">

@@ -8,7 +8,7 @@ import type {
 
 import Sprite from "./Sprite";
 import useTryLoadImg from "~/hooks/useTryLoadImg";
-import { Spriteinfo, MapProps, Maprect, Game } from "~/types";
+import { MapProps, Maprect, Game, Character } from "~/types";
 
 import {
   FaArrowRight,
@@ -23,8 +23,8 @@ import { GoZoomIn, GoZoomOut } from "react-icons/go";
 
 type Props = {
   mapRef: MutableRefObject<HTMLDivElement | null>;
-  setSprites?: React.Dispatch<React.SetStateAction<Spriteinfo[]>>;
-  sprites?: Spriteinfo[];
+  setSprites?: React.Dispatch<React.SetStateAction<Character[]>>;
+  sprites?: Character[];
   mapRect: Maprect | null;
   map: MapProps;
   setMap: React.Dispatch<React.SetStateAction<MapProps>>;
@@ -32,8 +32,9 @@ type Props = {
   gameState: Game;
   setGameState: React.Dispatch<React.SetStateAction<Game>>;
   createMode: boolean;
-  userTurnIndex: number;
-  setUserTurnIndex: React.Dispatch<React.SetStateAction<number>>;
+  userTurnIndex?: number;
+  setUserTurnIndex?: React.Dispatch<React.SetStateAction<number>>;
+  userQueue?: Character[];
 };
 
 const DungeonMap = ({
@@ -49,6 +50,7 @@ const DungeonMap = ({
   createMode,
   userTurnIndex,
   setUserTurnIndex,
+  userQueue,
 }: Props) => {
   // Stepsize in percentage
   const defaultStepSize = useRef(100);
@@ -109,6 +111,55 @@ const DungeonMap = ({
     }
   };
 
+  const spriteFactory = () => {
+    if (!sprites || !setSprites) return;
+
+    if (createMode) {
+      return sprites.map((sprite) => {
+        return (
+          <Sprite
+            positionX={sprite.positionX}
+            map={map}
+            positionY={sprite.positionY}
+            key={sprite.name}
+            mapRect={mapRect}
+            controller={sprite.controllerId}
+            imgSrc={sprite.imgSrc}
+            setSprites={setSprites}
+            name={sprite.name}
+            sprites={sprites}
+            gameState={gameState}
+            setGameState={setGameState}
+            createMode={createMode}
+          />
+        );
+      });
+    } else {
+      return sprites.map((sprite) => {
+        return (
+          <Sprite
+            positionX={sprite.positionX}
+            map={map}
+            positionY={sprite.positionY}
+            key={sprite.name}
+            mapRect={mapRect}
+            controller={sprite.controllerId}
+            imgSrc={sprite.imgSrc}
+            setSprites={setSprites}
+            name={sprite.name}
+            sprites={sprites}
+            gameState={gameState}
+            setGameState={setGameState}
+            createMode={createMode}
+            userTurnIndex={userTurnIndex}
+            setUserTurnIndex={setUserTurnIndex}
+            userQueue={userQueue}
+          />
+        );
+      });
+    }
+  };
+
   return (
     <>
       <div
@@ -130,30 +181,7 @@ const DungeonMap = ({
                   backgroundSize: `${map.zoom * 100}%`,
                 }}
               >
-                {setSprites &&
-                  sprites?.map((sprite) => {
-                    return (
-                      <Sprite
-                        posX={sprite.posX}
-                        height={sprite.height}
-                        width={sprite.width}
-                        map={map}
-                        posY={sprite.posY}
-                        key={sprite.name}
-                        mapRect={mapRect}
-                        controller={sprite.controller}
-                        imgSrc={sprite.imgSrc}
-                        setSprites={setSprites}
-                        name={sprite.name}
-                        sprites={sprites}
-                        gameState={gameState}
-                        setGameState={setGameState}
-                        createMode={createMode}
-                        userTurnIndex={userTurnIndex}
-                        setUserTurnIndex={setUserTurnIndex}
-                      />
-                    );
-                  })}
+                {spriteFactory()}
               </div>
             ) : (
               <div>error loading image</div>
