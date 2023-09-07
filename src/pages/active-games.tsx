@@ -6,11 +6,30 @@ import { api } from "~/utils/api";
 
 const ActiveGames = () => {
   const session = useSession();
-  const user = session.data?.user;
+  const currentUser = session.data?.user;
 
   // Get all games a user is in.
-  const games = api.game.getGames.useQuery({ userId: user?.id ?? "" });
-  console.log("api pure;", games);
+  const games = api.game.getGames.useQuery({ userId: currentUser?.id ?? "" });
+
+  // Remove current user
+  const removeUser = api.user.removeUserFromGame.useMutation();
+
+  // Delete the game
+  const deleteGame = api.game.deleteGame.useMutation();
+
+  // Delete game
+  const handleOnDelete = (e: React.MouseEvent, game: string) => {
+    deleteGame.mutate({ gameId: game });
+    games.refetch();
+  };
+
+  // Leave game
+  const handleOnLeave = (e: React.MouseEvent, game: string) => {
+    if (!currentUser?.id) return;
+
+    removeUser.mutate({ gameId: game, controllerId: currentUser.id });
+    games.refetch();
+  };
 
   return (
     <>
@@ -38,7 +57,16 @@ const ActiveGames = () => {
                     >
                       <span>Join game</span>
                     </Link>
-                    <button className="">Leave game</button>
+                    <button onClick={(e) => handleOnLeave(e, game.game.gameId)}>
+                      Leave game
+                    </button>
+                    {game.game.dungeonMasterId === currentUser?.id && (
+                      <button
+                        onClick={(e) => handleOnDelete(e, game.game.gameId)}
+                      >
+                        Delete game
+                      </button>
+                    )}
                   </li>
                 </div>
               );

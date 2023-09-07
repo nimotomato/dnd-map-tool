@@ -37,15 +37,15 @@ model Character {
     initiative   Int
     controllerId String
     controller   User    @relation(fields: [controllerId], references: [id], onDelete: Cascade)
-    game         Game    @relation(fields: [gameId], references: [gameId])
+    game         Game    @relation(fields: [gameId], references: [gameId], onDelete: Cascade)
     gameId       String
 }
 
 model UserInGame {
     userInGameId String @id @default(cuid())
-    game         Game   @relation(fields: [gameId], references: [gameId])
+    game         Game   @relation(fields: [gameId], references: [gameId], onDelete: Cascade)
     gameId       String
-    user         User   @relation(fields: [userId], references: [id])
+    user         User   @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId       String
 }
 

@@ -66,6 +66,7 @@ export const gameRouter = createTRPCRouter({
             select: {
               name: true,
               gameId: true,
+              dungeonMasterId: true,
             },
           },
         },
@@ -118,6 +119,16 @@ export const gameRouter = createTRPCRouter({
         },
         data: {
           isPaused: false,
+        },
+      });
+    }),
+
+  deleteGame: publicProcedure
+    .input(z.object({ gameId: z.string() }))
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.game.delete({
+        where: {
+          gameId: input.gameId,
         },
       });
     }),
