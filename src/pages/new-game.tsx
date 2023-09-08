@@ -208,18 +208,11 @@ const NewGame = () => {
       characterId: uuidv4(),
       name: `${NPCNameInput}`,
       imgSrc: `${NPCSrcInput}`,
-      gameId: gameState.id,
       positionX: mapRectWidth,
       positionY: mapRectHeight,
       controllerId: currentUser.id,
       initiative: 0,
     };
-
-    // Make sure name is unique
-    if (sprites.some((sprite) => sprite.name === NPCNameInput)) {
-      alert("Name already exists.");
-      return;
-    }
 
     if (NPCNameInput === "" || NPCSrcInput === "") {
       alert("invalid entry");
@@ -251,7 +244,7 @@ const NewGame = () => {
   };
 
   // DB queries to create a new gaMe
-  const createGameMutation = api.game.createNewGame.useMutation();
+  const createGameMutation = api.game.postNewGame.useMutation();
 
   // Send data to DB
   // Redo this shit

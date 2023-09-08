@@ -28,9 +28,9 @@ const CharacterBar = ({ sprites, setMap, mapRect, map }: Props) => {
     <div className="flex w-20 flex-col">
       {sprites?.map((sprite) => {
         return (
-          <div className="m-2" key={sprite.name}>
+          <div className="m-2" key={sprite.characterId}>
             <img
-              id={sprite.name}
+              id={sprite.characterId}
               onClick={handleOnClick}
               className="h-14 w-14"
               src={sprite.imgSrc}

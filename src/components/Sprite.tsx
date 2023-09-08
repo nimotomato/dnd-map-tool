@@ -15,7 +15,7 @@ type Props = {
   positionX: number;
   positionY: number;
   controller: string;
-  name: string;
+  id: string;
   setSprites: React.Dispatch<React.SetStateAction<Character[]>>;
   mapRect: Maprect | null;
   imgSrc: string;
@@ -33,7 +33,7 @@ const Sprite = ({
   setSprites,
   positionX,
   positionY,
-  name,
+  id,
   controller,
   imgSrc,
   map,
@@ -88,7 +88,7 @@ const Sprite = ({
     ) {
       setSprites((prevSprites) => {
         return prevSprites.map((sprite) => {
-          if (sprite.name !== name) return sprite;
+          if (sprite.characterId !== id) return sprite;
 
           return {
             ...sprite,
@@ -104,7 +104,7 @@ const Sprite = ({
     ) {
       setSprites((prevSprites) => {
         return prevSprites.map((sprite) => {
-          if (sprite.name !== name) return sprite;
+          if (sprite.characterId !== id) return sprite;
 
           return {
             ...sprite,
@@ -116,7 +116,7 @@ const Sprite = ({
   };
 
   // Prepare update query
-  const updateCharacter = api.character.updateCharacter.useMutation();
+  const updateCharacter = api.character.putCharacterInGame.useMutation();
 
   const handleMouseUp = () => {
     // Send new sprite pos to DB
@@ -130,9 +130,9 @@ const Sprite = ({
     }
 
     sprites.map((sprite) => {
-      if (sprite.name !== name) return;
+      if (sprite.characterId !== id) return;
 
-      updateCharacter.mutate(sprite);
+      updateCharacter.mutate({ ...sprite, gameId: gameState.id });
     });
   };
 
@@ -165,7 +165,7 @@ const Sprite = ({
       let thisSprite = false;
 
       sprites.map((sprite) => {
-        if (sprite.name !== name) return;
+        if (sprite.characterId !== id) return;
 
         if (sprite.characterId === userQueue[userTurnIndex]?.characterId) {
           thisSprite = true;
@@ -220,7 +220,7 @@ const Sprite = ({
         draggable="false"
         ref={spriteRef}
         onMouseDown={handleMouseDown}
-        id={name}
+        id={id}
         src={`${imgSrc}`}
         alt="sprite"
         className={`absolute select-none ${show ? "visible" : "invisible"}`}

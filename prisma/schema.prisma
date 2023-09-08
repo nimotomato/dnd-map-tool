@@ -12,33 +12,41 @@ datasource db {
 }
 
 model Game {
-    gameId          String       @id
-    createdAt       DateTime     @default(now())
-    updatedAt       DateTime     @updatedAt
+    gameId          String            @id
+    createdAt       DateTime          @default(now())
+    updatedAt       DateTime          @updatedAt
     name            String
-    mapSrc          String       @db.Text
+    mapSrc          String            @db.Text
     mapPosX         Decimal
     mapPosY         Decimal
     mapZoom         Int
     spriteSize      Int
     isPaused        Boolean
-    dungeonMaster   User         @relation(fields: [dungeonMasterId], references: [id])
+    dungeonMaster   User              @relation(fields: [dungeonMasterId], references: [id])
     dungeonMasterId String
-    Character       Character[]
+    CharacterInGame CharacterInGame[]
     UserInGame      UserInGame[]
 }
 
 model Character {
-    characterId  String  @id
-    name         String
-    positionX    Decimal
-    positionY    Decimal
-    imgSrc       String  @db.Text
-    initiative   Int
-    controllerId String
-    controller   User    @relation(fields: [controllerId], references: [id], onDelete: Cascade)
-    game         Game    @relation(fields: [gameId], references: [gameId], onDelete: Cascade)
-    gameId       String
+    characterId     String            @id
+    name            String
+    imgSrc          String            @db.Text
+    controllerId    String
+    controller      User              @relation(fields: [controllerId], references: [id], onDelete: Cascade)
+    CharacterInGame CharacterInGame[]
+}
+
+model CharacterInGame {
+    gameId      String
+    characterId String
+    initiative  Int
+    positionX   Decimal
+    positionY   Decimal
+    Character   Character @relation(fields: [characterId], references: [characterId])
+    Game        Game      @relation(fields: [gameId], references: [gameId], onDelete: Cascade)
+
+    @@id([gameId, characterId])
 }
 
 model UserInGame {

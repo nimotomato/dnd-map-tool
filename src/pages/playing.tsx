@@ -54,7 +54,7 @@ const GameBoard = () => {
 
   // Allow DM to roll initiative for all characters
   // Prepare API call
-  const updateInitiative = api.character.updateInitiative.useMutation();
+  const updateInitiative = api.character.patchInitiative.useMutation();
 
   // Rolls initiative and updates to database
   const handleOnRollInitiative = (e: React.MouseEvent) => {
@@ -71,13 +71,21 @@ const GameBoard = () => {
     const maxRoll = 20;
     const minRoll = 1;
 
+    const characters = charactersInGame.data.map(
+      (character) => character.Character
+    );
+
     // Set up an array of character IDs and initiative rolls.
-    const initiativeRolls = charactersInGame.data.map((character) => {
+    const initiativeRolls = characters.map((character) => {
       const initiativeRoll = Math.floor(
         Math.random() * (maxRoll - minRoll + 1) + minRoll
       );
 
-      return { characterId: character.characterId, initiative: initiativeRoll };
+      return {
+        characterId: character.characterId,
+        initiative: initiativeRoll,
+        gameId: gameIdParam ?? "",
+      };
     });
 
     // Update inititative on DB
@@ -86,8 +94,8 @@ const GameBoard = () => {
 
   // Allow DM to pause and unpause the game
   // Prepare API call
-  const pauseGame = api.game.pauseGame.useMutation();
-  const unPauseGame = api.game.unPauseGame.useMutation();
+  const pauseGame = api.game.patchGamePause.useMutation();
+  const unPauseGame = api.game.patchGameUnpause.useMutation();
 
   // Make sure local state reflects DB
   useEffect(() => {
@@ -184,18 +192,17 @@ const GameBoard = () => {
     if (!gameData.data || !users.data || !charactersInGame.data) return;
 
     const data = gameData.data;
-    const characters = charactersInGame.data;
+    const characterData = charactersInGame.data.map((character) => ({
+      ...character.Character,
+      positionX: Number(character.positionX),
+      positionY: Number(character.positionY),
+      characterId: character.characterId,
+      initiative: character.initiative,
+    }));
 
     const currentUsers = users.data.map((user) => ({
       id: user.user.id,
       name: user.user.name ?? "anon",
-    }));
-
-    // Convert decimal to number
-    const characterData = characters.map((character) => ({
-      ...character,
-      positionX: Number(character.positionX),
-      positionY: Number(character.positionY),
     }));
 
     setMap({
@@ -228,9 +235,11 @@ const GameBoard = () => {
     if (!charactersInGame.data) return;
 
     const characterData = charactersInGame.data.map((character) => ({
-      ...character,
+      ...character.Character,
       positionX: Number(character.positionX),
       positionY: Number(character.positionY),
+      characterId: character.characterId,
+      initiative: character.initiative,
     }));
 
     setSprites(characterData);

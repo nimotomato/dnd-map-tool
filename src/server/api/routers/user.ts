@@ -31,13 +31,15 @@ export const userRouter = createTRPCRouter({
       });
     }),
 
-  removeUserFromGame: publicProcedure
+  deleteUserFromGame: publicProcedure
     .input(z.object({ gameId: z.string(), controllerId: z.string() }))
     .mutation(({ ctx, input }) => {
-      const deleteCharacter = ctx.prisma.character.deleteMany({
+      const deleteCharacter = ctx.prisma.characterInGame.deleteMany({
         where: {
-          controllerId: input.controllerId,
           gameId: input.gameId,
+          Character: {
+            controllerId: input.controllerId
+          }
         },
       });
 

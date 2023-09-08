@@ -12,7 +12,7 @@ const ActiveGames = () => {
   const games = api.game.getGames.useQuery({ userId: currentUser?.id ?? "" });
 
   // Remove current user
-  const removeUser = api.user.removeUserFromGame.useMutation();
+  const removeUser = api.user.deleteUserFromGame.useMutation();
 
   // Delete the game
   const deleteGame = api.game.deleteGame.useMutation();
