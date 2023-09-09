@@ -45,6 +45,9 @@ export default function CreateCharacter() {
       name: characterName,
       imgSrc: imgInput,
     });
+
+    setCharacterName("");
+    setImgInput("");
   };
 
   return (
@@ -87,6 +90,8 @@ export default function CreateCharacter() {
           </div>
           <button onClick={createCharacter}>Create character</button>
         </div>
+
+        <Link href="/">Go back</Link>
       </main>
     </>
   );

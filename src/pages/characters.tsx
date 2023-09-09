@@ -30,33 +30,24 @@ const Characters = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="flex min-h-screen flex-col items-center justify-center bg-slate-600">
-        <h1>Active games</h1>
+        <h1>Characters</h1>
         {/* Get API call for all games where user */}
         {characters?.data && characters.data.length > 0 ? (
           <ul>
             {characters.data.map((character) => {
               return (
                 <div key={character.characterId}>
-                  <li className="mb-3 grid grid-cols-3 gap-4">
-                    {<img src={character.imgSrc}></img>}
+                  <li className="m-3 flex flex-col">
+                    {<img className="w-24" src={character.imgSrc}></img>}
                     {character.name}
-
-                    {game.game.dungeonMasterId === currentUser?.id && (
-                      <button
-                        onClick={(e) => handleOnDelete(e, game.game.gameId)}
-                      >
-                        Delete character
-                      </button>
-                    )}
                   </li>
                 </div>
               );
             })}
           </ul>
         ) : (
-          <h2> No active games found. </h2>
+          <h2> No characters found. </h2>
         )}
-
         <Link href="/">Go back</Link>
       </main>
     </>
