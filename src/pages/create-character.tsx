@@ -6,10 +6,12 @@ import { api } from "~/utils/api";
 import React, { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import useTryLoadImg from "~/hooks/useTryLoadImg";
+import { useRouter } from "next/router";
 
 export default function CreateCharacter() {
   const session = useSession();
   const currentUser = session.data?.user;
+  const router = useRouter();
 
   const [imgInput, setImgInput] = useState("");
   const [characterName, setCharacterName] = useState("");
@@ -39,15 +41,25 @@ export default function CreateCharacter() {
       return;
     }
 
-    createCharacter.mutate({
+    const input = {
       controllerId: currentUser.id,
       characterId: uuidv4(),
       name: characterName,
       imgSrc: imgInput,
-    });
+    };
 
     setCharacterName("");
     setImgInput("");
+
+    createCharacter.mutate(input),
+      {
+        onSuccess: (response: Response) => {
+          void router.push("/");
+        },
+        onError: (error: Error) => {
+          console.error("Error: ", error);
+        },
+      };
   };
 
   return (

@@ -8,7 +8,7 @@ const Characters = () => {
   const session = useSession();
   const currentUser = session.data?.user;
 
-  // Get all games a user is in.
+  // Get all characters of a iser.
   const characters = api.character.getCharactersOfUser.useQuery({
     userId: currentUser?.id ?? "",
   });
@@ -16,8 +16,9 @@ const Characters = () => {
   // Remove character
   const removeUser = api.character.deleteCharacter.useMutation();
 
-  // Delete game
+  // Delete character
   const handleOnDelete = (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
     removeUser.mutate({ characterId: id });
     void characters.refetch();
   };
@@ -40,6 +41,11 @@ const Characters = () => {
                   <li className="m-3 flex flex-col">
                     {<img className="w-24" src={character.imgSrc}></img>}
                     {character.name}
+                    <button
+                      onClick={(e) => handleOnDelete(e, character.characterId)}
+                    >
+                      delete
+                    </button>
                   </li>
                 </div>
               );
