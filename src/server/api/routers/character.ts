@@ -11,6 +11,14 @@ const characterSchema = z.object({
   controllerId: z.string(),
 });
 
+const characterInGameSchema = z.object({
+  characterId: z.string(),
+  positionX: z.number(),
+  positionY: z.number(),
+  initiative: z.number(),
+  gameId: z.string(),
+});
+
 const characterArraySchema = z.array(characterSchema);
 
 const putCharacterSchema = z.object({
@@ -34,6 +42,14 @@ export const characterRouter = createTRPCRouter({
     .input(characterArraySchema)
     .mutation(({ ctx, input }) => {
       return ctx.prisma.character.createMany({
+        data: input,
+      });
+    }),
+
+  postCharacterInGame: publicProcedure
+    .input(characterInGameSchema)
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.characterInGame.createMany({
         data: input,
       });
     }),
@@ -76,6 +92,22 @@ export const characterRouter = createTRPCRouter({
       return ctx.prisma.character.findMany({
         where: {
           controllerId: input.userId,
+        },
+      });
+    }),
+
+  getCharactersOfUserWithGameId: publicProcedure
+    .input(z.object({ userId: z.string() }))
+    .query(({ ctx, input }) => {
+      return ctx.prisma.characterInGame.findMany({
+        where: {
+          Character: {
+            controllerId: input.userId,
+          },
+        },
+        select: {
+          gameId: true,
+          Character: true,
         },
       });
     }),
