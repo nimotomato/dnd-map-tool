@@ -17,13 +17,13 @@ import CharacterBar from "~/components/CharacterBar";
 import useGetMapRect from "../hooks/useGetMapRect";
 import useTryLoadImg from "~/hooks/useTryLoadImg";
 
-import { MapProps, Spriteinfo, Game, Character } from "~/types";
+import { MapProps, Game, Character } from "~/types";
 
 const defaultMap = "/img/dungeonmap.jpg";
 
 const NewGame = () => {
   const session = useSession();
-  const user = session.data?.user;
+  const currentUser = session.data?.user;
   const router = useRouter();
 
   const [step, setStep] = useState(0);
@@ -51,8 +51,6 @@ const NewGame = () => {
       imgSrc: defaultMap,
       posX: 0,
       posY: 0,
-      height: 25,
-      width: 25,
       zoom: 6,
       spriteSize: 10,
     },
@@ -66,8 +64,6 @@ const NewGame = () => {
   const [map, setMap] = useState<MapProps>({
     posX: 0,
     posY: 0,
-    height: 25,
-    width: 25,
     zoom: 6,
     hasLoaded: false,
   });
@@ -117,29 +113,44 @@ const NewGame = () => {
   // Get user specifically asked for in input
   const getUser = api.user.getUser.useQuery({ userEmail: playerInput });
 
+  // Adds current user to players
   useEffect(() => {
-    if (!user?.id || gameState.dungeonMaster !== "") return;
+    if (!currentUser?.id || gameState.dungeonMaster !== "") return;
+
+    const playerIds = gameState.players.map((player) => player.id);
+
+    console.log("playerIDs:", playerIds);
+
+    // Prevent duplicat player
+    if (playerIds.includes(currentUser.id)) return;
 
     setGameState((prev) => ({
       ...prev,
-      dungeonMaster: user.id,
-      players: [...prev.players, { id: user.id, name: user.name ?? "anon" }],
+      dungeonMaster: currentUser.id,
+      players: [
+        ...prev.players,
+        { id: currentUser.id, name: currentUser.name ?? "anon" },
+      ],
     }));
   }, [getUser]);
 
   const handleOnAddPlayer = (e: ReactMouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    if (!getUser.data) {
+      setBorder({ color: "border-rose-500", size: "border-2" });
+      setErrorText("User email not found, try again.");
+
+      return;
+    }
 
     const playerIds = gameState.players.map((player) => player.id);
 
     if (
-      !getUser.data ||
       // Verify username exists in database
-      // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
       playerIds.includes(getUser.data.id)
     ) {
       setBorder({ color: "border-rose-500", size: "border-2" });
-      setErrorText("User email not found, try again.");
+      setErrorText("User already in game, try again.");
 
       return;
     }
@@ -178,13 +189,16 @@ const NewGame = () => {
   };
 
   // SPRITE STUFF
-  const [sprites, setSprites] = useState<Array<Spriteinfo>>([]);
 
   const [NPCNameInput, setNPCNameInput] = useState("");
   const [NPCSrcInput, setNPCSrcInput] = useState("");
 
   const handleOnLoadNPC = (e: ReactMouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    if (!currentUser) {
+      alert("User not logged in.");
+      return;
+    }
 
     let mapRectWidth = mapRect?.width;
     let mapRectHeight = mapRect?.height;
@@ -201,40 +215,22 @@ const NewGame = () => {
       mapRectHeight = mapRectHeight / 2;
     }
 
-    const newSprite: Spriteinfo = {
-      name: `${NPCNameInput}`,
-      posX: mapRectWidth,
-      posY: mapRectHeight,
-      height: 0,
-      width: 0,
-      imgSrc: `${NPCSrcInput}`,
-      controller: "dm",
-    };
-
     const newChar: Character = {
-      ...newSprite,
-      gameId: gameState.id,
-      positionX: newSprite.posX,
-      positionY: newSprite.posY,
-      controllerId: newSprite.controller,
+      characterId: uuidv4(),
+      name: `${NPCNameInput}`,
+      imgSrc: `${NPCSrcInput}`,
+      positionX: mapRectWidth,
+      positionY: mapRectHeight,
+      controllerId: currentUser.id,
       initiative: 0,
     };
-
-    // Make sure name is unique
-    if (sprites.some((sprite) => sprite.name === NPCNameInput)) {
-      alert("Name already exists.");
-      return;
-    }
 
     if (NPCNameInput === "" || NPCSrcInput === "") {
       alert("invalid entry");
       return;
     }
 
-    // Add sprite to local sprites
-    setSprites((prev) => [...prev, newSprite]);
-
-    // Add sprite to chracter
+    // Add new character
     setGameState((prev) => ({
       ...prev,
       characters: [...prev.characters, newChar],
@@ -256,13 +252,13 @@ const NewGame = () => {
   };
 
   // DB queries to create a new gaMe
-  const createGameMutation = api.game.createNewGame.useMutation();
+  const createGameMutation = api.game.postNewGame.useMutation();
 
   // Send data to DB
   // Redo this shit
   const createGame = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (!user || !user.name || user.name === "") return;
+    if (!currentUser || !currentUser.name || currentUser.name === "") return;
 
     if (gameState.name === "") {
       alert("No game name.");
@@ -276,6 +272,25 @@ const NewGame = () => {
 
     const playerIds = gameState.players.map((player) => player.id);
 
+    const characterData = gameState.characters.map((character) => {
+      return {
+        characterId: character.characterId,
+        name: character.name,
+        imgSrc: character.imgSrc,
+        controllerId: character.controllerId,
+      };
+    });
+
+    const charInGameData = gameState.characters.map((character) => {
+      return {
+        characterId: character.characterId,
+        gameId: gameState.id,
+        initiative: character.initiative,
+        positionX: character.positionX,
+        positionY: character.positionY,
+      };
+    });
+
     createGameMutation.mutate({
       gameData: {
         gameId: gameState.id,
@@ -288,9 +303,20 @@ const NewGame = () => {
         isPaused: gameState.isPaused,
         dungeonMasterId: gameState.dungeonMaster,
       },
-      characterData: gameState.characters,
+      characterData: characterData,
       userIds: playerIds,
-    });
+      charInGameData: charInGameData,
+    }),
+      {
+        onSuccess: (response: Response) => {
+          void router.push("/"); // if successful return to home page
+        },
+      },
+      {
+        onError: (error: Error) => {
+          console.error("An error occurred:", error);
+        },
+      };
   };
 
   return (
@@ -327,6 +353,8 @@ const NewGame = () => {
                   setMap={setMap}
                   gameState={gameState}
                   setGameState={setGameState}
+                  isDm={true}
+                  createMode={true}
                 />
               </div>
               <br></br>
@@ -377,7 +405,7 @@ const NewGame = () => {
             <div className="flex">
               <div>
                 <CharacterBar
-                  sprites={sprites}
+                  sprites={gameState.characters}
                   setMap={setMap}
                   map={map}
                   mapRect={mapRect}
@@ -387,14 +415,15 @@ const NewGame = () => {
                 <div>
                   <DungeonMap
                     key={JSON.stringify(mapRect)}
-                    sprites={sprites}
-                    setSprites={setSprites}
+                    sprites={gameState.characters}
                     mapRef={mapRef}
                     mapRect={mapRect}
                     map={map}
                     setMap={setMap}
                     gameState={gameState}
                     setGameState={setGameState}
+                    isDm={true}
+                    createMode={true}
                   />
                 </div>
                 <div className="mt-6">
@@ -425,14 +454,7 @@ const NewGame = () => {
               </div>
             </div>
             <div>
-              <button
-                onClick={(e) => {
-                  createGame(e);
-                  void router.push("/");
-                }}
-              >
-                Create game
-              </button>
+              <button onClick={createGame}>Create game</button>
             </div>
           </>
         )}

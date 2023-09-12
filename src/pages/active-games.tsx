@@ -6,12 +6,30 @@ import { api } from "~/utils/api";
 
 const ActiveGames = () => {
   const session = useSession();
-  const user = session.data?.user;
+  const currentUser = session.data?.user;
 
   // Get all games a user is in.
-  const games = api.game.getGames.useQuery({ userId: user?.id ?? "" });
+  const games = api.game.getGames.useQuery({ userId: currentUser?.id ?? "" });
 
-  console.log(games.data);
+  // Remove current user
+  const removeUser = api.user.deleteUserFromGame.useMutation();
+
+  // Delete the game
+  const deleteGame = api.game.deleteGame.useMutation();
+
+  // Delete game
+  const handleOnDelete = (e: React.MouseEvent, game: string) => {
+    deleteGame.mutate({ gameId: game });
+    void games.refetch();
+  };
+
+  // Leave game
+  const handleOnLeave = (e: React.MouseEvent, game: string) => {
+    if (!currentUser?.id) return;
+
+    removeUser.mutate({ gameId: game, controllerId: currentUser.id });
+    void games.refetch();
+  };
 
   return (
     <>
@@ -26,11 +44,29 @@ const ActiveGames = () => {
         {games?.data && games.data.length > 0 ? (
           <ul>
             {games.data.map((game) => {
+              console.log(game);
               return (
-                <div key={game.gameId}>
-                  <li>
-                    {game.game.name} <button className="">Join game</button>{" "}
-                    <button className="">Leave game</button>
+                <div key={game.Game.gameId}>
+                  <li className="mb-3 grid grid-cols-4 gap-4">
+                    {game.Game.name}
+                    <Link
+                      href={{
+                        pathname: "/playing",
+                        query: { data: JSON.stringify(game.Game.gameId) },
+                      }}
+                    >
+                      <span>Join game</span>
+                    </Link>
+                    <button onClick={(e) => handleOnLeave(e, game.Game.gameId)}>
+                      Leave game
+                    </button>
+                    {game.Game.dungeonMasterId === currentUser?.id && (
+                      <button
+                        onClick={(e) => handleOnDelete(e, game.Game.gameId)}
+                      >
+                        Delete game
+                      </button>
+                    )}
                   </li>
                 </div>
               );

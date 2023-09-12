@@ -24,6 +24,12 @@ export default function Home() {
               <li>
                 <Link href="/active-games">See active games</Link>
               </li>
+              <li>
+                <Link href="/create-character">Create character</Link>
+              </li>
+              <li>
+                <Link href="/characters">Characters</Link>
+              </li>
             </ul>
             <button onClick={() => void signOut()}>Log out</button>
           </>

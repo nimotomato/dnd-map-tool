@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
     provider = "prisma-client-js"
 }
@@ -12,56 +9,64 @@ datasource db {
 }
 
 model Game {
-    gameId          String       @id
-    createdAt       DateTime     @default(now())
-    updatedAt       DateTime     @updatedAt
+    gameId          String            @id
+    createdAt       DateTime          @default(now())
+    updatedAt       DateTime          @updatedAt
     name            String
-    mapSrc          String       @db.Text
+    mapSrc          String            @db.Text
     mapPosX         Decimal
     mapPosY         Decimal
+    isPaused        Boolean
+    dungeonMasterId String
     mapZoom         Int
     spriteSize      Int
-    isPaused        Boolean
-    dungeonMaster   User         @relation(fields: [dungeonMasterId], references: [id])
-    dungeonMasterId String
-    Character       Character[]
+    dungeonMaster   User              @relation(fields: [dungeonMasterId], references: [id])
+    CharacterInGame CharacterInGame[]
     UserInGame      UserInGame[]
 }
 
 model Character {
-    characterId  String  @id @default(cuid())
-    name         String
-    positionX    Decimal
-    positionY    Decimal
-    imgSrc       String  @db.Text
-    initiative   Int
-    controllerId String
-    controller   User    @relation(fields: [controllerId], references: [id], onDelete: Cascade)
-    game         Game    @relation(fields: [gameId], references: [gameId])
-    gameId       String
+    characterId     String            @id
+    name            String
+    imgSrc          String            @db.Text
+    controllerId    String
+    controller      User              @relation(fields: [controllerId], references: [id], onDelete: Cascade)
+    CharacterInGame CharacterInGame[]
+}
+
+model CharacterInGame {
+    gameId      String
+    characterId String
+    initiative  Int
+    positionX   Decimal
+    positionY   Decimal
+    Character   Character @relation(fields: [characterId], references: [characterId])
+    Game        Game      @relation(fields: [gameId], references: [gameId], onDelete: Cascade)
+
+    @@id([gameId, characterId])
 }
 
 model UserInGame {
-    userInGameId String @id @default(cuid())
-    game         Game   @relation(fields: [gameId], references: [gameId])
-    gameId       String
-    user         User   @relation(fields: [userId], references: [id])
-    userId       String
+    gameId String
+    userId String
+    Game   Game   @relation(fields: [gameId], references: [gameId], onDelete: Cascade)
+    User   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@id([gameId, userId])
 }
 
-// Necessary for Next auth
 model Account {
     id                String  @id @default(cuid())
     userId            String
     type              String
     provider          String
     providerAccountId String
-    refresh_token     String? // @db.Text
-    access_token      String? // @db.Text
+    refresh_token     String?
+    access_token      String?
     expires_at        Int?
     token_type        String?
     scope             String?
-    id_token          String? // @db.Text
+    id_token          String?
     session_state     String?
     user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 

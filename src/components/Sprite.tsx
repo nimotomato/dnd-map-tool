@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useSession } from "next-auth/react";
+import { api } from "~/utils/api";
 
-import { Spriteinfo, Maprect, MapProps, Game } from "~/types";
+import { Maprect, MapProps, Game, Character } from "~/types";
 
 type Rect = {
   x: number;
@@ -10,39 +12,46 @@ type Rect = {
 };
 
 type Props = {
-  posX: number;
-  posY: number;
-  height: number;
-  width: number;
+  positionX: number;
+  positionY: number;
   controller: string;
-  name: string;
-  setSprites: React.Dispatch<React.SetStateAction<Spriteinfo[]>>;
+  id: string;
   mapRect: Maprect | null;
   imgSrc: string;
   map: MapProps;
-  sprites: Spriteinfo[];
+  sprites: Character[];
   gameState: Game;
   setGameState: React.Dispatch<React.SetStateAction<Game>>;
+  createMode: boolean;
+  userTurnIndex?: number;
+  setUserTurnIndex?: React.Dispatch<React.SetStateAction<number>>;
+  userQueue?: Character[];
 };
 const Sprite = ({
   mapRect,
-  setSprites,
-  posX,
-  posY,
-  height,
-  width,
-  name,
+  positionX,
+  positionY,
+  id,
   controller,
   imgSrc,
   map,
   gameState,
   setGameState,
+  sprites,
+  createMode,
+  userTurnIndex,
+  setUserTurnIndex,
+  userQueue,
 }: Props) => {
+  const session = useSession();
+  const currentUser = session.data?.user;
+
   const [offsetX, setOffsetX] = useState<number>(0);
   const [offsetY, setOffsetY] = useState<number>(0);
   const spriteRef = useRef<HTMLImageElement | null>(null);
   const [spriteRect, setSpriteRect] = useState<Rect | null>(null);
   const [show, setShow] = useState(true);
+  const [dimensions, setDimensions] = useState({ height: 0, width: 0 });
 
   useEffect(() => {
     if (spriteRef.current) {
@@ -61,12 +70,9 @@ const Sprite = ({
   useEffect(() => {
     if (!mapRect) return;
 
-    setSprites((prev) => {
-      return prev.map((sprite) => ({
-        ...sprite,
-        height: (mapRect.height * gameState.map.spriteSize) / 100,
-        width: (mapRect.width * gameState.map.spriteSize) / 100,
-      }));
+    setDimensions({
+      height: (mapRect.height * gameState.map.spriteSize) / 100,
+      width: (mapRect.width * gameState.map.spriteSize) / 100,
     });
   }, [mapRect?.height, mapRect?.width, gameState.map]);
 
@@ -78,15 +84,22 @@ const Sprite = ({
       e.clientX - offsetX - mapRect.x > 0 &&
       e.clientX + spriteRect.width - offsetX < mapRect.x + mapRect.width
     ) {
-      setSprites((prevSprites) => {
-        return prevSprites.map((sprite) => {
-          if (sprite.name !== name) return sprite;
+      setGameState((prevGameState) => {
+        const newCharacterState = prevGameState.characters.map((character) => {
+          if (character.characterId !== id) return character;
 
           return {
-            ...sprite,
-            posX: e.clientX - mapRect.x - offsetX - map.posX,
+            ...character,
+            positionX: e.clientX - mapRect.x - offsetX - map.posX,
           };
         });
+
+        const newGameState = {
+          ...prevGameState,
+          characters: newCharacterState,
+        };
+
+        return newGameState;
       });
     }
 
@@ -94,21 +107,45 @@ const Sprite = ({
       e.clientY - offsetY - mapRect.y > 0 &&
       e.clientY + spriteRect.height - offsetY < mapRect.y + mapRect.height
     ) {
-      setSprites((prevSprites) => {
-        return prevSprites.map((sprite) => {
-          if (sprite.name !== name) return sprite;
+      setGameState((prevGameState) => {
+        const newCharacterState = prevGameState.characters.map((character) => {
+          if (character.characterId !== id) return character;
 
           return {
-            ...sprite,
-            posY: e.clientY - mapRect.y - offsetY - map.posY,
+            ...character,
+            positionY: e.clientY - mapRect.y - offsetY - map.posY,
           };
         });
+
+        const newGameState = {
+          ...prevGameState,
+          characters: newCharacterState,
+        };
+
+        return newGameState;
       });
     }
   };
 
+  // Prepare update query
+  const updateCharacter = api.character.putCharacterInGame.useMutation();
+
   const handleMouseUp = () => {
-    // TO DO: Send new sprite pos to DB
+    // Send new sprite pos to DB
+    if (!createMode) {
+      if (!userQueue || !userTurnIndex || !currentUser) {
+        return;
+      }
+      if (userQueue[userTurnIndex]?.controllerId !== currentUser.id) {
+        return;
+      }
+    }
+
+    sprites.map((sprite) => {
+      if (sprite.characterId !== id) return;
+
+      updateCharacter.mutate({ ...sprite, gameId: gameState.id });
+    });
   };
 
   // TO DO: Add animation to this
@@ -123,6 +160,34 @@ const Sprite = ({
     e: React.MouseEvent<HTMLImageElement, MouseEvent>
   ) => {
     if (!spriteRect) return;
+
+    if (!createMode) {
+      if (gameState.isPaused) {
+        return;
+      }
+
+      if (!userQueue || userTurnIndex === undefined || !currentUser) {
+        return;
+      }
+
+      if (userQueue[userTurnIndex]?.controllerId !== currentUser.id) {
+        return;
+      }
+      // Make sure controller only moves the correct sprite...
+      let thisSprite = false;
+
+      sprites.map((sprite) => {
+        if (sprite.characterId !== id) return;
+
+        if (sprite.characterId === userQueue[userTurnIndex]?.characterId) {
+          thisSprite = true;
+        }
+      });
+
+      if (!thisSprite) {
+        return;
+      }
+    }
 
     if (spriteRef.current) {
       const boundingClient = spriteRef.current.getBoundingClientRect();
@@ -148,23 +213,18 @@ const Sprite = ({
   useEffect(() => {
     if (!mapRect) return;
 
-    if (posY + map.posY < 0 || posY + map.posY > mapRect.height) {
+    if (positionY + map.posY < 0 || positionY + map.posY > mapRect.height) {
       setShow(false);
     } else {
       setShow(true);
     }
-  }, [map.posY]);
 
-  // Make sprite not visible if outside of map
-  useEffect(() => {
-    if (!mapRect) return;
-
-    if (posX + map.posX < 0 || posX + map.posX > mapRect.width) {
+    if (positionX + map.posX < 0 || positionX + map.posX > mapRect.width) {
       setShow(false);
     } else {
       setShow(true);
     }
-  }, [map.posX]);
+  }, [map.posY, map.posX]);
 
   return (
     <>
@@ -172,15 +232,15 @@ const Sprite = ({
         draggable="false"
         ref={spriteRef}
         onMouseDown={handleMouseDown}
-        id={name}
+        id={id}
         src={`${imgSrc}`}
         alt="sprite"
         className={`absolute select-none ${show ? "visible" : "invisible"}`}
         style={{
-          height: `${height}px`,
-          width: `${width}px`,
-          top: `${posY + map.posY}px`,
-          left: `${posX + map.posX}px`,
+          height: `${dimensions.height}px`,
+          width: `${dimensions.width}px`,
+          top: `${positionY + map.posY}px`,
+          left: `${positionX + map.posX}px`,
         }}
       />
     </>

@@ -9,6 +9,9 @@ const useTryLoadImg = (imgSrc: string) => {
     tryLoad.onerror = () => {
       setHasError(true);
     };
+    tryLoad.onload = () => {
+      setHasError(false);
+    };
   }, [imgSrc]);
 
   return hasError;
