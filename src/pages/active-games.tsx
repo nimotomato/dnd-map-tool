@@ -55,7 +55,7 @@ const ActiveGames = () => {
   const [activeGameId, setActiveGameId] = useState("");
 
   const onCreateNewChar = (e: React.MouseEvent) => {
-    router.push("/create-character");
+    void router.push("/create-character");
   };
 
   const choseCharacter = (
@@ -107,7 +107,7 @@ const ActiveGames = () => {
     );
 
     if (charactersInGame.length > 0) {
-      router.push({
+      void router.push({
         pathname: "/playing",
         query: { data: JSON.stringify(gameId) },
       });
@@ -143,6 +143,7 @@ const ActiveGames = () => {
               {characters?.map((character) => {
                 return (
                   <div
+                    key={character.characterId}
                     onClick={(e) => choseCharacter(e, character, activeGameId)}
                     className="h-22 flex w-20 flex-col items-center justify-center rounded-lg p-2 hover:bg-slate-400"
                   >
