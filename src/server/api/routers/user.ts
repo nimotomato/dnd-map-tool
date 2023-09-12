@@ -26,7 +26,7 @@ export const userRouter = createTRPCRouter({
           },
         },
         select: {
-          user: true,
+          User: true,
         },
       });
     }),
@@ -38,8 +38,8 @@ export const userRouter = createTRPCRouter({
         where: {
           gameId: input.gameId,
           Character: {
-            controllerId: input.controllerId
-          }
+            controllerId: input.controllerId,
+          },
         },
       });
 

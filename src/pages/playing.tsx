@@ -15,8 +15,6 @@ const GameBoard = () => {
   const session = useSession();
   const currentUser = session.data?.user;
 
-  // Make the gameboard refresh, resulting in new api calls etc
-
   // get gameId through search params
   const gameIdParam = useSearchParams().get("data")?.replace(/"/g, "");
 
@@ -28,7 +26,7 @@ const GameBoard = () => {
   const users = api.user.getUsersInGame.useQuery({ gameId: gameIdParam ?? "" });
 
   // Filter out the userIds
-  const userIds = users.data?.map((user) => user.user.id) ?? [];
+  const userIds = users.data?.map((user) => user.User.id) ?? [];
 
   // Error and return to index if userId is not in the game
   if (
@@ -201,8 +199,8 @@ const GameBoard = () => {
     }));
 
     const currentUsers = users.data.map((user) => ({
-      id: user.user.id,
-      name: user.user.name ?? "anon",
+      id: user.User.id,
+      name: user.User.name ?? "anon",
     }));
 
     setMap({
@@ -282,8 +280,8 @@ const GameBoard = () => {
   //Refreshes game and character data
   useEffect(() => {
     const timer = setInterval(() => {
-      gameData.refetch();
-      charactersInGame.refetch();
+      void gameData.refetch();
+      void charactersInGame.refetch();
     }, 3000);
 
     return () => {

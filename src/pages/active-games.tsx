@@ -20,7 +20,7 @@ const ActiveGames = () => {
   // Delete game
   const handleOnDelete = (e: React.MouseEvent, game: string) => {
     deleteGame.mutate({ gameId: game });
-    games.refetch();
+    void games.refetch();
   };
 
   // Leave game
@@ -28,7 +28,7 @@ const ActiveGames = () => {
     if (!currentUser?.id) return;
 
     removeUser.mutate({ gameId: game, controllerId: currentUser.id });
-    games.refetch();
+    void games.refetch();
   };
 
   return (
@@ -46,23 +46,23 @@ const ActiveGames = () => {
             {games.data.map((game) => {
               console.log(game);
               return (
-                <div key={game.game.gameId}>
-                  <li className="mb-3 grid grid-cols-3 gap-4">
-                    {game.game.name}
+                <div key={game.Game.gameId}>
+                  <li className="mb-3 grid grid-cols-4 gap-4">
+                    {game.Game.name}
                     <Link
                       href={{
                         pathname: "/playing",
-                        query: { data: JSON.stringify(game.game.gameId) },
+                        query: { data: JSON.stringify(game.Game.gameId) },
                       }}
                     >
                       <span>Join game</span>
                     </Link>
-                    <button onClick={(e) => handleOnLeave(e, game.game.gameId)}>
+                    <button onClick={(e) => handleOnLeave(e, game.Game.gameId)}>
                       Leave game
                     </button>
-                    {game.game.dungeonMasterId === currentUser?.id && (
+                    {game.Game.dungeonMasterId === currentUser?.id && (
                       <button
-                        onClick={(e) => handleOnDelete(e, game.game.gameId)}
+                        onClick={(e) => handleOnDelete(e, game.Game.gameId)}
                       >
                         Delete game
                       </button>

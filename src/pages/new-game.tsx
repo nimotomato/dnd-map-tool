@@ -113,8 +113,16 @@ const NewGame = () => {
   // Get user specifically asked for in input
   const getUser = api.user.getUser.useQuery({ userEmail: playerInput });
 
+  // Adds current user to players
   useEffect(() => {
     if (!currentUser?.id || gameState.dungeonMaster !== "") return;
+
+    const playerIds = gameState.players.map((player) => player.id);
+
+    console.log("playerIDs:", playerIds);
+
+    // Prevent duplicat player
+    if (playerIds.includes(currentUser.id)) return;
 
     setGameState((prev) => ({
       ...prev,
@@ -128,17 +136,21 @@ const NewGame = () => {
 
   const handleOnAddPlayer = (e: ReactMouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    if (!getUser.data) {
+      setBorder({ color: "border-rose-500", size: "border-2" });
+      setErrorText("User email not found, try again.");
+
+      return;
+    }
 
     const playerIds = gameState.players.map((player) => player.id);
 
     if (
-      !getUser.data ||
       // Verify username exists in database
-      // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
       playerIds.includes(getUser.data.id)
     ) {
       setBorder({ color: "border-rose-500", size: "border-2" });
-      setErrorText("User email not found, try again.");
+      setErrorText("User already in game, try again.");
 
       return;
     }
@@ -177,7 +189,6 @@ const NewGame = () => {
   };
 
   // SPRITE STUFF
-  const [sprites, setSprites] = useState<Array<Character>>([]);
 
   const [NPCNameInput, setNPCNameInput] = useState("");
   const [NPCSrcInput, setNPCSrcInput] = useState("");
@@ -219,10 +230,7 @@ const NewGame = () => {
       return;
     }
 
-    // Add sprite to local sprites
-    setSprites((prev) => [...prev, newChar]);
-
-    // Add sprite to characters
+    // Add new character
     setGameState((prev) => ({
       ...prev,
       characters: [...prev.characters, newChar],
@@ -264,6 +272,25 @@ const NewGame = () => {
 
     const playerIds = gameState.players.map((player) => player.id);
 
+    const characterData = gameState.characters.map((character) => {
+      return {
+        characterId: character.characterId,
+        name: character.name,
+        imgSrc: character.imgSrc,
+        controllerId: character.controllerId,
+      };
+    });
+
+    const charInGameData = gameState.characters.map((character) => {
+      return {
+        characterId: character.characterId,
+        gameId: gameState.id,
+        initiative: character.initiative,
+        positionX: character.positionX,
+        positionY: character.positionY,
+      };
+    });
+
     createGameMutation.mutate({
       gameData: {
         gameId: gameState.id,
@@ -276,9 +303,20 @@ const NewGame = () => {
         isPaused: gameState.isPaused,
         dungeonMasterId: gameState.dungeonMaster,
       },
-      characterData: gameState.characters,
+      characterData: characterData,
       userIds: playerIds,
-    });
+      charInGameData: charInGameData,
+    }),
+      {
+        onSuccess: (response: Response) => {
+          void router.push("/"); // if successful return to home page
+        },
+      },
+      {
+        onError: (error: Error) => {
+          console.error("An error occurred:", error);
+        },
+      };
   };
 
   return (
@@ -367,7 +405,7 @@ const NewGame = () => {
             <div className="flex">
               <div>
                 <CharacterBar
-                  sprites={sprites}
+                  sprites={gameState.characters}
                   setMap={setMap}
                   map={map}
                   mapRect={mapRect}
@@ -377,8 +415,7 @@ const NewGame = () => {
                 <div>
                   <DungeonMap
                     key={JSON.stringify(mapRect)}
-                    sprites={sprites}
-                    setSprites={setSprites}
+                    sprites={gameState.characters}
                     mapRef={mapRef}
                     mapRect={mapRect}
                     map={map}
@@ -417,14 +454,7 @@ const NewGame = () => {
               </div>
             </div>
             <div>
-              <button
-                onClick={(e) => {
-                  createGame(e);
-                  void router.push("/");
-                }}
-              >
-                Create game
-              </button>
+              <button onClick={createGame}>Create game</button>
             </div>
           </>
         )}

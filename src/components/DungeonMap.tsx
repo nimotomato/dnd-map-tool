@@ -38,7 +38,6 @@ type Props = {
 };
 
 const DungeonMap = ({
-  setSprites,
   sprites,
   mapRect,
   mapRef,
@@ -112,7 +111,7 @@ const DungeonMap = ({
   };
 
   const spriteFactory = () => {
-    if (!sprites || !setSprites) return;
+    if (!sprites) return;
 
     if (createMode) {
       return sprites.map((sprite) => {
@@ -125,7 +124,6 @@ const DungeonMap = ({
             mapRect={mapRect}
             controller={sprite.controllerId}
             imgSrc={sprite.imgSrc}
-            setSprites={setSprites}
             id={sprite.characterId}
             sprites={sprites}
             gameState={gameState}
@@ -145,7 +143,6 @@ const DungeonMap = ({
             mapRect={mapRect}
             controller={sprite.controllerId}
             imgSrc={sprite.imgSrc}
-            setSprites={setSprites}
             id={sprite.characterId}
             sprites={sprites}
             gameState={gameState}
@@ -186,37 +183,54 @@ const DungeonMap = ({
             ) : (
               <div>error loading image</div>
             )}
-            {isDm && (
-              <div>
-                <button onClick={handleOnMapNav} className="nav-btn" id="up">
-                  <FaArrowUp />
-                </button>
-                <button onClick={handleOnMapNav} className="nav-btn" id="down">
-                  <FaArrowDown />
-                </button>
-                <button onClick={handleOnMapNav} className="nav-btn" id="left">
-                  <FaArrowLeft />
-                </button>
-                <button onClick={handleOnMapNav} className="nav-btn" id="right">
-                  <FaArrowRight />
-                </button>
-
-                <button
-                  onClick={handleOnSpritesizeChange}
-                  className="nav-btn"
-                  id="increase"
-                >
-                  <FaPlus />
-                </button>
-                <button
-                  onClick={handleOnSpritesizeChange}
-                  className="nav-btn"
-                  id="decrease"
-                >
-                  <FaMinus />
-                </button>
-              </div>
-            )}
+            <div>
+              {isDm && (
+                <>
+                  <button onClick={handleOnMapNav} className="nav-btn" id="up">
+                    <FaArrowUp />
+                  </button>
+                  <button
+                    onClick={handleOnMapNav}
+                    className="nav-btn"
+                    id="down"
+                  >
+                    <FaArrowDown />
+                  </button>
+                  <button
+                    onClick={handleOnMapNav}
+                    className="nav-btn"
+                    id="left"
+                  >
+                    <FaArrowLeft />
+                  </button>
+                  <button
+                    onClick={handleOnMapNav}
+                    className="nav-btn"
+                    id="right"
+                  >
+                    <FaArrowRight />
+                  </button>
+                </>
+              )}
+              {createMode && (
+                <>
+                  <button
+                    onClick={handleOnSpritesizeChange}
+                    className="nav-btn"
+                    id="increase"
+                  >
+                    <FaPlus />
+                  </button>
+                  <button
+                    onClick={handleOnSpritesizeChange}
+                    className="nav-btn"
+                    id="decrease"
+                  >
+                    <FaMinus />
+                  </button>
+                </>
+              )}
+            </div>
           </>
         ) : (
           <h1>Loading map</h1>

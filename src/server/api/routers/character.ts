@@ -17,16 +17,16 @@ const putCharacterSchema = z.object({
   characterId: z.string(),
   name: z.string(),
   imgSrc: z.string(),
-  controllerId: z.string()
-})
+  controllerId: z.string(),
+});
 
 export const characterRouter = createTRPCRouter({
   postCharacter: publicProcedure
     .input(putCharacterSchema)
     .mutation(({ ctx, input }) => {
       return ctx.prisma.character.create({
-        data: input
-      })
+        data: input,
+      });
     }),
 
   // Upload characters to database.
@@ -53,36 +53,42 @@ export const characterRouter = createTRPCRouter({
           positionX: true,
           positionY: true,
           Character: true,
-        }
+        },
       });
     }),
 
   getGamesOfCharacters: publicProcedure
     .input(z.object({ characterId: z.string() }))
-    .query(({ ctx, input}) => {
+    .query(({ ctx, input }) => {
       return ctx.prisma.characterInGame.findMany({
         where: {
-            characterId: input.characterId
+          characterId: input.characterId,
         },
         select: {
           Game: true,
-        }
-      })
+        },
+      });
     }),
 
   getCharactersOfUser: publicProcedure
-    .input(z.object({ userId: z.string()}))
+    .input(z.object({ userId: z.string() }))
     .query(({ ctx, input }) => {
       return ctx.prisma.character.findMany({
         where: {
-          controllerId: input.userId
-        }
-      })
+          controllerId: input.userId,
+        },
+      });
     }),
 
   patchInitiative: publicProcedure
     .input(
-      z.array(z.object({ characterId: z.string(), gameId: z.string(), initiative: z.number() }))
+      z.array(
+        z.object({
+          characterId: z.string(),
+          gameId: z.string(),
+          initiative: z.number(),
+        })
+      )
     )
     .mutation(({ ctx, input }) => {
       const initiatives = input.map((char) => {
@@ -103,7 +109,7 @@ export const characterRouter = createTRPCRouter({
     }),
 
   putCharacterInGame: publicProcedure
-    .input(characterSchema.extend({ characterId: z.string(), gameId: z.string() }))
+    .input(characterSchema.extend({ gameId: z.string() }))
     .mutation(({ ctx, input }) => {
       return ctx.prisma.characterInGame.update({
         where: {
@@ -121,12 +127,12 @@ export const characterRouter = createTRPCRouter({
     }),
 
   deleteCharacter: publicProcedure
-    .input(z.object({ characterId: z.string()}))
+    .input(z.object({ characterId: z.string() }))
     .mutation(({ ctx, input }) => {
       return ctx.prisma.character.delete({
         where: {
-          characterId: input.characterId
-        }
-      })
-    })
+          characterId: input.characterId,
+        },
+      });
+    }),
 });

@@ -16,7 +16,6 @@ type Props = {
   positionY: number;
   controller: string;
   id: string;
-  setSprites: React.Dispatch<React.SetStateAction<Character[]>>;
   mapRect: Maprect | null;
   imgSrc: string;
   map: MapProps;
@@ -30,7 +29,6 @@ type Props = {
 };
 const Sprite = ({
   mapRect,
-  setSprites,
   positionX,
   positionY,
   id,
@@ -86,15 +84,22 @@ const Sprite = ({
       e.clientX - offsetX - mapRect.x > 0 &&
       e.clientX + spriteRect.width - offsetX < mapRect.x + mapRect.width
     ) {
-      setSprites((prevSprites) => {
-        return prevSprites.map((sprite) => {
-          if (sprite.characterId !== id) return sprite;
+      setGameState((prevGameState) => {
+        const newCharacterState = prevGameState.characters.map((character) => {
+          if (character.characterId !== id) return character;
 
           return {
-            ...sprite,
+            ...character,
             positionX: e.clientX - mapRect.x - offsetX - map.posX,
           };
         });
+
+        const newGameState = {
+          ...prevGameState,
+          characters: newCharacterState,
+        };
+
+        return newGameState;
       });
     }
 
@@ -102,15 +107,22 @@ const Sprite = ({
       e.clientY - offsetY - mapRect.y > 0 &&
       e.clientY + spriteRect.height - offsetY < mapRect.y + mapRect.height
     ) {
-      setSprites((prevSprites) => {
-        return prevSprites.map((sprite) => {
-          if (sprite.characterId !== id) return sprite;
+      setGameState((prevGameState) => {
+        const newCharacterState = prevGameState.characters.map((character) => {
+          if (character.characterId !== id) return character;
 
           return {
-            ...sprite,
+            ...character,
             positionY: e.clientY - mapRect.y - offsetY - map.posY,
           };
         });
+
+        const newGameState = {
+          ...prevGameState,
+          characters: newCharacterState,
+        };
+
+        return newGameState;
       });
     }
   };

@@ -8,17 +8,18 @@ const characterSchema = z.array(
     name: z.string(),
     imgSrc: z.string(),
     controllerId: z.string(),
-    positionX: z.number(),
-    positionY: z.number(),
-    initiative: z.number()
   })
 );
 
-const characterInGameSchema = z.object({
-  characterId: z.string(),
-  gameId: z.string(),
-
-})
+const characterInGameSchema = z.array(
+  z.object({
+    characterId: z.string(),
+    gameId: z.string(),
+    positionX: z.number(),
+    positionY: z.number(),
+    initiative: z.number(),
+  })
+);
 
 const gameSchema = z.object({
   gameId: z.string(),
@@ -36,6 +37,7 @@ const newGameSchema = z.object({
   gameData: gameSchema,
   characterData: characterSchema,
   userIds: z.array(z.string()),
+  charInGameData: characterInGameSchema,
 });
 
 export const gameRouter = createTRPCRouter({
@@ -62,7 +64,7 @@ export const gameRouter = createTRPCRouter({
         },
         distinct: ["gameId"],
         select: {
-          game: true
+          Game: true,
         },
       });
     }),
@@ -87,17 +89,17 @@ export const gameRouter = createTRPCRouter({
         data: input.characterData,
       });
 
-      const charactersInGameId = input.characterData.map((character) => ({
+      const charactersInGameId = input.charInGameData.map((character) => ({
         gameId: input.gameData.gameId,
         characterId: character.characterId,
         positionX: character.positionX,
         positionY: character.positionY,
-        initiative: character.initiative
-      }))
+        initiative: character.initiative,
+      }));
 
       const charactersInGame = ctx.prisma.characterInGame.createMany({
-        data: charactersInGameId
-      })
+        data: charactersInGameId,
+      });
 
       return prisma.$transaction([gameIds, game, characters, charactersInGame]);
     }),

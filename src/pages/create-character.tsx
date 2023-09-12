@@ -16,9 +16,9 @@ export default function CreateCharacter() {
 
   const imgHasError = useTryLoadImg(imgInput);
 
-  const createCharacterQuery = api.character.postCharacter.useMutation();
+  const createCharacter = api.character.postCharacter.useMutation();
 
-  const createCharacter = (e: React.MouseEvent) => {
+  const handleCreate = (e: React.MouseEvent) => {
     if (!currentUser) {
       alert("Invalid user id");
       return;
@@ -39,7 +39,7 @@ export default function CreateCharacter() {
       return;
     }
 
-    createCharacterQuery.mutate({
+    createCharacter.mutate({
       controllerId: currentUser.id,
       characterId: uuidv4(),
       name: characterName,
@@ -88,7 +88,7 @@ export default function CreateCharacter() {
               />
             </label>
           </div>
-          <button onClick={createCharacter}>Create character</button>
+          <button onClick={handleCreate}>Create character</button>
         </div>
 
         <Link href="/">Go back</Link>

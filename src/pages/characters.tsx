@@ -19,7 +19,7 @@ const Characters = () => {
   // Delete game
   const handleOnDelete = (e: React.MouseEvent, id: string) => {
     removeUser.mutate({ characterId: id });
-    characters.refetch();
+    void characters.refetch();
   };
 
   return (
