@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { api } from "~/utils/api";
-import useDebounce from "~/hooks/useDebounce";
+import debounce from "lodash/debounce";
 
 import { Maprect, MapProps, Game, Character } from "~/types";
 
@@ -66,9 +66,12 @@ const Sprite = ({
   // Prepare update query
   const { mutate, error, isError } =
     api.character.putCharacterInGame.useMutation();
+
   // Prepare debouncer
   const debounceTime = 50;
-  const debouncedUpdateCharacter = useDebounce(mutate, debounceTime);
+
+  // Store in ref to improve stability over lifecycles
+  const debouncedUpdateCharacterRef = useRef(debounce(mutate, debounceTime));
 
   if (isError) {
     console.error("An error occurred:", error);
@@ -171,7 +174,10 @@ const Sprite = ({
             positionX: e.clientX - mapRect.x - offsetX - map.posX,
           };
 
-          debouncedUpdateCharacter({ ...newSprite, gameId: gameState.id });
+          debouncedUpdateCharacterRef.current({
+            ...newSprite,
+            gameId: gameState.id,
+          });
         });
       }
 
@@ -187,33 +193,17 @@ const Sprite = ({
             positionY: e.clientY - mapRect.y - offsetY - map.posY,
           };
 
-          debouncedUpdateCharacter({ ...newSprite, gameId: gameState.id });
+          debouncedUpdateCharacterRef.current({
+            ...newSprite,
+            gameId: gameState.id,
+          });
         });
       }
     }
   };
 
-  const handleMouseUp = () => {
-    // Send new sprite pos to DB
-    // if (!createMode) {
-    //   if (!userQueue || userTurnIndex === undefined || !currentUser) {
-    //     return;
-    //   }
-    //   if (userQueue[userTurnIndex]?.controllerId !== currentUser.id) {
-    //     // Check current user turn
-    //     return;
-    //   }
-    // }
-    // sprites.map((sprite) => {
-    //   if (sprite.characterId !== id) return;
-    //   updateCharacter.mutate({ ...sprite, gameId: gameState.id });
-    // });
-  };
-
   // TO DO: Add animation to this
   const handleDocumentMouseUp = () => {
-    handleMouseUp();
-
     document.removeEventListener("mousemove", handleMouseMove);
     document.removeEventListener("mouseup", handleDocumentMouseUp);
   };

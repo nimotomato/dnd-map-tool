@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import type { Character, MapProps, Maprect, Game } from "~/types";
-import useDebounce from "~/hooks/useDebounce";
 import { useSession } from "next-auth/react";
 import { api } from "~/utils/api";
+import debounce from "lodash/debounce";
 
 type Props = {
   gameState: Game;
@@ -23,7 +23,9 @@ const CharacterBar = ({
   const session = useSession();
   const currentUser = session.data?.user;
   const { mutate, error, isError } = api.character.patchIsDead.useMutation();
-  const debouncedKillCharacter = useDebounce(mutate, 100);
+
+  // Store debounced function in ref to ensure stability across lifecycle
+  const debouncedKillCharacterRef = useRef(debounce(mutate, 100));
 
   const handleOnClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -54,7 +56,7 @@ const CharacterBar = ({
 
         const deathStatus = !sprite.isDead;
 
-        debouncedKillCharacter({
+        debouncedKillCharacterRef.current({
           characterId: sprite.characterId,
           gameId: gameState.id,
           isDead: deathStatus,
