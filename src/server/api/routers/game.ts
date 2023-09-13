@@ -71,6 +71,22 @@ export const gameRouter = createTRPCRouter({
       });
     }),
 
+  getStartingMapPosition: publicProcedure
+    .input(z.object({ gameId: z.string() }))
+    .query(({ ctx, input }) => {
+      return ctx.prisma.game.findMany({
+        where: {
+          gameId: {
+            equals: input.gameId,
+          },
+        },
+        select: {
+          mapPosX: true,
+          mapPosY: true,
+        },
+      });
+    }),
+
   postNewGame: publicProcedure
     .input(newGameSchema)
     .mutation(({ ctx, input }) => {

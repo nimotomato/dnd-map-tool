@@ -165,8 +165,8 @@ const GameBoard = () => {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const mapRect = useGetMapRect(gameData.data?.mapSrc ?? "", mapRef);
   const [map, setMap] = useState<MapProps>({
-    posX: 0,
-    posY: 0,
+    positionX: 0,
+    positionY: 0,
     zoom: 6,
     hasLoaded: false,
   });
@@ -189,6 +189,26 @@ const GameBoard = () => {
     turnIndex: 0,
   });
 
+  const startingMapPosition = api.game.getStartingMapPosition.useQuery({
+    gameId: gameIdParam ?? "",
+  }).data;
+
+  useEffect(() => {
+    if (!startingMapPosition) return;
+
+    const startingPos = startingMapPosition[0];
+
+    if (!startingPos) return;
+
+    setMap((prev) => {
+      return {
+        ...prev,
+        positionX: Number(startingPos.mapPosX),
+        positionY: Number(startingPos.mapPosY),
+      };
+    });
+  }, [startingMapPosition]);
+
   useEffect(() => {
     if (!gameData.data || !users.data || !charactersInGame.data) return;
 
@@ -207,21 +227,14 @@ const GameBoard = () => {
       name: user.User.name ?? "anon",
     }));
 
-    setMap({
-      posX: Number(data.mapPosX),
-      posY: Number(data.mapPosY),
-      zoom: data.mapZoom,
-      hasLoaded: true,
-    });
-
     setLocalGameState((prev) => ({
       ...prev,
       name: data.name,
       map: {
         ...prev.map,
         imgSrc: data.mapSrc,
-        posX: Number(data.mapPosX),
-        posY: Number(data.mapPosY),
+        // posX: Number(data.mapPosX),
+        // posY: Number(data.mapPosY),
         zoom: data.mapZoom,
         spriteSize: data.spriteSize,
       },

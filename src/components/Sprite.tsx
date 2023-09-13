@@ -128,7 +128,7 @@ const Sprite = ({
 
           return {
             ...character,
-            positionX: e.clientX - mapRect.x - offsetX - map.posX,
+            positionX: e.clientX - mapRect.x - offsetX - map.positionX,
           };
         });
 
@@ -151,7 +151,7 @@ const Sprite = ({
 
           return {
             ...character,
-            positionY: e.clientY - mapRect.y - offsetY - map.posY,
+            positionY: e.clientY - mapRect.y - offsetY - map.positionY,
           };
         });
 
@@ -163,55 +163,6 @@ const Sprite = ({
         return newGameState;
       });
     }
-
-    // // Send movement to database
-    // if (!createMode) {
-    //   if (!userQueue || userTurnIndex === undefined || !currentUser) {
-    //     return;
-    //   }
-    //   if (userQueue[userTurnIndex]?.controllerId !== currentUser.id) {
-    //     // Check current user turn
-    //     return;
-    //   }
-
-    //   if (
-    //     e.clientX - offsetX - mapRect.x > 0 &&
-    //     e.clientX + spriteRect.width - offsetX < mapRect.x + mapRect.width
-    //   ) {
-    //     sprites.map((sprite) => {
-    //       if (sprite.characterId !== id) return;
-
-    //       const newSprite = {
-    //         ...sprite,
-    //         positionX: e.clientX - mapRect.x - offsetX - map.posX,
-    //       };
-
-    //       debouncedUpdateCharacterRef.current({
-    //         ...newSprite,
-    //         gameId: gameState.id,
-    //       });
-    //     });
-    //   }
-
-    //   if (
-    //     e.clientY - offsetY - mapRect.y > 0 &&
-    //     e.clientY + spriteRect.height - offsetY < mapRect.y + mapRect.height
-    //   ) {
-    //     sprites.map((sprite) => {
-    //       if (sprite.characterId !== id) return;
-
-    //       const newSprite = {
-    //         ...sprite,
-    //         positionY: e.clientY - mapRect.y - offsetY - map.posY,
-    //       };
-
-    //       debouncedUpdateCharacterRef.current({
-    //         ...newSprite,
-    //         gameId: gameState.id,
-    //       });
-    //     });
-    //   }
-    // }
   };
 
   // TO DO: Add animation to this
@@ -277,18 +228,24 @@ const Sprite = ({
   useEffect(() => {
     if (!mapRect) return;
 
-    if (positionY + map.posY < 0 || positionY + map.posY > mapRect.height) {
+    if (
+      positionY + map.positionY < 0 ||
+      positionY + map.positionY > mapRect.height
+    ) {
       setShow(false);
     } else {
       setShow(true);
     }
 
-    if (positionX + map.posX < 0 || positionX + map.posX > mapRect.width) {
+    if (
+      positionX + map.positionX < 0 ||
+      positionX + map.positionX > mapRect.width
+    ) {
       setShow(false);
     } else {
       setShow(true);
     }
-  }, [map.posY, map.posX]);
+  }, [map.positionY, map.positionX]);
 
   return (
     <>
@@ -305,8 +262,8 @@ const Sprite = ({
         style={{
           height: `${dimensions.height}px`,
           width: `${dimensions.width}px`,
-          top: `${positionY + map.posY}px`,
-          left: `${positionX + map.posX}px`,
+          top: `${positionY + map.positionY}px`,
+          left: `${positionX + map.positionX}px`,
         }}
       />
     </>

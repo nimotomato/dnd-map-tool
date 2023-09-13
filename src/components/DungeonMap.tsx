@@ -61,62 +61,70 @@ const DungeonMap = ({
   // Store debounced function in ref to improve stability across lifecycles
   const debouncedUpdateMapPositionRef = useRef(debounce(mutate, delay));
 
+  useEffect(() => {
+    console.log(map);
+  }, [map]);
+
   const handleOnMapNav = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
 
     if (!mapRect) return;
 
     const target = event.currentTarget as HTMLButtonElement;
+    const lazyConstantX = 3;
+    const lazyConstantY = 1.8;
 
     if (
       target.id === "right" &&
-      map.posX > -mapRect.fullWidth - defaultStepSize.current * 3
+      map.positionX >
+        -mapRect.fullWidth - defaultStepSize.current * lazyConstantX
     ) {
       setMap((prev) => {
-        if (!createMode) {
-          debouncedUpdateMapPositionRef.current({
-            mapPosY: prev.posY,
-            mapPosX: prev.posX - defaultStepSize.current,
-            gameId: gameState.id,
-          });
-        }
-        return { ...prev, posX: prev.posX - defaultStepSize.current };
+        // if (!createMode) {
+        //   debouncedUpdateMapPositionRef.current({
+        //     mapPosY: prev.posY,
+        //     mapPosX: prev.posX - defaultStepSize.current,
+        //     gameId: gameState.id,
+        //   });
+        // }
+        return { ...prev, positionX: prev.positionX - defaultStepSize.current };
       });
-    } else if (target.id === "left" && map.posX < 0) {
+    } else if (target.id === "left" && map.positionX < 0) {
       setMap((prev) => {
-        if (!createMode) {
-          debouncedUpdateMapPositionRef.current({
-            mapPosY: prev.posY,
-            mapPosX: prev.posX + defaultStepSize.current,
-            gameId: gameState.id,
-          });
-        }
-        return { ...prev, posX: prev.posX + defaultStepSize.current };
+        // if (!createMode) {
+        //   debouncedUpdateMapPositionRef.current({
+        //     mapPosY: prev.posY,
+        //     mapPosX: prev.posX + defaultStepSize.current,
+        //     gameId: gameState.id,
+        //   });
+        // }
+        return { ...prev, positionX: prev.positionX + defaultStepSize.current };
       });
     } else if (
       target.id === "down" &&
-      map.posY > -mapRect.fullHeight - defaultStepSize.current
+      map.positionY >
+        -mapRect.fullHeight - defaultStepSize.current * lazyConstantY
     ) {
       setMap((prev) => {
-        if (!createMode) {
-          debouncedUpdateMapPositionRef.current({
-            mapPosY: prev.posY - defaultStepSize.current,
-            mapPosX: prev.posX,
-            gameId: gameState.id,
-          });
-        }
-        return { ...prev, posY: prev.posY - defaultStepSize.current };
+        // if (!createMode) {
+        //   debouncedUpdateMapPositionRef.current({
+        //     mapPosY: prev.posY - defaultStepSize.current,
+        //     mapPosX: prev.posX,
+        //     gameId: gameState.id,
+        //   });
+        // }
+        return { ...prev, positionY: prev.positionY - defaultStepSize.current };
       });
-    } else if (target.id === "up" && map.posY < 0) {
+    } else if (target.id === "up" && map.positionY < 0) {
       setMap((prev) => {
-        if (!createMode) {
-          debouncedUpdateMapPositionRef.current({
-            mapPosY: prev.posY + defaultStepSize.current,
-            mapPosX: prev.posX,
-            gameId: gameState.id,
-          });
-        }
-        return { ...prev, posY: prev.posY + defaultStepSize.current };
+        // if (!createMode) {
+        //   debouncedUpdateMapPositionRef.current({
+        //     mapPosY: prev.posY + defaultStepSize.current,
+        //     mapPosX: prev.posX,
+        //     gameId: gameState.id,
+        //   });
+        // }
+        return { ...prev, positionY: prev.positionY + defaultStepSize.current };
       });
     }
   };
@@ -208,7 +216,7 @@ const DungeonMap = ({
                 className="h-full w-full"
                 style={{
                   backgroundImage: `url(${gameState.map.imgSrc})`,
-                  backgroundPosition: `${map.posX}px ${map.posY}px`,
+                  backgroundPosition: `${map.positionX}px ${map.positionY}px`,
                   backgroundSize: `${map.zoom * 100}%`,
                 }}
               >
