@@ -9,6 +9,7 @@ import type {
 import Sprite from "./Sprite";
 import useTryLoadImg from "~/hooks/useTryLoadImg";
 import { MapProps, Maprect, Game, Character } from "~/types";
+import debounce from "lodash/debounce";
 
 import {
   FaArrowRight,
@@ -19,7 +20,6 @@ import {
   FaMinus,
 } from "react-icons/fa6";
 import { api } from "~/utils/api";
-import useDebounce from "~/hooks/useDebounce";
 
 import { GoZoomIn, GoZoomOut } from "react-icons/go";
 
@@ -57,7 +57,9 @@ const DungeonMap = ({
   const imgError = useTryLoadImg(gameState.map.imgSrc);
   const { mutate, error, isError } = api.game.patchMapPosition.useMutation();
   const delay = 500;
-  const debouncedUpdateMapPosition = useDebounce(mutate, delay);
+
+  // Store debounced function in ref to improve stability across lifecycles
+  const debouncedUpdateMapPositionRef = useRef(debounce(mutate, delay));
 
   const handleOnMapNav = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -72,7 +74,7 @@ const DungeonMap = ({
     ) {
       setMap((prev) => {
         if (!createMode) {
-          debouncedUpdateMapPosition({
+          debouncedUpdateMapPositionRef.current({
             mapPosY: prev.posY,
             mapPosX: prev.posX - defaultStepSize.current,
             gameId: gameState.id,
@@ -83,7 +85,7 @@ const DungeonMap = ({
     } else if (target.id === "left" && map.posX < 0) {
       setMap((prev) => {
         if (!createMode) {
-          debouncedUpdateMapPosition({
+          debouncedUpdateMapPositionRef.current({
             mapPosY: prev.posY,
             mapPosX: prev.posX + defaultStepSize.current,
             gameId: gameState.id,
@@ -97,7 +99,7 @@ const DungeonMap = ({
     ) {
       setMap((prev) => {
         if (!createMode) {
-          debouncedUpdateMapPosition({
+          debouncedUpdateMapPositionRef.current({
             mapPosY: prev.posY - defaultStepSize.current,
             mapPosX: prev.posX,
             gameId: gameState.id,
@@ -108,7 +110,7 @@ const DungeonMap = ({
     } else if (target.id === "up" && map.posY < 0) {
       setMap((prev) => {
         if (!createMode) {
-          debouncedUpdateMapPosition({
+          debouncedUpdateMapPositionRef.current({
             mapPosY: prev.posY + defaultStepSize.current,
             mapPosX: prev.posX,
             gameId: gameState.id,

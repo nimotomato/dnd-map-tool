@@ -16,7 +16,6 @@ import DungeonMap from "~/components/DungeonMap";
 import CharacterBar from "~/components/CharacterBar";
 import useGetMapRect from "../hooks/useGetMapRect";
 import useTryLoadImg from "~/hooks/useTryLoadImg";
-import useDebounce from "~/hooks/useDebounce";
 import debounce from "lodash/debounce";
 
 import { MapProps, Game, Character } from "~/types";
@@ -119,12 +118,16 @@ const NewGame = () => {
     userEmail: debouncedPlayerInput,
   });
 
-  // Debounced input
-  const debouncedSetInput = useDebounce(setDebouncedPlayerInput, 300);
+  // Debounced input stored in ref to ensure stability across lifecycle
+  const debouncedSetInputRef = useRef(debounce(setDebouncedPlayerInput, 300));
 
   // Update the debounced input from player input
   useEffect(() => {
-    debouncedSetInput(playerInput);
+    debouncedSetInputRef.current(playerInput);
+
+    return () => {
+      debouncedSetInputRef.current.cancel();
+    };
   }, [playerInput]);
 
   // Adds current user to players
