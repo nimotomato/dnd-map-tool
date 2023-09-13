@@ -18,6 +18,7 @@ const characterInGameSchema = z.array(
     positionX: z.number(),
     positionY: z.number(),
     initiative: z.number(),
+    isDead: z.boolean(),
   })
 );
 
@@ -31,6 +32,7 @@ const gameSchema = z.object({
   spriteSize: z.number(),
   isPaused: z.boolean(),
   dungeonMasterId: z.string(),
+  turnIndex: z.number(),
 });
 
 const newGameSchema = z.object({
@@ -95,6 +97,7 @@ export const gameRouter = createTRPCRouter({
         positionX: character.positionX,
         positionY: character.positionY,
         initiative: character.initiative,
+        isDead: character.isDead,
       }));
 
       const charactersInGame = ctx.prisma.characterInGame.createMany({
@@ -126,6 +129,35 @@ export const gameRouter = createTRPCRouter({
         },
         data: {
           isPaused: false,
+        },
+      });
+    }),
+
+  patchMapPosition: publicProcedure
+    .input(
+      z.object({ gameId: z.string(), mapPosX: z.number(), mapPosY: z.number() })
+    )
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.game.update({
+        where: {
+          gameId: input.gameId,
+        },
+        data: {
+          mapPosX: input.mapPosX,
+          mapPosY: input.mapPosY,
+        },
+      });
+    }),
+
+  patchTurnIndex: publicProcedure
+    .input(z.object({ gameId: z.string(), turnIndex: z.number() }))
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.game.update({
+        where: {
+          gameId: input.gameId,
+        },
+        data: {
+          turnIndex: input.turnIndex,
         },
       });
     }),

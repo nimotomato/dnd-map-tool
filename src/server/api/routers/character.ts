@@ -17,6 +17,7 @@ const characterInGameSchema = z.object({
   positionY: z.number(),
   initiative: z.number(),
   gameId: z.string(),
+  isDead: z.boolean(),
 });
 
 const characterArraySchema = z.array(characterSchema);
@@ -68,6 +69,7 @@ export const characterRouter = createTRPCRouter({
           initiative: true,
           positionX: true,
           positionY: true,
+          isDead: true,
           Character: true,
         },
       });
@@ -138,6 +140,28 @@ export const characterRouter = createTRPCRouter({
       });
 
       return ctx.prisma.$transaction(initiatives);
+    }),
+
+  patchIsDead: publicProcedure
+    .input(
+      z.object({
+        characterId: z.string(),
+        gameId: z.string(),
+        isDead: z.boolean(),
+      })
+    )
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.characterInGame.update({
+        where: {
+          gameId_characterId: {
+            characterId: input.characterId,
+            gameId: input.gameId,
+          },
+        },
+        data: {
+          isDead: input.isDead,
+        },
+      });
     }),
 
   putCharacterInGame: publicProcedure

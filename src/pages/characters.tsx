@@ -8,7 +8,7 @@ const Characters = () => {
   const session = useSession();
   const currentUser = session.data?.user;
 
-  // Get all characters of a iser.
+  // Get all characters of a .
   const characters = api.character.getCharactersOfUser.useQuery({
     userId: currentUser?.id ?? "",
   });

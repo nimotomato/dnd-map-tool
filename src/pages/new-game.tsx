@@ -16,6 +16,8 @@ import DungeonMap from "~/components/DungeonMap";
 import CharacterBar from "~/components/CharacterBar";
 import useGetMapRect from "../hooks/useGetMapRect";
 import useTryLoadImg from "~/hooks/useTryLoadImg";
+import useDebounce from "~/hooks/useDebounce";
+import debounce from "lodash/debounce";
 
 import { MapProps, Game, Character } from "~/types";
 
@@ -58,6 +60,7 @@ const NewGame = () => {
     players: [],
     dungeonMaster: "",
     characters: [],
+    turnIndex: 0,
   });
 
   // LOCAL MAP STUFF
@@ -102,6 +105,7 @@ const NewGame = () => {
 
   // PLAYER STUFF
   const [playerInput, setPlayerInput] = useState("");
+  const [debouncedPlayerInput, setDebouncedPlayerInput] = useState("");
   const [mapInput, setMapInput] = useState("");
   const [border, setBorder] = useState({
     color: "border-black",
@@ -111,28 +115,28 @@ const NewGame = () => {
 
   // Magic API
   // Get user specifically asked for in input
-  const getUser = api.user.getUser.useQuery({ userEmail: playerInput });
+  const getUser = api.user.getUser.useQuery({
+    userEmail: debouncedPlayerInput,
+  });
+
+  // Debounced input
+  const debouncedSetInput = useDebounce(setDebouncedPlayerInput, 300);
+
+  // Update the debounced input from player input
+  useEffect(() => {
+    debouncedSetInput(playerInput);
+  }, [playerInput]);
 
   // Adds current user to players
   useEffect(() => {
     if (!currentUser?.id || gameState.dungeonMaster !== "") return;
 
-    const playerIds = gameState.players.map((player) => player.id);
-
-    console.log("playerIDs:", playerIds);
-
-    // Prevent duplicat player
-    if (playerIds.includes(currentUser.id)) return;
-
     setGameState((prev) => ({
       ...prev,
       dungeonMaster: currentUser.id,
-      players: [
-        ...prev.players,
-        { id: currentUser.id, name: currentUser.name ?? "anon" },
-      ],
+      players: [{ id: currentUser.id, name: currentUser.name ?? "anon" }],
     }));
-  }, [getUser]);
+  }, [currentUser]);
 
   const handleOnAddPlayer = (e: ReactMouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -178,13 +182,13 @@ const NewGame = () => {
     name: string
   ) => {
     e.preventDefault();
-    const filteredPlaters = gameState.players.filter(
+    const filteredPlayers = gameState.players.filter(
       (player) => player.name !== name
     );
 
     setGameState((prev) => ({
       ...prev,
-      players: [...filteredPlaters],
+      players: [...filteredPlayers],
     }));
   };
 
@@ -223,6 +227,7 @@ const NewGame = () => {
       positionY: mapRectHeight,
       controllerId: currentUser.id,
       initiative: 0,
+      isDead: false,
     };
 
     if (NPCNameInput === "" || NPCSrcInput === "") {
@@ -265,12 +270,20 @@ const NewGame = () => {
       return;
     }
 
-    if (gameState.players.length === 0 || gameState.players.length > 4) {
+    if (gameState.players.length === 0) {
       alert("Not enough players.");
       return;
     }
 
-    const playerIds = gameState.players.map((player) => player.id);
+    if (gameState.players.length > 5) {
+      alert("Too many players.");
+      return;
+    }
+
+    // really make sure ids are unique
+    const playerIds = Array.from(
+      new Set(gameState.players.map((player) => player.id))
+    );
 
     const characterData = gameState.characters.map((character) => {
       return {
@@ -288,6 +301,7 @@ const NewGame = () => {
         initiative: character.initiative,
         positionX: character.positionX,
         positionY: character.positionY,
+        isDead: character.isDead,
       };
     });
 
@@ -302,6 +316,7 @@ const NewGame = () => {
         spriteSize: gameState.map.spriteSize,
         isPaused: gameState.isPaused,
         dungeonMasterId: gameState.dungeonMaster,
+        turnIndex: gameState.turnIndex,
       },
       characterData: characterData,
       userIds: playerIds,
@@ -314,6 +329,7 @@ const NewGame = () => {
       },
       {
         onError: (error: Error) => {
+          alert("Error creating game");
           console.error("An error occurred:", error);
         },
       };
@@ -405,10 +421,12 @@ const NewGame = () => {
             <div className="flex">
               <div>
                 <CharacterBar
-                  sprites={gameState.characters}
+                  gameState={gameState}
                   setMap={setMap}
                   map={map}
                   mapRect={mapRect}
+                  setGameState={setGameState}
+                  createMode={true}
                 />
               </div>
               <div>
