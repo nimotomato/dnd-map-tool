@@ -61,7 +61,7 @@ const Sprite = ({
 
       setIsDead(sprite.isDead);
     });
-  });
+  }, [sprites]);
 
   // Prepare update query
   const { mutate, error, isError } =
@@ -73,9 +73,21 @@ const Sprite = ({
   // Store in ref to improve stability over lifecycles
   const debouncedUpdateCharacterRef = useRef(debounce(mutate, debounceTime));
 
+  // Send sprite data to db
+  useEffect(() => {
+    gameState.characters.map((sprite) => {
+      if (sprite.characterId !== id) return;
+
+      debouncedUpdateCharacterRef.current({ ...sprite, gameId: gameState.id });
+    });
+
+    return () => {
+      debouncedUpdateCharacterRef.current.cancel();
+    };
+  }, [gameState.characters]);
+
   if (isError) {
     console.error("An error occurred:", error);
-    // Handle error appropriately here
   }
 
   useEffect(() => {
@@ -152,54 +164,54 @@ const Sprite = ({
       });
     }
 
-    // Send movement to database
-    if (!createMode) {
-      if (!userQueue || userTurnIndex === undefined || !currentUser) {
-        return;
-      }
-      if (userQueue[userTurnIndex]?.controllerId !== currentUser.id) {
-        // Check current user turn
-        return;
-      }
+    // // Send movement to database
+    // if (!createMode) {
+    //   if (!userQueue || userTurnIndex === undefined || !currentUser) {
+    //     return;
+    //   }
+    //   if (userQueue[userTurnIndex]?.controllerId !== currentUser.id) {
+    //     // Check current user turn
+    //     return;
+    //   }
 
-      if (
-        e.clientX - offsetX - mapRect.x > 0 &&
-        e.clientX + spriteRect.width - offsetX < mapRect.x + mapRect.width
-      ) {
-        sprites.map((sprite) => {
-          if (sprite.characterId !== id) return;
+    //   if (
+    //     e.clientX - offsetX - mapRect.x > 0 &&
+    //     e.clientX + spriteRect.width - offsetX < mapRect.x + mapRect.width
+    //   ) {
+    //     sprites.map((sprite) => {
+    //       if (sprite.characterId !== id) return;
 
-          const newSprite = {
-            ...sprite,
-            positionX: e.clientX - mapRect.x - offsetX - map.posX,
-          };
+    //       const newSprite = {
+    //         ...sprite,
+    //         positionX: e.clientX - mapRect.x - offsetX - map.posX,
+    //       };
 
-          debouncedUpdateCharacterRef.current({
-            ...newSprite,
-            gameId: gameState.id,
-          });
-        });
-      }
+    //       debouncedUpdateCharacterRef.current({
+    //         ...newSprite,
+    //         gameId: gameState.id,
+    //       });
+    //     });
+    //   }
 
-      if (
-        e.clientY - offsetY - mapRect.y > 0 &&
-        e.clientY + spriteRect.height - offsetY < mapRect.y + mapRect.height
-      ) {
-        sprites.map((sprite) => {
-          if (sprite.characterId !== id) return;
+    //   if (
+    //     e.clientY - offsetY - mapRect.y > 0 &&
+    //     e.clientY + spriteRect.height - offsetY < mapRect.y + mapRect.height
+    //   ) {
+    //     sprites.map((sprite) => {
+    //       if (sprite.characterId !== id) return;
 
-          const newSprite = {
-            ...sprite,
-            positionY: e.clientY - mapRect.y - offsetY - map.posY,
-          };
+    //       const newSprite = {
+    //         ...sprite,
+    //         positionY: e.clientY - mapRect.y - offsetY - map.posY,
+    //       };
 
-          debouncedUpdateCharacterRef.current({
-            ...newSprite,
-            gameId: gameState.id,
-          });
-        });
-      }
-    }
+    //       debouncedUpdateCharacterRef.current({
+    //         ...newSprite,
+    //         gameId: gameState.id,
+    //       });
+    //     });
+    //   }
+    // }
   };
 
   // TO DO: Add animation to this
