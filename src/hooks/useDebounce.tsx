@@ -1,11 +1,12 @@
 import { useEffect, useRef } from "react";
 
-export default function useDebounce(fn: Function, delay: number) {
-  // Keep track of lates timeout
+export default function useDebounce<T extends unknown[], R>(
+  fn: (...args: T) => R,
+  delay: number
+) {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Debounce function
-  const debouncedFn = (...args: any[]) => {
+  const debouncedFn = (...args: T): void => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }

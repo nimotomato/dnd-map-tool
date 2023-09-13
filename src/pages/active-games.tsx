@@ -74,6 +74,7 @@ const ActiveGames = () => {
       positionY: 0,
       initiative: 0,
       gameId: gameId,
+      isDead: false,
     }),
       {
         onSuccess: (response: Response) => {
