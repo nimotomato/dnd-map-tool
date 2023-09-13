@@ -16,6 +16,7 @@ import DungeonMap from "~/components/DungeonMap";
 import CharacterBar from "~/components/CharacterBar";
 import useGetMapRect from "../hooks/useGetMapRect";
 import useTryLoadImg from "~/hooks/useTryLoadImg";
+import useDebounce from "~/hooks/useDebounce";
 
 import { MapProps, Game, Character } from "~/types";
 
@@ -58,6 +59,7 @@ const NewGame = () => {
     players: [],
     dungeonMaster: "",
     characters: [],
+    turnIndex: 0,
   });
 
   // LOCAL MAP STUFF
@@ -102,6 +104,7 @@ const NewGame = () => {
 
   // PLAYER STUFF
   const [playerInput, setPlayerInput] = useState("");
+  const [debouncedPlayerInput, setDebouncedPlayerInput] = useState("");
   const [mapInput, setMapInput] = useState("");
   const [border, setBorder] = useState({
     color: "border-black",
@@ -111,26 +114,28 @@ const NewGame = () => {
 
   // Magic API
   // Get user specifically asked for in input
-  const getUser = api.user.getUser.useQuery({ userEmail: playerInput });
+  const getUser = api.user.getUser.useQuery({
+    userEmail: debouncedPlayerInput,
+  });
+
+  // Debounced input
+  const debouncedSetInput = useDebounce(setDebouncedPlayerInput, 300);
+
+  // Update the debounced input from player input
+  useEffect(() => {
+    debouncedSetInput(playerInput);
+  }, [playerInput]);
 
   // Adds current user to players
   useEffect(() => {
     if (!currentUser?.id || gameState.dungeonMaster !== "") return;
 
-    const playerIds = gameState.players.map((player) => player.id);
-
-    // Prevent duplicate player
-    if (playerIds.includes(currentUser.id)) return;
-
     setGameState((prev) => ({
       ...prev,
       dungeonMaster: currentUser.id,
-      players: [
-        ...prev.players,
-        { id: currentUser.id, name: currentUser.name ?? "anon" },
-      ],
+      players: [{ id: currentUser.id, name: currentUser.name ?? "anon" }],
     }));
-  }, [getUser]);
+  }, [currentUser]);
 
   const handleOnAddPlayer = (e: ReactMouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -221,6 +226,7 @@ const NewGame = () => {
       positionY: mapRectHeight,
       controllerId: currentUser.id,
       initiative: 0,
+      isDead: false,
     };
 
     if (NPCNameInput === "" || NPCSrcInput === "") {
@@ -294,6 +300,7 @@ const NewGame = () => {
         initiative: character.initiative,
         positionX: character.positionX,
         positionY: character.positionY,
+        isDead: character.isDead,
       };
     });
 
@@ -308,6 +315,7 @@ const NewGame = () => {
         spriteSize: gameState.map.spriteSize,
         isPaused: gameState.isPaused,
         dungeonMasterId: gameState.dungeonMaster,
+        turnIndex: gameState.turnIndex,
       },
       characterData: characterData,
       userIds: playerIds,

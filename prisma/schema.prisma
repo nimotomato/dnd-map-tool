@@ -41,6 +41,7 @@ model CharacterInGame {
     initiative  Int
     positionX   Decimal
     positionY   Decimal
+    isDead      Boolean
     Character   Character @relation(fields: [characterId], references: [characterId])
     Game        Game      @relation(fields: [gameId], references: [gameId], onDelete: Cascade)
 

@@ -18,6 +18,7 @@ const characterInGameSchema = z.array(
     positionX: z.number(),
     positionY: z.number(),
     initiative: z.number(),
+    isDead: z.boolean(),
   })
 );
 
@@ -31,6 +32,7 @@ const gameSchema = z.object({
   spriteSize: z.number(),
   isPaused: z.boolean(),
   dungeonMasterId: z.string(),
+  turnIndex: z.number(),
 });
 
 const newGameSchema = z.object({
@@ -95,6 +97,7 @@ export const gameRouter = createTRPCRouter({
         positionX: character.positionX,
         positionY: character.positionY,
         initiative: character.initiative,
+        isDead: character.isDead,
       }));
 
       const charactersInGame = ctx.prisma.characterInGame.createMany({

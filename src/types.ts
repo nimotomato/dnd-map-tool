@@ -30,6 +30,7 @@ export type Game = {
   isPaused: boolean;
   dungeonMaster: string;
   characters: Character[];
+  turnIndex: number;
 };
 
 export type Character = {
@@ -40,4 +41,5 @@ export type Character = {
   imgSrc: string;
   initiative: number;
   controllerId: string;
+  isDead: boolean;
 };
