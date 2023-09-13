@@ -17,6 +17,7 @@ import CharacterBar from "~/components/CharacterBar";
 import useGetMapRect from "../hooks/useGetMapRect";
 import useTryLoadImg from "~/hooks/useTryLoadImg";
 import useDebounce from "~/hooks/useDebounce";
+import debounce from "lodash/debounce";
 
 import { MapProps, Game, Character } from "~/types";
 
