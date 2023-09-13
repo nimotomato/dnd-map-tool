@@ -7,8 +7,8 @@ export type DbMapProps = {
 };
 
 export type MapProps = {
-  posX: number;
-  posY: number;
+  positionX: number;
+  positionY: number;
   zoom: number;
   hasLoaded: boolean;
 };

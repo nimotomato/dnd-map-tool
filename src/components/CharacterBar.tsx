@@ -32,12 +32,25 @@ const CharacterBar = ({
 
     gameState.characters.map((sprite) => {
       if (e.currentTarget.id !== sprite.characterId || !mapRect) return; // Find correct sprite
-
       // TO DO:
       // Check we are within bounds of map, eg 0.0 shouldnt be centered, but stay bound to left corner
+
       // Calculate relative positioning of map
-      const newX = -sprite.positionX + mapRect.width / 2;
-      const newY = -sprite.positionY + mapRect.height / 2;
+      let newX = -sprite.positionX + mapRect.width / 2;
+      let newY = -sprite.positionY + mapRect.height / 2;
+
+      // Contain bounds of map
+      if (newX > 0) newX = 0;
+      if (newY > 0) newY = 0;
+
+      // Lazy divider
+      const lazyConstantX = 1.3;
+      const lazyConstantY = 1.2;
+      if (newX < -mapRect.fullWidth)
+        newX = -sprite.positionX + mapRect.width / lazyConstantX;
+      if (newY < -mapRect.fullWidth)
+        newY = -sprite.positionY + mapRect.height / lazyConstantY;
+
       setMap((prevMap) => ({ ...prevMap, positionX: newX, positionY: newY }));
     });
   };
