@@ -53,6 +53,15 @@ const Sprite = ({
   const [spriteRect, setSpriteRect] = useState<Rect | null>(null);
   const [show, setShow] = useState(true);
   const [dimensions, setDimensions] = useState({ height: 0, width: 0 });
+  const [isDead, setIsDead] = useState(false);
+
+  useEffect(() => {
+    sprites.map((sprite) => {
+      if (sprite.characterId !== id) return;
+
+      setIsDead(sprite.isDead);
+    });
+  });
 
   // Prepare update query
   const { mutate, error, isError } =
@@ -149,38 +158,38 @@ const Sprite = ({
         // Check current user turn
         return;
       }
-    }
 
-    if (
-      e.clientX - offsetX - mapRect.x > 0 &&
-      e.clientX + spriteRect.width - offsetX < mapRect.x + mapRect.width
-    ) {
-      sprites.map((sprite) => {
-        if (sprite.characterId !== id) return;
+      if (
+        e.clientX - offsetX - mapRect.x > 0 &&
+        e.clientX + spriteRect.width - offsetX < mapRect.x + mapRect.width
+      ) {
+        sprites.map((sprite) => {
+          if (sprite.characterId !== id) return;
 
-        const newSprite = {
-          ...sprite,
-          positionX: e.clientX - mapRect.x - offsetX - map.posX,
-        };
+          const newSprite = {
+            ...sprite,
+            positionX: e.clientX - mapRect.x - offsetX - map.posX,
+          };
 
-        debouncedUpdateCharacter({ ...newSprite, gameId: gameState.id });
-      });
-    }
+          debouncedUpdateCharacter({ ...newSprite, gameId: gameState.id });
+        });
+      }
 
-    if (
-      e.clientY - offsetY - mapRect.y > 0 &&
-      e.clientY + spriteRect.height - offsetY < mapRect.y + mapRect.height
-    ) {
-      sprites.map((sprite) => {
-        if (sprite.characterId !== id) return;
+      if (
+        e.clientY - offsetY - mapRect.y > 0 &&
+        e.clientY + spriteRect.height - offsetY < mapRect.y + mapRect.height
+      ) {
+        sprites.map((sprite) => {
+          if (sprite.characterId !== id) return;
 
-        const newSprite = {
-          ...sprite,
-          positionY: e.clientY - mapRect.y - offsetY - map.posY,
-        };
+          const newSprite = {
+            ...sprite,
+            positionY: e.clientY - mapRect.y - offsetY - map.posY,
+          };
 
-        debouncedUpdateCharacter({ ...newSprite, gameId: gameState.id });
-      });
+          debouncedUpdateCharacter({ ...newSprite, gameId: gameState.id });
+        });
+      }
     }
   };
 
@@ -288,7 +297,9 @@ const Sprite = ({
         id={id}
         src={`${imgSrc}`}
         alt="sprite"
-        className={`absolute select-none ${show ? "visible" : "invisible"}`}
+        className={`absolute select-none ${show ? "visible" : "invisible"} ${
+          isDead ? "rotate-90" : "rotate-0"
+        }`}
         style={{
           height: `${dimensions.height}px`,
           width: `${dimensions.width}px`,

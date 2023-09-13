@@ -149,6 +149,19 @@ export const gameRouter = createTRPCRouter({
       });
     }),
 
+  patchTurnIndex: publicProcedure
+    .input(z.object({ gameId: z.string(), turnIndex: z.number() }))
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.game.update({
+        where: {
+          gameId: input.gameId,
+        },
+        data: {
+          turnIndex: input.turnIndex,
+        },
+      });
+    }),
+
   deleteGame: publicProcedure
     .input(z.object({ gameId: z.string() }))
     .mutation(({ ctx, input }) => {

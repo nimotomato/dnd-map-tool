@@ -328,6 +328,7 @@ const NewGame = () => {
       },
       {
         onError: (error: Error) => {
+          alert("Error creating game");
           console.error("An error occurred:", error);
         },
       };
@@ -419,10 +420,12 @@ const NewGame = () => {
             <div className="flex">
               <div>
                 <CharacterBar
-                  sprites={gameState.characters}
+                  gameState={gameState}
                   setMap={setMap}
                   map={map}
                   mapRect={mapRect}
+                  setGameState={setGameState}
+                  createMode={true}
                 />
               </div>
               <div>

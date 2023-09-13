@@ -7,6 +7,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { api } from "~/utils/api";
 
 import DungeonMap from "~/components/DungeonMap";
+import Modal from "~/components/Modal";
 import useGetMapRect from "../hooks/useGetMapRect";
 import { MapProps, Game, Character } from "~/types";
 import CharacterBar from "~/components/CharacterBar";
@@ -256,6 +257,7 @@ const GameBoard = () => {
 
   // Keep track of whose turn it is.
   const [userTurnIndex, setUserTurnIndex] = useState(0);
+  const patchTurnIndex = api.game.patchTurnIndex.useMutation();
 
   // Allow user to end their turn.
   const endTurn = (e: React.MouseEvent) => {
@@ -264,11 +266,20 @@ const GameBoard = () => {
     if (!charactersInGame || !charactersInGame.data) return;
 
     setUserTurnIndex((prev) => {
+      let nextIndex = 0;
+
       if (prev >= charactersInGame.data.length - 1) {
-        return 0;
+        return nextIndex;
       }
 
-      return prev + 1;
+      nextIndex = prev + 1;
+
+      patchTurnIndex.mutate({
+        turnIndex: nextIndex,
+        gameId: localGameState.id,
+      });
+
+      return nextIndex;
     });
   };
 
@@ -328,10 +339,12 @@ const GameBoard = () => {
         <div className="flex">
           <div>
             <CharacterBar
-              sprites={localGameState.characters}
+              gameState={localGameState}
               setMap={setMap}
               map={map}
               mapRect={mapRect}
+              setGameState={setLocalGameState}
+              createMode={false}
             />
           </div>
           <DungeonMap

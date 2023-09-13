@@ -142,6 +142,28 @@ export const characterRouter = createTRPCRouter({
       return ctx.prisma.$transaction(initiatives);
     }),
 
+  patchIsDead: publicProcedure
+    .input(
+      z.object({
+        characterId: z.string(),
+        gameId: z.string(),
+        isDead: z.boolean(),
+      })
+    )
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.characterInGame.update({
+        where: {
+          gameId_characterId: {
+            characterId: input.characterId,
+            gameId: input.gameId,
+          },
+        },
+        data: {
+          isDead: input.isDead,
+        },
+      });
+    }),
+
   putCharacterInGame: publicProcedure
     .input(characterSchema.extend({ gameId: z.string() }))
     .mutation(({ ctx, input }) => {
