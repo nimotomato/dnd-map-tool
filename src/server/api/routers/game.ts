@@ -130,6 +130,22 @@ export const gameRouter = createTRPCRouter({
       });
     }),
 
+  patchMapPosition: publicProcedure
+    .input(
+      z.object({ gameId: z.string(), mapPosX: z.number(), mapPosY: z.number() })
+    )
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.game.update({
+        where: {
+          gameId: input.gameId,
+        },
+        data: {
+          mapPosX: input.mapPosX,
+          mapPosY: input.mapPosY,
+        },
+      });
+    }),
+
   deleteGame: publicProcedure
     .input(z.object({ gameId: z.string() }))
     .mutation(({ ctx, input }) => {

@@ -18,12 +18,13 @@ import {
   FaPlus,
   FaMinus,
 } from "react-icons/fa6";
+import { api } from "~/utils/api";
+import useDebounce from "~/hooks/useDebounce";
 
 import { GoZoomIn, GoZoomOut } from "react-icons/go";
 
 type Props = {
   mapRef: MutableRefObject<HTMLDivElement | null>;
-  setSprites?: React.Dispatch<React.SetStateAction<Character[]>>;
   sprites?: Character[];
   mapRect: Maprect | null;
   map: MapProps;
@@ -54,6 +55,9 @@ const DungeonMap = ({
   // Stepsize in percentage
   const defaultStepSize = useRef(100);
   const imgError = useTryLoadImg(gameState.map.imgSrc);
+  const { mutate, error, isError } = api.game.patchMapPosition.useMutation();
+  const delay = 500;
+  const debouncedUpdateMapPosition = useDebounce(mutate, delay);
 
   const handleOnMapNav = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -67,10 +71,24 @@ const DungeonMap = ({
       map.posX > -mapRect.fullWidth - defaultStepSize.current * 3
     ) {
       setMap((prev) => {
+        if (!createMode) {
+          debouncedUpdateMapPosition({
+            mapPosY: prev.posY,
+            mapPosX: prev.posX - defaultStepSize.current,
+            gameId: gameState.id,
+          });
+        }
         return { ...prev, posX: prev.posX - defaultStepSize.current };
       });
     } else if (target.id === "left" && map.posX < 0) {
       setMap((prev) => {
+        if (!createMode) {
+          debouncedUpdateMapPosition({
+            mapPosY: prev.posY,
+            mapPosX: prev.posX + defaultStepSize.current,
+            gameId: gameState.id,
+          });
+        }
         return { ...prev, posX: prev.posX + defaultStepSize.current };
       });
     } else if (
@@ -78,10 +96,24 @@ const DungeonMap = ({
       map.posY > -mapRect.fullHeight - defaultStepSize.current
     ) {
       setMap((prev) => {
+        if (!createMode) {
+          debouncedUpdateMapPosition({
+            mapPosY: prev.posY - defaultStepSize.current,
+            mapPosX: prev.posX,
+            gameId: gameState.id,
+          });
+        }
         return { ...prev, posY: prev.posY - defaultStepSize.current };
       });
     } else if (target.id === "up" && map.posY < 0) {
       setMap((prev) => {
+        if (!createMode) {
+          debouncedUpdateMapPosition({
+            mapPosY: prev.posY + defaultStepSize.current,
+            mapPosX: prev.posX,
+            gameId: gameState.id,
+          });
+        }
         return { ...prev, posY: prev.posY + defaultStepSize.current };
       });
     }

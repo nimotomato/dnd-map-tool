@@ -10,10 +10,12 @@ import DungeonMap from "~/components/DungeonMap";
 import useGetMapRect from "../hooks/useGetMapRect";
 import { MapProps, Game, Character } from "~/types";
 import CharacterBar from "~/components/CharacterBar";
+import { useRouter } from "next/router";
 
 const GameBoard = () => {
   const session = useSession();
   const currentUser = session.data?.user;
+  const router = useRouter();
 
   // get gameId through search params
   const gameIdParam = useSearchParams().get("data")?.replace(/"/g, "");
@@ -35,6 +37,7 @@ const GameBoard = () => {
     !userIds?.includes(currentUser.id)
   ) {
     alert("User not invited!");
+    void router.push("/");
   }
 
   // Keep track of DM privileges
@@ -103,7 +106,7 @@ const GameBoard = () => {
       ...prev,
       isPaused: gameData?.data?.isPaused ?? true,
     }));
-  }, [gameData.data]);
+  }, [gameData.data?.isPaused]);
 
   const handleOnPauseToggle = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -184,8 +187,6 @@ const GameBoard = () => {
     characters: [],
   });
 
-  // Local sprites
-
   useEffect(() => {
     if (!gameData.data || !users.data || !charactersInGame.data) return;
 
@@ -219,6 +220,7 @@ const GameBoard = () => {
         posX: Number(data.mapPosX),
         posY: Number(data.mapPosY),
         zoom: data.mapZoom,
+        spriteSize: data.spriteSize,
       },
       isPaused: data.isPaused,
       players: currentUsers,
@@ -226,8 +228,6 @@ const GameBoard = () => {
       characters: characterData,
     }));
   }, [gameData.data]);
-
-  const [sprites, setSprites] = useState<Character[]>([]);
 
   useEffect(() => {
     if (!charactersInGame.data) return;
@@ -240,7 +240,7 @@ const GameBoard = () => {
       initiative: character.initiative,
     }));
 
-    setSprites(characterData);
+    setLocalGameState((prev) => ({ ...prev, characters: characterData }));
   }, [charactersInGame.data]);
 
   // Allow one player to move and end their turn on a button click.
@@ -278,16 +278,16 @@ const GameBoard = () => {
   }, [localGameState.characters]);
 
   //Refreshes game and character data
-  useEffect(() => {
-    const timer = setInterval(() => {
-      void gameData.refetch();
-      void charactersInGame.refetch();
-    }, 3000);
+  // useEffect(() => {
+  //   const timer = setInterval(() => {
+  //     void gameData.refetch();
+  //     void charactersInGame.refetch();
+  //   }, 500);
 
-    return () => {
-      clearInterval(timer);
-    };
-  }, []);
+  //   return () => {
+  //     clearInterval(timer);
+  //   };
+  // }, []);
 
   return (
     <>
@@ -306,7 +306,7 @@ const GameBoard = () => {
         <div className="flex">
           <div>
             <CharacterBar
-              sprites={sprites}
+              sprites={localGameState.characters}
               setMap={setMap}
               map={map}
               mapRect={mapRect}
@@ -321,8 +321,7 @@ const GameBoard = () => {
             gameState={localGameState}
             setGameState={setLocalGameState}
             isDm={true}
-            sprites={sprites}
-            setSprites={setSprites}
+            sprites={localGameState.characters}
             createMode={false}
             userTurnIndex={userTurnIndex}
             setUserTurnIndex={setUserTurnIndex}

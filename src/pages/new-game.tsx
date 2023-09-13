@@ -119,9 +119,7 @@ const NewGame = () => {
 
     const playerIds = gameState.players.map((player) => player.id);
 
-    console.log("playerIDs:", playerIds);
-
-    // Prevent duplicat player
+    // Prevent duplicate player
     if (playerIds.includes(currentUser.id)) return;
 
     setGameState((prev) => ({
@@ -178,13 +176,13 @@ const NewGame = () => {
     name: string
   ) => {
     e.preventDefault();
-    const filteredPlaters = gameState.players.filter(
+    const filteredPlayers = gameState.players.filter(
       (player) => player.name !== name
     );
 
     setGameState((prev) => ({
       ...prev,
-      players: [...filteredPlaters],
+      players: [...filteredPlayers],
     }));
   };
 
@@ -265,12 +263,20 @@ const NewGame = () => {
       return;
     }
 
-    if (gameState.players.length === 0 || gameState.players.length > 4) {
+    if (gameState.players.length === 0) {
       alert("Not enough players.");
       return;
     }
 
-    const playerIds = gameState.players.map((player) => player.id);
+    if (gameState.players.length > 5) {
+      alert("Too many players.");
+      return;
+    }
+
+    // really make sure ids are unique
+    const playerIds = Array.from(
+      new Set(gameState.players.map((player) => player.id))
+    );
 
     const characterData = gameState.characters.map((character) => {
       return {

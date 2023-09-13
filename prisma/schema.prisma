@@ -20,6 +20,7 @@ model Game {
     dungeonMasterId String
     mapZoom         Int
     spriteSize      Int
+    turnIndex       Int
     dungeonMaster   User              @relation(fields: [dungeonMasterId], references: [id])
     CharacterInGame CharacterInGame[]
     UserInGame      UserInGame[]

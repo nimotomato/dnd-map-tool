@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { api } from "~/utils/api";
+import useDebounce from "~/hooks/useDebounce";
 
 import { Maprect, MapProps, Game, Character } from "~/types";
 
@@ -53,6 +54,18 @@ const Sprite = ({
   const [show, setShow] = useState(true);
   const [dimensions, setDimensions] = useState({ height: 0, width: 0 });
 
+  // Prepare update query
+  const { mutate, error, isError } =
+    api.character.putCharacterInGame.useMutation();
+  // Prepare debouncer
+  const debounceTime = 50;
+  const debouncedUpdateCharacter = useDebounce(mutate, debounceTime);
+
+  if (isError) {
+    console.error("An error occurred:", error);
+    // Handle error appropriately here
+  }
+
   useEffect(() => {
     if (spriteRef.current) {
       const boundingClient = spriteRef.current.getBoundingClientRect();
@@ -80,6 +93,7 @@ const Sprite = ({
     if (!mapRect || !spriteRect) return;
     e.preventDefault();
 
+    // Local movement
     if (
       e.clientX - offsetX - mapRect.x > 0 &&
       e.clientX + spriteRect.width - offsetX < mapRect.x + mapRect.width
@@ -125,27 +139,66 @@ const Sprite = ({
         return newGameState;
       });
     }
-  };
 
-  // Prepare update query
-  const updateCharacter = api.character.putCharacterInGame.useMutation();
-
-  const handleMouseUp = () => {
-    // Send new sprite pos to DB
+    // Send movement to database
     if (!createMode) {
-      if (!userQueue || !userTurnIndex || !currentUser) {
+      if (!userQueue || userTurnIndex === undefined || !currentUser) {
         return;
       }
       if (userQueue[userTurnIndex]?.controllerId !== currentUser.id) {
+        // Check current user turn
         return;
       }
     }
 
-    sprites.map((sprite) => {
-      if (sprite.characterId !== id) return;
+    if (
+      e.clientX - offsetX - mapRect.x > 0 &&
+      e.clientX + spriteRect.width - offsetX < mapRect.x + mapRect.width
+    ) {
+      sprites.map((sprite) => {
+        if (sprite.characterId !== id) return;
 
-      updateCharacter.mutate({ ...sprite, gameId: gameState.id });
-    });
+        const newSprite = {
+          ...sprite,
+          positionX: e.clientX - mapRect.x - offsetX - map.posX,
+        };
+
+        debouncedUpdateCharacter({ ...newSprite, gameId: gameState.id });
+      });
+    }
+
+    if (
+      e.clientY - offsetY - mapRect.y > 0 &&
+      e.clientY + spriteRect.height - offsetY < mapRect.y + mapRect.height
+    ) {
+      sprites.map((sprite) => {
+        if (sprite.characterId !== id) return;
+
+        const newSprite = {
+          ...sprite,
+          positionY: e.clientY - mapRect.y - offsetY - map.posY,
+        };
+
+        debouncedUpdateCharacter({ ...newSprite, gameId: gameState.id });
+      });
+    }
+  };
+
+  const handleMouseUp = () => {
+    // Send new sprite pos to DB
+    // if (!createMode) {
+    //   if (!userQueue || userTurnIndex === undefined || !currentUser) {
+    //     return;
+    //   }
+    //   if (userQueue[userTurnIndex]?.controllerId !== currentUser.id) {
+    //     // Check current user turn
+    //     return;
+    //   }
+    // }
+    // sprites.map((sprite) => {
+    //   if (sprite.characterId !== id) return;
+    //   updateCharacter.mutate({ ...sprite, gameId: gameState.id });
+    // });
   };
 
   // TO DO: Add animation to this
