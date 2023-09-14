@@ -35,12 +35,12 @@ const NewGame = () => {
       return;
     }
 
-    setStep(1);
+    setStep((prev) => prev + 1);
   };
 
   const prevStep = (e: React.MouseEvent) => {
     e.preventDefault();
-    setStep(0);
+    setStep((prev) => prev - 1);
   };
 
   // GAME DATA
@@ -64,8 +64,8 @@ const NewGame = () => {
 
   // LOCAL MAP STUFF
   const [map, setMap] = useState<MapProps>({
-    posX: 0,
-    posY: 0,
+    positionX: 0,
+    positionY: 0,
     zoom: 6,
     hasLoaded: false,
   });
@@ -85,9 +85,11 @@ const NewGame = () => {
     // Loads local state to game state to "save"
     setGameState((prev) => ({
       ...prev,
-      map: { ...prev.map, posX: map.posX, posY: map.posY },
+      map: { ...prev.map, posX: map.positionX, posY: map.positionY },
     }));
   };
+
+  const handleOnLockPlayerCoordinates = (e: React.MouseEvent) => {};
 
   const handleOnAddMap = (e: ReactMouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -143,6 +145,11 @@ const NewGame = () => {
 
   const handleOnAddPlayer = (e: ReactMouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    if (!currentUser) {
+      alert("No current user");
+      return;
+    }
+
     if (!getUser.data) {
       setBorder({ color: "border-rose-500", size: "border-2" });
       setErrorText("User email not found, try again.");
@@ -164,8 +171,22 @@ const NewGame = () => {
 
     const userData = getUser.data;
 
+    const newCharacter = {
+      characterId: uuidv4(),
+      name: gameState.players.length.toString(),
+      positionX: 10 * gameState.players.length * 4,
+      positionY: 10,
+      prevPositionX: 10 * gameState.players.length * 4,
+      prevPositionY: 10,
+      imgSrc: `/img/${gameState.players.length}.png`,
+      isDead: false,
+      initiative: 0,
+      controllerId: userData.id,
+    };
+
     setGameState((prev) => ({
       ...prev,
+      characters: [...prev.characters, newCharacter],
       players: [
         ...prev.players,
         { id: userData.id, name: userData.name ?? "anon" },
@@ -222,21 +243,27 @@ const NewGame = () => {
       mapRectHeight = mapRectHeight / 2;
     }
 
+    if (NPCNameInput === "" || NPCSrcInput === "") {
+      alert("invalid entry");
+      return;
+    }
+
+    if (NPCNameInput.length < 2) {
+      alert("name is too short");
+    }
+
     const newChar: Character = {
       characterId: uuidv4(),
       name: `${NPCNameInput}`,
       imgSrc: `${NPCSrcInput}`,
       positionX: mapRectWidth,
       positionY: mapRectHeight,
+      prevPositionX: mapRectWidth,
+      prevPositionY: mapRectHeight,
       controllerId: currentUser.id,
       initiative: 0,
       isDead: false,
     };
-
-    if (NPCNameInput === "" || NPCSrcInput === "") {
-      alert("invalid entry");
-      return;
-    }
 
     // Add new character
     setGameState((prev) => ({
@@ -289,6 +316,7 @@ const NewGame = () => {
     );
 
     const characterData = gameState.characters.map((character) => {
+      // Filter out all but DM
       return {
         characterId: character.characterId,
         name: character.name,
@@ -297,16 +325,16 @@ const NewGame = () => {
       };
     });
 
-    const charInGameData = gameState.characters.map((character) => {
-      return {
-        characterId: character.characterId,
-        gameId: gameState.id,
-        initiative: character.initiative,
-        positionX: character.positionX,
-        positionY: character.positionY,
-        isDead: character.isDead,
-      };
-    });
+    const charInGameData = gameState.characters.map((character) => ({
+      gameId: gameState.id,
+      characterId: character.characterId,
+      initiative: character.initiative,
+      positionX: character.positionX,
+      positionY: character.positionY,
+      prevPositionX: character.prevPositionX,
+      prevPositionY: character.prevPositionY,
+      isDead: character.isDead,
+    }));
 
     createGameMutation.mutate({
       gameData: {
@@ -420,7 +448,49 @@ const NewGame = () => {
         )}
         {step === 1 && (
           <>
-            <h1>NPC planner</h1>
+            <h1>Set player starting positions</h1>
+            <div className="flex">
+              <div>
+                <CharacterBar
+                  gameState={gameState}
+                  setMap={setMap}
+                  map={map}
+                  mapRect={mapRect}
+                  setGameState={setGameState}
+                  createMode={true}
+                />
+              </div>
+              <div>
+                <div>
+                  <DungeonMap
+                    key={JSON.stringify(mapRect)}
+                    sprites={gameState.characters}
+                    mapRef={mapRef}
+                    mapRect={mapRect}
+                    map={map}
+                    setMap={setMap}
+                    gameState={gameState}
+                    setGameState={setGameState}
+                    isDm={true}
+                    createMode={true}
+                  />
+                </div>
+                <div className="mt-6">
+                  <button className="m-2" onClick={prevStep}>
+                    Go back
+                  </button>
+                  <button onClick={nextStep}>Next step</button>
+                </div>
+              </div>
+            </div>
+            <div>
+              <button onClick={createGame}>Create game</button>
+            </div>
+          </>
+        )}
+        {step === 2 && (
+          <>
+            <h1>Set NPC starting positions</h1>
             <div className="flex">
               <div>
                 <CharacterBar
@@ -468,10 +538,12 @@ const NewGame = () => {
                     readOnly
                   ></input>
                   <button onClick={handleOnLockCoordinates}>
-                    Lock starting coordinates.
+                    Lock starting map coordinates.
                   </button>
                 </div>
-                <button onClick={prevStep}>Go back</button>
+                <button className="m-2" onClick={prevStep}>
+                  Go back
+                </button>
               </div>
             </div>
             <div>

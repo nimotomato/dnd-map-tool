@@ -36,14 +36,16 @@ model Character {
 }
 
 model CharacterInGame {
-    gameId      String
-    characterId String
-    initiative  Int
-    positionX   Decimal
-    positionY   Decimal
-    isDead      Boolean
-    Character   Character @relation(fields: [characterId], references: [characterId])
-    Game        Game      @relation(fields: [gameId], references: [gameId], onDelete: Cascade)
+    gameId        String
+    characterId   String
+    initiative    Int
+    positionX     Decimal
+    positionY     Decimal
+    prevPositionX Decimal
+    prevPositionY Decimal
+    isDead        Boolean
+    Character     Character @relation(fields: [characterId], references: [characterId], onDelete: Cascade)
+    Game          Game      @relation(fields: [gameId], references: [gameId], onDelete: Cascade)
 
     @@id([gameId, characterId])
 }

@@ -4,9 +4,11 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 
 import { api } from "~/utils/api";
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Modal from "~/components/Modal";
 import { Character } from "~/types";
+import { Decimal } from "@prisma/client/runtime/library";
+import { ppid } from "process";
 
 const ActiveGames = () => {
   const session = useSession();
@@ -16,8 +18,15 @@ const ActiveGames = () => {
   // Get all games a user is in.
   const games = api.game.getGames.useQuery({ userId: currentUser?.id ?? "" });
 
+  // Reserved names
+  const placeHolderNamesRef = useRef(["1", "2", "3", "4", "5"]);
+
   // Get all characters of a user
   const characters = api.character.getCharactersOfUser.useQuery({
+    userId: currentUser?.id ?? "",
+  }).data;
+
+  const charactersFull = api.character.getCharactersOfUserFull.useQuery({
     userId: currentUser?.id ?? "",
   }).data;
 
@@ -47,18 +56,54 @@ const ActiveGames = () => {
   };
 
   // Add user's character to game
-  const addCharacterToGame = api.character.postCharacterInGame.useMutation();
+  const deleteOneAddOneToGame =
+    api.character.deleteOneAddOneToGame.useMutation();
 
   // Modal stuff
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [showCreateNewChar, setShowCreateNewChar] = useState(false);
   const [activeGameId, setActiveGameId] = useState("");
+  // const activePlaceholderDataRef = useRef<{
+  //   characterId: string;
+  //   positionX: number;
+  //   positionY: number;
+  //   prevPositionX: number;
+  //   prevPositionY: number;
+  // } | null>(null);
+
+  // // Get user's ingame characters
+  // const ingameCharacters = api.character.getCharactersOfUsersInGame.useQuery({
+  //   userId: currentUser?.id ?? "",
+  //   gameId: activeGameId ?? "",
+  // }).data;
+
+  // useEffect(() => {
+  //   const placeholders =
+  //     ingameCharacters?.filter((character) =>
+  //       placeHolderNamesRef.current.includes(character.Character.name)
+  //     ) ?? [];
+
+  //   if (placeholders.length !== 1) {
+  //     console.log("Error with placeholder count");
+  //     return;
+  //   }
+
+  //   const placeholder = placeholders[0];
+
+  //   activePlaceholderDataRef.current = {
+  //     characterId: placeholder?.Character.characterId ?? "",
+  //     positionX: Number(placeholder?.positionX) ?? 0,
+  //     positionY: Number(placeholder?.positionY) ?? 0,
+  //     prevPositionX: Number(placeholder?.prevPositionX) ?? 0,
+  //     prevPositionY: Number(placeholder?.prevPositionY) ?? 0,
+  //   };
+  // }, [activeGameId]);
 
   const onCreateNewChar = (e: React.MouseEvent) => {
     void router.push("/create-character");
   };
 
-  const choseCharacter = (
+  const selectCharacter = (
     e: React.MouseEvent,
     character: {
       characterId: string;
@@ -68,10 +113,37 @@ const ActiveGames = () => {
     },
     gameId: string
   ) => {
-    addCharacterToGame.mutate({
+    const placeholders = charactersFull?.filter((char) => {
+      return placeHolderNamesRef.current.includes(char.name);
+    });
+
+    const placeholderInGame = placeholders
+      ?.filter((char) => {
+        return char.CharacterInGame.filter((C) => C.gameId === gameId);
+      })
+      .flatMap((char) => char.CharacterInGame);
+
+    if (placeholderInGame?.length !== 1) {
+      console.log("Error with placeholder count");
+      return;
+    }
+
+    const placeholder = placeholderInGame[0];
+
+    if (!placeholder) {
+      console.log("Placeholder undefined at active-games");
+      return;
+    }
+
+    console.log(placeholder);
+
+    deleteOneAddOneToGame.mutate({
+      deleteCharId: placeholder.characterId,
       characterId: character.characterId,
-      positionX: 0,
-      positionY: 0,
+      positionX: Number(placeholder.positionX),
+      positionY: Number(placeholder.positionY),
+      prevPositionX: Number(placeholder.prevPositionX),
+      prevPositionY: Number(placeholder.prevPositionY),
       initiative: 0,
       gameId: gameId,
       isDead: false,
@@ -97,14 +169,22 @@ const ActiveGames = () => {
 
     setActiveGameId(gameId);
 
-    if (characters.length < 1) {
+    const originalCharacters = characters.filter(
+      (character) => !placeHolderNamesRef.current.includes(character.name)
+    );
+
+    if (originalCharacters.length < 1) {
       // MODAL POP UP TELLING USER TO CREATE A CHARACTER BEFORE JOINING
       setShowCreateNewChar(true);
+    } else {
+      setShowCreateNewChar(false);
     }
 
     // Check if user has a character there
     const charactersInGame = charsWithGameId.filter(
-      (data) => data.gameId === gameId
+      (data) =>
+        data.gameId === gameId &&
+        !placeHolderNamesRef.current.includes(data.Character.name)
     );
 
     if (charactersInGame.length > 0) {
@@ -134,29 +214,36 @@ const ActiveGames = () => {
                 "You have no characters, please create a new one before joining a game."
               }
               <br />
-              <button onClick={onCreateNewChar}> create new character</button>
+              <button onClick={onCreateNewChar}> create new character </button>
             </>
           ) : (
             <>
               {"You have no characters in this game."}
               <br />
               {"Choose a character to play with. "}
-              {characters?.map((character) => {
-                return (
-                  <div
-                    key={character.characterId}
-                    onClick={(e) => choseCharacter(e, character, activeGameId)}
-                    className="h-22 flex w-20 flex-col items-center justify-center rounded-lg p-2 hover:bg-slate-400"
-                  >
-                    <img
-                      src={`${character.imgSrc}`}
-                      alt="char image"
-                      className="h-14 w-14"
-                    ></img>
-                    <p>{`${character.name}`}</p>
-                  </div>
-                );
-              })}
+              {characters
+                ?.filter(
+                  (character) =>
+                    !placeHolderNamesRef.current.includes(character.name)
+                )
+                .map((character) => {
+                  return (
+                    <div
+                      key={character.characterId}
+                      onClick={(e) =>
+                        selectCharacter(e, character, activeGameId)
+                      }
+                      className="h-22 flex w-20 flex-col items-center justify-center rounded-lg p-2 hover:bg-slate-400"
+                    >
+                      <img
+                        src={`${character.imgSrc}`}
+                        alt="char image"
+                        className="h-14 w-14"
+                      ></img>
+                      <p>{`${character.name}`}</p>
+                    </div>
+                  );
+                })}
             </>
           )}
         </Modal>

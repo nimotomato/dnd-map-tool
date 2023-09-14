@@ -37,7 +37,9 @@ export type Character = {
   characterId: string;
   name: string;
   positionX: number;
+  prevPositionX: number;
   positionY: number;
+  prevPositionY: number;
   imgSrc: string;
   initiative: number;
   controllerId: string;

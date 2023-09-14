@@ -1,5 +1,5 @@
-import React, { useRef, useEffect } from "react";
-import type { Character, MapProps, Maprect, Game } from "~/types";
+import React, { useRef } from "react";
+import type { MapProps, Maprect, Game } from "~/types";
 import { useSession } from "next-auth/react";
 import { api } from "~/utils/api";
 import debounce from "lodash/debounce";
@@ -95,7 +95,7 @@ const CharacterBar = ({
             />
             <p>{sprite.name}</p>
 
-            {!createMode && (
+            {!createMode && currentUser?.id === gameState?.dungeonMaster && (
               <>
                 <p>{`Initiative: ${sprite.initiative}`}</p>
                 <button
