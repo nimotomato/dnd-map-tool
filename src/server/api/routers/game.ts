@@ -17,6 +17,8 @@ const characterInGameSchema = z.array(
     gameId: z.string(),
     positionX: z.number(),
     positionY: z.number(),
+    prevPositionX: z.number(),
+    prevPositionY: z.number(),
     initiative: z.number(),
     isDead: z.boolean(),
   })
@@ -112,6 +114,8 @@ export const gameRouter = createTRPCRouter({
         characterId: character.characterId,
         positionX: character.positionX,
         positionY: character.positionY,
+        prevPositionX: character.prevPositionX,
+        prevPositionY: character.prevPositionY,
         initiative: character.initiative,
         isDead: character.isDead,
       }));

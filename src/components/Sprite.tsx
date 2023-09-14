@@ -75,10 +75,13 @@ const Sprite = ({
 
   // Send sprite data to db
   useEffect(() => {
+    if (createMode) return;
     gameState.characters.map((sprite) => {
-      if (sprite.characterId !== id) return;
-
-      debouncedUpdateCharacterRef.current({ ...sprite, gameId: gameState.id });
+      if (sprite.characterId !== id) return; // Make sure it is the correct sprite
+      debouncedUpdateCharacterRef.current({
+        ...sprite,
+        gameId: gameState.id,
+      });
     });
 
     return () => {

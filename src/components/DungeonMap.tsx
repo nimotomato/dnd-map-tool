@@ -9,7 +9,7 @@ import type {
 import Sprite from "./Sprite";
 import useTryLoadImg from "~/hooks/useTryLoadImg";
 import { MapProps, Maprect, Game, Character } from "~/types";
-import debounce from "lodash/debounce";
+import { useSession } from "next-auth/react";
 
 import {
   FaArrowRight,
@@ -52,18 +52,29 @@ const DungeonMap = ({
   setUserTurnIndex,
   userQueue,
 }: Props) => {
-  // Stepsize in percentage
+  const session = useSession();
+  const currentUser = session.data?.user;
+  // TO DO: Stepsize in percentage
   const defaultStepSize = useRef(100);
+  const playerSpriteRef = useRef<Character | null>(null);
   const imgError = useTryLoadImg(gameState.map.imgSrc);
-  const { mutate, error, isError } = api.game.patchMapPosition.useMutation();
-  const delay = 500;
-
-  // Store debounced function in ref to improve stability across lifecycles
-  const debouncedUpdateMapPositionRef = useRef(debounce(mutate, delay));
 
   useEffect(() => {
     console.log(map);
   }, [map]);
+
+  useEffect(() => {
+    if (!currentUser) return;
+
+    if (!isDm) {
+      gameState.characters.map((sprite) => {
+        if (sprite.controllerId !== currentUser.id) return;
+
+        playerSpriteRef.current = sprite;
+        console.log("My sprite is:", playerSpriteRef.current);
+      });
+    }
+  }, [gameState.dungeonMaster]);
 
   const handleOnMapNav = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -74,30 +85,21 @@ const DungeonMap = ({
     const lazyConstantX = 3;
     const lazyConstantY = 1.8;
 
+    // IF CURRENT USER IS NOT DM
+    // GET SPRITE OF CURRENT USER
+    // CHECK IF MAP IS FURTHER AWAY THAN ALLOWD FROM SPRITE
+    // IF SO, RETURN MAP
+
     if (
       target.id === "right" &&
       map.positionX >
         -mapRect.fullWidth - defaultStepSize.current * lazyConstantX
     ) {
       setMap((prev) => {
-        // if (!createMode) {
-        //   debouncedUpdateMapPositionRef.current({
-        //     mapPosY: prev.posY,
-        //     mapPosX: prev.posX - defaultStepSize.current,
-        //     gameId: gameState.id,
-        //   });
-        // }
         return { ...prev, positionX: prev.positionX - defaultStepSize.current };
       });
     } else if (target.id === "left" && map.positionX < 0) {
       setMap((prev) => {
-        // if (!createMode) {
-        //   debouncedUpdateMapPositionRef.current({
-        //     mapPosY: prev.posY,
-        //     mapPosX: prev.posX + defaultStepSize.current,
-        //     gameId: gameState.id,
-        //   });
-        // }
         return { ...prev, positionX: prev.positionX + defaultStepSize.current };
       });
     } else if (
@@ -106,24 +108,10 @@ const DungeonMap = ({
         -mapRect.fullHeight - defaultStepSize.current * lazyConstantY
     ) {
       setMap((prev) => {
-        // if (!createMode) {
-        //   debouncedUpdateMapPositionRef.current({
-        //     mapPosY: prev.posY - defaultStepSize.current,
-        //     mapPosX: prev.posX,
-        //     gameId: gameState.id,
-        //   });
-        // }
         return { ...prev, positionY: prev.positionY - defaultStepSize.current };
       });
     } else if (target.id === "up" && map.positionY < 0) {
       setMap((prev) => {
-        // if (!createMode) {
-        //   debouncedUpdateMapPositionRef.current({
-        //     mapPosY: prev.posY + defaultStepSize.current,
-        //     mapPosX: prev.posX,
-        //     gameId: gameState.id,
-        //   });
-        // }
         return { ...prev, positionY: prev.positionY + defaultStepSize.current };
       });
     }
@@ -226,34 +214,20 @@ const DungeonMap = ({
               <div>error loading image</div>
             )}
             <div>
-              {isDm && (
-                <>
-                  <button onClick={handleOnMapNav} className="nav-btn" id="up">
-                    <FaArrowUp />
-                  </button>
-                  <button
-                    onClick={handleOnMapNav}
-                    className="nav-btn"
-                    id="down"
-                  >
-                    <FaArrowDown />
-                  </button>
-                  <button
-                    onClick={handleOnMapNav}
-                    className="nav-btn"
-                    id="left"
-                  >
-                    <FaArrowLeft />
-                  </button>
-                  <button
-                    onClick={handleOnMapNav}
-                    className="nav-btn"
-                    id="right"
-                  >
-                    <FaArrowRight />
-                  </button>
-                </>
-              )}
+              <>
+                <button onClick={handleOnMapNav} className="nav-btn" id="up">
+                  <FaArrowUp />
+                </button>
+                <button onClick={handleOnMapNav} className="nav-btn" id="down">
+                  <FaArrowDown />
+                </button>
+                <button onClick={handleOnMapNav} className="nav-btn" id="left">
+                  <FaArrowLeft />
+                </button>
+                <button onClick={handleOnMapNav} className="nav-btn" id="right">
+                  <FaArrowRight />
+                </button>
+              </>
               {createMode && (
                 <>
                   <button

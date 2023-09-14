@@ -112,7 +112,9 @@ const GameBoard = () => {
   const handleOnPauseToggle = (e: React.MouseEvent) => {
     e.preventDefault();
 
-    if (!gameIdParam) return;
+    if (!gameIdParam || !currentUser) return;
+
+    if (currentUser.id !== gameData.data?.dungeonMasterId) return;
 
     if (localGameState.isPaused) {
       unPauseGame.mutate({ gameId: gameIdParam });
@@ -217,6 +219,8 @@ const GameBoard = () => {
       ...character.Character,
       positionX: Number(character.positionX),
       positionY: Number(character.positionY),
+      prevPositionX: Number(character.positionX),
+      prevPositionY: Number(character.positionY),
       characterId: character.characterId,
       initiative: character.initiative,
       isDead: character.isDead,
@@ -233,8 +237,6 @@ const GameBoard = () => {
       map: {
         ...prev.map,
         imgSrc: data.mapSrc,
-        // posX: Number(data.mapPosX),
-        // posY: Number(data.mapPosY),
         zoom: data.mapZoom,
         spriteSize: data.spriteSize,
       },
@@ -253,6 +255,8 @@ const GameBoard = () => {
       ...character.Character,
       positionX: Number(character.positionX),
       positionY: Number(character.positionY),
+      prevPositionX: Number(character.positionX),
+      prevPositionY: Number(character.positionY),
       characterId: character.characterId,
       initiative: character.initiative,
       isDead: character.isDead,

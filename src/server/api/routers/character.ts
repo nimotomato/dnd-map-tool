@@ -6,6 +6,8 @@ const characterSchema = z.object({
   name: z.string(),
   positionX: z.number(),
   positionY: z.number(),
+  prevPositionX: z.number(),
+  prevPositionY: z.number(),
   imgSrc: z.string(),
   initiative: z.number(),
   controllerId: z.string(),
@@ -15,6 +17,8 @@ const characterInGameSchema = z.object({
   characterId: z.string(),
   positionX: z.number(),
   positionY: z.number(),
+  prevPositionX: z.number(),
+  prevPositionY: z.number(),
   initiative: z.number(),
   gameId: z.string(),
   isDead: z.boolean(),
@@ -27,6 +31,10 @@ const putCharacterSchema = z.object({
   name: z.string(),
   imgSrc: z.string(),
   controllerId: z.string(),
+});
+
+const deleteOneAddOneSchema = characterInGameSchema.extend({
+  deleteCharId: z.string(),
 });
 
 export const characterRouter = createTRPCRouter({
@@ -69,6 +77,8 @@ export const characterRouter = createTRPCRouter({
           initiative: true,
           positionX: true,
           positionY: true,
+          prevPositionX: true,
+          prevPositionY: true,
           isDead: true,
           Character: true,
         },
@@ -98,6 +108,23 @@ export const characterRouter = createTRPCRouter({
       });
     }),
 
+  getCharactersOfUserFull: publicProcedure
+    .input(z.object({ userId: z.string() }))
+    .query(({ ctx, input }) => {
+      return ctx.prisma.character.findMany({
+        where: {
+          controllerId: input.userId,
+        },
+        select: {
+          CharacterInGame: true,
+          characterId: true,
+          name: true,
+          imgSrc: true,
+          controllerId: true,
+        },
+      });
+    }),
+
   getCharactersOfUserWithGameId: publicProcedure
     .input(z.object({ userId: z.string() }))
     .query(({ ctx, input }) => {
@@ -110,6 +137,28 @@ export const characterRouter = createTRPCRouter({
         select: {
           gameId: true,
           Character: true,
+        },
+      });
+    }),
+
+  getCharactersOfUsersInGame: publicProcedure
+    .input(z.object({ userId: z.string(), gameId: z.string() }))
+    .query(({ ctx, input }) => {
+      return ctx.prisma.characterInGame.findMany({
+        where: {
+          gameId: input.gameId,
+          Character: {
+            controllerId: input.userId,
+          },
+        },
+        select: {
+          Character: true,
+          positionX: true,
+          positionY: true,
+          prevPositionX: true,
+          prevPositionY: true,
+          initiative: true,
+          isDead: true,
         },
       });
     }),
@@ -190,5 +239,30 @@ export const characterRouter = createTRPCRouter({
           characterId: input.characterId,
         },
       });
+    }),
+
+  deleteOneAddOneToGame: publicProcedure
+    .input(deleteOneAddOneSchema)
+    .mutation(({ ctx, input }) => {
+      const deleteOne = ctx.prisma.character.delete({
+        where: {
+          characterId: input.deleteCharId,
+        },
+      });
+
+      const addOneToGame = ctx.prisma.characterInGame.create({
+        data: {
+          positionX: input.positionX,
+          positionY: input.positionY,
+          prevPositionX: input.prevPositionX,
+          prevPositionY: input.prevPositionY,
+          initiative: input.initiative,
+          isDead: input.isDead,
+          characterId: input.characterId,
+          gameId: input.gameId,
+        },
+      });
+
+      return ctx.prisma.$transaction([deleteOne, addOneToGame]);
     }),
 });
