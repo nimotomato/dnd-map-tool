@@ -89,8 +89,6 @@ const NewGame = () => {
     }));
   };
 
-  const handleOnLockPlayerCoordinates = (e: React.MouseEvent) => {};
-
   const handleOnAddMap = (e: ReactMouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setMapInput("");
