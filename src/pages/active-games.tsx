@@ -137,30 +137,30 @@ const ActiveGames = () => {
 
     console.log(placeholder);
 
-    deleteOneAddOneToGame.mutate({
-      deleteCharId: placeholder.characterId,
-      characterId: character.characterId,
-      positionX: Number(placeholder.positionX),
-      positionY: Number(placeholder.positionY),
-      prevPositionX: Number(placeholder.prevPositionX),
-      prevPositionY: Number(placeholder.prevPositionY),
-      initiative: 0,
-      gameId: gameId,
-      isDead: false,
-    }),
+    deleteOneAddOneToGame.mutate(
       {
-        onSuccess: (response: Response) => {
+        deleteCharId: placeholder.characterId,
+        characterId: character.characterId,
+        positionX: Number(placeholder.positionX),
+        positionY: Number(placeholder.positionY),
+        prevPositionX: Number(placeholder.prevPositionX),
+        prevPositionY: Number(placeholder.prevPositionY),
+        initiative: 0,
+        gameId: gameId,
+        isDead: false,
+      },
+      {
+        onSuccess: (data, variables, context) => {
           void router.push({
             pathname: "/playing",
             query: { data: gameId },
           }); // if successful go to game
         },
-      },
-      {
-        onError: (error: Error) => {
-          console.error("An error occurred:", error);
+        onError: (data, variables, context) => {
+          console.error("An error occurred:", data);
         },
-      };
+      }
+    );
   };
 
   // Join game
