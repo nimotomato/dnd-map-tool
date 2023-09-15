@@ -122,52 +122,18 @@ const GameBoard = () => {
         ...prev,
         isPaused: false,
       }));
+      setModalIsOpen(false);
     } else {
       pauseGame.mutate({ gameId: gameIdParam });
       setLocalGameState((prev) => ({
         ...prev,
         isPaused: true,
       }));
+      setModalIsOpen(true);
     }
   };
 
   const [modalIsOpen, setModalIsOpen] = useState(false);
-
-  const renderPause = () => {
-    if (localGameState.isPaused) {
-      return (
-        <>
-          {isDMRef.current ? (
-            <>
-              <Modal open={modalIsOpen} setClose={() => setModalIsOpen(false)}>
-                <h1>Game is paused.</h1>
-                <button onClick={handleOnPauseToggle}>Unpause game.</button>
-              </Modal>
-            </>
-          ) : (
-            <>
-              <Modal open={modalIsOpen} setClose={() => setModalIsOpen(false)}>
-                <h1>Game is paused.</h1>
-                <h2>Wait for DM to unpause.</h2>
-              </Modal>
-            </>
-          )}
-        </>
-      );
-    } else {
-      return (
-        <>
-          {isDMRef.current ? (
-            <>
-              <button onClick={handleOnPauseToggle}>Pause game.</button>
-            </>
-          ) : (
-            <></>
-          )}
-        </>
-      );
-    }
-  };
 
   // Map stuff
   const mapRef = useRef<HTMLDivElement | null>(null);
@@ -354,8 +320,32 @@ const GameBoard = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="flex min-h-screen flex-col items-center justify-center bg-slate-600">
-        {renderPause()}
-        {currentUser?.id === localGameState.dungeonMaster && (
+        <Modal open={modalIsOpen} setClose={() => setModalIsOpen(false)}>
+          <div className="h-auto w-56 items-center text-center "> </div>
+          {localGameState.isPaused && (
+            <>
+              {isDMRef.current ? (
+                <>
+                  <h1>Game is paused.</h1>
+                  <button onClick={handleOnPauseToggle}>Unpause game.</button>
+                </>
+              ) : (
+                <>
+                  <div className="h-auto w-56 items-center text-center">
+                    <h1>Game is paused.</h1>
+                    <h2>Wait for DM to unpause.</h2>
+                  </div>
+                </>
+              )}
+            </>
+          )}
+        </Modal>
+        {!localGameState.isPaused && (
+          <>
+            <button onClick={handleOnPauseToggle}>Pause game.</button>
+          </>
+        )}
+        {isDMRef.current && (
           <div>
             <button onClick={handleOnRollInitiative}>Roll initiative!</button>
           </div>

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, SetStateAction } from "react";
+import React from "react";
 import { FaX } from "react-icons/fa6";
 
 type Props = {
@@ -12,7 +12,7 @@ const Modal = ({ open, setClose, children }: Props) => {
 
   return (
     <div
-      className={`fixed inset-0 flex items-center justify-center transition-colors ${
+      className={`fixed inset-0 z-50 flex items-center justify-center transition-colors ${
         open ? "visible bg-black/30" : "invisible"
       }`}
     >
