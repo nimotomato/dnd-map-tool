@@ -145,6 +145,15 @@ const GameBoard = () => {
     hasLoaded: false,
   });
 
+  useEffect(() => {
+    if (!gameData) return;
+
+    const data = gameData.data;
+
+    if (!data) return;
+    setMap((prev) => ({ ...prev, zoom: data.mapZoom }));
+  }, [gameData, gameData.data]);
+
   // Local game state
   const [localGameState, setLocalGameState] = useState<Game>({
     id: gameIdParam ?? "",
