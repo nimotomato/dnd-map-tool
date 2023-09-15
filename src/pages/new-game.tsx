@@ -60,6 +60,7 @@ const NewGame = () => {
     dungeonMaster: "",
     characters: [],
     turnIndex: 0,
+    leashDistance: 200,
   });
 
   // LOCAL MAP STUFF
@@ -334,34 +335,35 @@ const NewGame = () => {
       isDead: character.isDead,
     }));
 
-    createGameMutation.mutate({
-      gameData: {
-        gameId: gameState.id,
-        name: gameState.name,
-        mapSrc: gameState.map.imgSrc,
-        mapPosX: gameState.map.posX,
-        mapPosY: gameState.map.posY,
-        mapZoom: gameState.map.zoom,
-        spriteSize: gameState.map.spriteSize,
-        isPaused: gameState.isPaused,
-        dungeonMasterId: gameState.dungeonMaster,
-        turnIndex: gameState.turnIndex,
-      },
-      characterData: characterData,
-      userIds: playerIds,
-      charInGameData: charInGameData,
-    }),
+    createGameMutation.mutate(
       {
-        onSuccess: (response: Response) => {
+        gameData: {
+          gameId: gameState.id,
+          name: gameState.name,
+          mapSrc: gameState.map.imgSrc,
+          mapPosX: gameState.map.posX,
+          mapPosY: gameState.map.posY,
+          mapZoom: gameState.map.zoom,
+          spriteSize: gameState.map.spriteSize,
+          isPaused: gameState.isPaused,
+          dungeonMasterId: gameState.dungeonMaster,
+          turnIndex: gameState.turnIndex,
+          leashDistance: gameState.leashDistance,
+        },
+        characterData: characterData,
+        userIds: playerIds,
+        charInGameData: charInGameData,
+      },
+      {
+        onSuccess: (data, variables, context) => {
           void router.push("/"); // if successful return to home page
         },
-      },
-      {
-        onError: (error: Error) => {
+        onError: (data, variables, context) => {
           alert("Error creating game");
-          console.error("An error occurred:", error);
+          console.error("An error occurred:", data);
         },
-      };
+      }
+    );
   };
 
   return (
@@ -480,9 +482,6 @@ const NewGame = () => {
                   <button onClick={nextStep}>Next step</button>
                 </div>
               </div>
-            </div>
-            <div>
-              <button onClick={createGame}>Create game</button>
             </div>
           </>
         )}

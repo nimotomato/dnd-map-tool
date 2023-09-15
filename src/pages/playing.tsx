@@ -131,19 +131,25 @@ const GameBoard = () => {
     }
   };
 
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+
   const renderPause = () => {
     if (localGameState.isPaused) {
       return (
         <>
           {isDMRef.current ? (
             <>
-              <h1>Game is paused.</h1>
-              <button onClick={handleOnPauseToggle}>Unpause game.</button>
+              <Modal open={modalIsOpen} setClose={() => setModalIsOpen(false)}>
+                <h1>Game is paused.</h1>
+                <button onClick={handleOnPauseToggle}>Unpause game.</button>
+              </Modal>
             </>
           ) : (
             <>
-              <h1>Game is paused.</h1>
-              <h2>Wait for DM to unpause.</h2>
+              <Modal open={modalIsOpen} setClose={() => setModalIsOpen(false)}>
+                <h1>Game is paused.</h1>
+                <h2>Wait for DM to unpause.</h2>
+              </Modal>
             </>
           )}
         </>
@@ -189,6 +195,7 @@ const GameBoard = () => {
     dungeonMaster: "",
     characters: [],
     turnIndex: 0,
+    leashDistance: 200,
   });
 
   const startingMapPosition = api.game.getStartingMapPosition.useQuery({

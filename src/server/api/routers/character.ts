@@ -213,6 +213,30 @@ export const characterRouter = createTRPCRouter({
       });
     }),
 
+  patchPrevPosition: publicProcedure
+    .input(
+      z.object({
+        characterId: z.string(),
+        gameId: z.string(),
+        prevPositionX: z.number(),
+        prevPositionY: z.number(),
+      })
+    )
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.characterInGame.update({
+        where: {
+          gameId_characterId: {
+            characterId: input.characterId,
+            gameId: input.gameId,
+          },
+        },
+        data: {
+          prevPositionX: input.prevPositionX,
+          prevPositionY: input.prevPositionY,
+        },
+      });
+    }),
+
   putCharacterInGame: publicProcedure
     .input(characterSchema.extend({ gameId: z.string() }))
     .mutation(({ ctx, input }) => {

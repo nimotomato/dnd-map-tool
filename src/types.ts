@@ -31,6 +31,7 @@ export type Game = {
   dungeonMaster: string;
   characters: Character[];
   turnIndex: number;
+  leashDistance: number;
 };
 
 export type Character = {

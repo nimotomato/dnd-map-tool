@@ -76,6 +76,7 @@ const Sprite = ({
   // Send sprite data to db
   useEffect(() => {
     if (createMode) return;
+
     gameState.characters.map((sprite) => {
       if (sprite.characterId !== id) return; // Make sure it is the correct sprite
       debouncedUpdateCharacterRef.current({
@@ -129,9 +130,11 @@ const Sprite = ({
         const newCharacterState = prevGameState.characters.map((character) => {
           if (character.characterId !== id) return character;
 
+          const newXPosition = e.clientX - mapRect.x - offsetX - map.positionX;
+
           return {
             ...character,
-            positionX: e.clientX - mapRect.x - offsetX - map.positionX,
+            positionX: newXPosition,
           };
         });
 
@@ -152,9 +155,11 @@ const Sprite = ({
         const newCharacterState = prevGameState.characters.map((character) => {
           if (character.characterId !== id) return character;
 
+          const newYPosition = e.clientY - mapRect.y - offsetY - map.positionY;
+
           return {
             ...character,
-            positionY: e.clientY - mapRect.y - offsetY - map.positionY,
+            positionY: newYPosition,
           };
         });
 
