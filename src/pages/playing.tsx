@@ -312,10 +312,6 @@ const GameBoard = () => {
     );
   }
 
-  useEffect(() => {
-    console.log(localGameState.isPaused);
-  }, [localGameState]);
-
   return (
     <>
       <Head>
