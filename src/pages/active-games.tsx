@@ -63,41 +63,6 @@ const ActiveGames = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [showCreateNewChar, setShowCreateNewChar] = useState(false);
   const [activeGameId, setActiveGameId] = useState("");
-  // const activePlaceholderDataRef = useRef<{
-  //   characterId: string;
-  //   positionX: number;
-  //   positionY: number;
-  //   prevPositionX: number;
-  //   prevPositionY: number;
-  // } | null>(null);
-
-  // // Get user's ingame characters
-  // const ingameCharacters = api.character.getCharactersOfUsersInGame.useQuery({
-  //   userId: currentUser?.id ?? "",
-  //   gameId: activeGameId ?? "",
-  // }).data;
-
-  // useEffect(() => {
-  //   const placeholders =
-  //     ingameCharacters?.filter((character) =>
-  //       placeHolderNamesRef.current.includes(character.Character.name)
-  //     ) ?? [];
-
-  //   if (placeholders.length !== 1) {
-  //     console.log("Error with placeholder count");
-  //     return;
-  //   }
-
-  //   const placeholder = placeholders[0];
-
-  //   activePlaceholderDataRef.current = {
-  //     characterId: placeholder?.Character.characterId ?? "",
-  //     positionX: Number(placeholder?.positionX) ?? 0,
-  //     positionY: Number(placeholder?.positionY) ?? 0,
-  //     prevPositionX: Number(placeholder?.prevPositionX) ?? 0,
-  //     prevPositionY: Number(placeholder?.prevPositionY) ?? 0,
-  //   };
-  // }, [activeGameId]);
 
   const onCreateNewChar = (e: React.MouseEvent) => {
     void router.push("/create-character");

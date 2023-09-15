@@ -35,6 +35,7 @@ const gameSchema = z.object({
   isPaused: z.boolean(),
   dungeonMasterId: z.string(),
   turnIndex: z.number(),
+  leashDistance: z.number(),
 });
 
 const newGameSchema = z.object({

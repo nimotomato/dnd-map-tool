@@ -189,6 +189,7 @@ const GameBoard = () => {
     dungeonMaster: "",
     characters: [],
     turnIndex: 0,
+    leashDistance: 200,
   });
 
   const startingMapPosition = api.game.getStartingMapPosition.useQuery({

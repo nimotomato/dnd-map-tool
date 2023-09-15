@@ -77,6 +77,7 @@ const DungeonMap = ({
   }, [gameState.dungeonMaster]);
 
   const handleOnMapNav = (event: MouseEvent<HTMLButtonElement>) => {
+    // TO DO: DRY this and also leash distance is static i.e. not relative to map dimensions
     event.preventDefault();
 
     if (!mapRect) return;
@@ -85,34 +86,149 @@ const DungeonMap = ({
     const lazyConstantX = 3;
     const lazyConstantY = 1.8;
 
-    // IF CURRENT USER IS NOT DM
-    // GET SPRITE OF CURRENT USER
-    // CHECK IF MAP IS FURTHER AWAY THAN ALLOWD FROM SPRITE
-    // IF SO, RETURN MAP
-
     if (
       target.id === "right" &&
       map.positionX >
         -mapRect.fullWidth - defaultStepSize.current * lazyConstantX
     ) {
-      setMap((prev) => {
-        return { ...prev, positionX: prev.positionX - defaultStepSize.current };
+      // If no sprites, no leash OR if DM no leash
+      if (
+        !sprites ||
+        (sprites && sprites.length < 1) ||
+        currentUser?.id === gameState.dungeonMaster
+      ) {
+        setMap((prev) => {
+          return {
+            ...prev,
+            positionX: prev.positionX - defaultStepSize.current,
+          };
+        });
+
+        return;
+      }
+
+      // Cycle through sprites to find the one controlled by player
+      sprites?.map((sprite) => {
+        if (sprite.controllerId !== currentUser?.id) return;
+        // Calculate leash point X to the right
+        const leashPoint = sprite.prevPositionX + gameState.leashDistance;
+
+        if (leashPoint < Math.abs(map.positionX) + mapRect.width / 2) {
+          return;
+        }
+
+        setMap((prev) => {
+          return {
+            ...prev,
+            positionX: prev.positionX - defaultStepSize.current,
+          };
+        });
       });
     } else if (target.id === "left" && map.positionX < 0) {
-      setMap((prev) => {
-        return { ...prev, positionX: prev.positionX + defaultStepSize.current };
+      // If no sprites, no leash OR if DM no leash
+      if (
+        !sprites ||
+        (sprites && sprites.length < 1) ||
+        currentUser?.id === gameState.dungeonMaster
+      ) {
+        setMap((prev) => {
+          return {
+            ...prev,
+            positionX: prev.positionX + defaultStepSize.current,
+          };
+        });
+
+        return;
+      }
+
+      // Cycle through sprites to find the one controlled by player
+      sprites?.map((sprite) => {
+        if (sprite.controllerId !== currentUser?.id) return;
+        // Calculate leash point X to the right
+        const leashPoint = sprite.prevPositionX - gameState.leashDistance;
+
+        if (leashPoint > Math.abs(map.positionX - mapRect.width / 2)) {
+          return;
+        }
+
+        setMap((prev) => {
+          return {
+            ...prev,
+            positionX: prev.positionX + defaultStepSize.current,
+          };
+        });
       });
     } else if (
       target.id === "down" &&
       map.positionY >
         -mapRect.fullHeight - defaultStepSize.current * lazyConstantY
     ) {
-      setMap((prev) => {
-        return { ...prev, positionY: prev.positionY - defaultStepSize.current };
+      // If no sprites, no leash OR DM no leash
+      if (
+        !sprites ||
+        (sprites && sprites.length < 1) ||
+        currentUser?.id === gameState.dungeonMaster
+      ) {
+        setMap((prev) => {
+          return {
+            ...prev,
+            positionY: prev.positionY - defaultStepSize.current,
+          };
+        });
+
+        return;
+      }
+
+      // Cycle through sprites to find the one controlled by player
+      sprites?.map((sprite) => {
+        if (sprite.controllerId !== currentUser?.id) return;
+        // Calculate leash point X to the right
+        const leashPoint = sprite.prevPositionY - gameState.leashDistance;
+
+        if (leashPoint < Math.abs(map.positionY + mapRect.height / 2)) {
+          return;
+        }
+
+        setMap((prev) => {
+          return {
+            ...prev,
+            positionY: prev.positionY - defaultStepSize.current,
+          };
+        });
       });
     } else if (target.id === "up" && map.positionY < 0) {
-      setMap((prev) => {
-        return { ...prev, positionY: prev.positionY + defaultStepSize.current };
+      // If no sprites, no leash OR if DM no leash
+      if (
+        !sprites ||
+        (sprites && sprites.length < 1) ||
+        currentUser?.id === gameState.dungeonMaster
+      ) {
+        setMap((prev) => {
+          return {
+            ...prev,
+            positionY: prev.positionY + defaultStepSize.current,
+          };
+        });
+
+        return;
+      }
+
+      // Cycle through sprites to find the one controlled by player
+      sprites?.map((sprite) => {
+        if (sprite.controllerId !== currentUser?.id) return;
+        // Calculate leash point X to the right
+        const leashPoint = sprite.prevPositionY - gameState.leashDistance;
+
+        if (leashPoint > Math.abs(map.positionY - mapRect.height / 2)) {
+          return;
+        }
+
+        setMap((prev) => {
+          return {
+            ...prev,
+            positionY: prev.positionY + defaultStepSize.current,
+          };
+        });
       });
     }
   };
