@@ -145,15 +145,6 @@ const GameBoard = () => {
     hasLoaded: false,
   });
 
-  useEffect(() => {
-    if (!gameData) return;
-
-    const data = gameData.data;
-
-    if (!data) return;
-    setMap((prev) => ({ ...prev, zoom: data.mapZoom }));
-  }, [gameData, gameData.data]);
-
   // Local game state
   const [localGameState, setLocalGameState] = useState<Game>({
     id: gameIdParam ?? "",
@@ -228,6 +219,10 @@ const GameBoard = () => {
       turnIndex: data.turnIndex,
       characters: characterData,
     }));
+
+    setMap((prev) => ({ ...prev, zoom: data.mapZoom }));
+
+    setModalIsOpen(data.isPaused);
   }, [gameData.data]);
 
   useEffect(() => {
@@ -349,9 +344,13 @@ const GameBoard = () => {
             </>
           )}
         </Modal>
-        {!localGameState.isPaused && (
+        {!localGameState.isPaused ? (
           <>
             <button onClick={handleOnPauseToggle}>Pause game.</button>
+          </>
+        ) : (
+          <>
+            <button onClick={handleOnPauseToggle}>Unpause game.</button>
           </>
         )}
         {isDMRef.current && (

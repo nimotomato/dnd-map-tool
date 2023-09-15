@@ -100,8 +100,6 @@ const ActiveGames = () => {
       return;
     }
 
-    console.log(placeholder);
-
     deleteOneAddOneToGame.mutate(
       {
         deleteCharId: placeholder.characterId,

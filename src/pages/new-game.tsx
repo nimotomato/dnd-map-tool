@@ -539,7 +539,7 @@ const NewGame = () => {
                   <input
                     value={`X: ${Math.abs(gameState.map.posX)}, Y: ${Math.abs(
                       gameState.map.posY
-                    )}`}
+                    )}, Zoom: ${Math.abs(gameState.map.zoom)}`}
                     readOnly
                   ></input>
                   <button onClick={handleOnLockCoordinates}>
