@@ -36,6 +36,7 @@ type Props = {
   userTurnIndex?: number;
   setUserTurnIndex?: React.Dispatch<React.SetStateAction<number>>;
   userQueue?: Character[];
+  step?: number;
 };
 
 const DungeonMap = ({
@@ -51,6 +52,7 @@ const DungeonMap = ({
   userTurnIndex,
   setUserTurnIndex,
   userQueue,
+  step,
 }: Props) => {
   const session = useSession();
   const currentUser = session.data?.user;
@@ -58,10 +60,6 @@ const DungeonMap = ({
   const defaultStepSize = useRef(100);
   const playerSpriteRef = useRef<Character | null>(null);
   const imgError = useTryLoadImg(gameState.map.imgSrc);
-
-  useEffect(() => {
-    console.log(map);
-  }, [map]);
 
   useEffect(() => {
     if (!currentUser) return;
@@ -275,6 +273,7 @@ const DungeonMap = ({
             gameState={gameState}
             setGameState={setGameState}
             createMode={createMode}
+            zoomCoefficient={zoomCoefficient}
           />
         );
       });
@@ -297,10 +296,53 @@ const DungeonMap = ({
             userTurnIndex={userTurnIndex}
             setUserTurnIndex={setUserTurnIndex}
             userQueue={userQueue}
+            zoomCoefficient={zoomCoefficient}
           />
         );
       });
     }
+  };
+
+  const [zoomCoefficient, setZoomCoefficient] = useState({ x: 1, y: 1 });
+
+  const handleMapZoom = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!mapRect) return;
+
+    let newZoom: number;
+
+    if (e.currentTarget.id === "zoomIn") {
+      setMap((prevState) => {
+        newZoom = prevState.zoom + 1;
+        return {
+          ...prevState,
+          zoom: newZoom,
+        };
+      });
+    } else if (e.currentTarget.id === "zoomOut") {
+      setMap((prevState) => {
+        newZoom = prevState.zoom - 1;
+        return {
+          ...prevState,
+          zoom: newZoom,
+        };
+      });
+    }
+
+    // Update zoomCoefficient right after updating map state
+    setZoomCoefficient((prevCoefficient) => {
+      // Use newZoom and mapRect to calculate the new coefficient
+      const defaultZoom = 6;
+      const originalX = mapRect.fullWidth * defaultZoom * 100;
+      const originalY = mapRect.fullHeight * defaultZoom * 100;
+      const nextX = mapRect.fullWidth * newZoom * 100;
+      const nextY = mapRect.fullHeight * newZoom * 100;
+
+      return {
+        x: nextX / originalX,
+        y: nextY / originalY,
+      };
+    });
   };
 
   return (
@@ -344,24 +386,42 @@ const DungeonMap = ({
                   <FaArrowRight />
                 </button>
               </>
-              {createMode && (
-                <>
-                  <button
-                    onClick={handleOnSpritesizeChange}
-                    className="nav-btn"
-                    id="increase"
-                  >
-                    <FaPlus />
-                  </button>
-                  <button
-                    onClick={handleOnSpritesizeChange}
-                    className="nav-btn"
-                    id="decrease"
-                  >
-                    <FaMinus />
-                  </button>
-                </>
-              )}
+              {createMode &&
+                (step === 0 ? (
+                  <>
+                    <button
+                      onClick={handleMapZoom}
+                      className="nav-btn"
+                      id="zoomIn"
+                    >
+                      <GoZoomIn />
+                    </button>
+                    <button
+                      onClick={handleMapZoom}
+                      className="nav-btn"
+                      id="zoomOut"
+                    >
+                      <GoZoomOut />
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={handleOnSpritesizeChange}
+                      className="nav-btn"
+                      id="increase"
+                    >
+                      <FaPlus />
+                    </button>
+                    <button
+                      onClick={handleOnSpritesizeChange}
+                      className="nav-btn"
+                      id="decrease"
+                    >
+                      <FaMinus />
+                    </button>
+                  </>
+                ))}
             </div>
           </>
         ) : (

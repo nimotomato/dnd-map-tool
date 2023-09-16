@@ -27,6 +27,7 @@ type Props = {
   userTurnIndex?: number;
   setUserTurnIndex?: React.Dispatch<React.SetStateAction<number>>;
   userQueue?: Character[];
+  zoomCoefficient: { x: number; y: number };
 };
 const Sprite = ({
   mapRect,
@@ -43,6 +44,7 @@ const Sprite = ({
   userTurnIndex,
   setUserTurnIndex,
   userQueue,
+  zoomCoefficient,
 }: Props) => {
   const session = useSession();
   const currentUser = session.data?.user;
@@ -112,10 +114,12 @@ const Sprite = ({
     if (!mapRect) return;
 
     setDimensions({
-      height: (mapRect.height * gameState.map.spriteSize) / 100,
-      width: (mapRect.width * gameState.map.spriteSize) / 100,
+      height:
+        (mapRect.height * gameState.map.spriteSize * zoomCoefficient.y) / 100,
+      width:
+        (mapRect.width * gameState.map.spriteSize * zoomCoefficient.x) / 100,
     });
-  }, [mapRect?.height, mapRect?.width, gameState.map]);
+  }, [mapRect?.height, mapRect?.width, gameState.map, map.zoom]);
 
   const handleMouseMove = (e: MouseEvent) => {
     if (!mapRect || !spriteRect) return;
@@ -270,8 +274,8 @@ const Sprite = ({
         style={{
           height: `${dimensions.height}px`,
           width: `${dimensions.width}px`,
-          top: `${positionY + map.positionY}px`,
-          left: `${positionX + map.positionX}px`,
+          top: `${positionY + map.positionY * zoomCoefficient.y}px`,
+          left: `${positionX + map.positionX * zoomCoefficient.x}px`,
         }}
       />
     </>

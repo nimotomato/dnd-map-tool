@@ -86,7 +86,12 @@ const NewGame = () => {
     // Loads local state to game state to "save"
     setGameState((prev) => ({
       ...prev,
-      map: { ...prev.map, posX: map.positionX, posY: map.positionY },
+      map: {
+        ...prev.map,
+        posX: map.positionX,
+        posY: map.positionY,
+        zoom: map.zoom,
+      },
     }));
   };
 
@@ -402,6 +407,7 @@ const NewGame = () => {
                   setGameState={setGameState}
                   isDm={true}
                   createMode={true}
+                  step={step}
                 />
               </div>
               <br></br>
@@ -473,6 +479,7 @@ const NewGame = () => {
                     setGameState={setGameState}
                     isDm={true}
                     createMode={true}
+                    step={step}
                   />
                 </div>
                 <div className="mt-6">
@@ -512,6 +519,7 @@ const NewGame = () => {
                     setGameState={setGameState}
                     isDm={true}
                     createMode={true}
+                    step={step}
                   />
                 </div>
                 <div className="mt-6">
@@ -531,7 +539,7 @@ const NewGame = () => {
                   <input
                     value={`X: ${Math.abs(gameState.map.posX)}, Y: ${Math.abs(
                       gameState.map.posY
-                    )}`}
+                    )}, Zoom: ${Math.abs(gameState.map.zoom)}`}
                     readOnly
                   ></input>
                   <button onClick={handleOnLockCoordinates}>
