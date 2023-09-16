@@ -299,19 +299,19 @@ const DungeonMap = ({
     let newZoom: number;
 
     if (e.currentTarget.id === "zoomIn") {
-      setMap((prevState) => {
-        newZoom = prevState.zoom + 1;
+      setGameState((prevState) => {
+        newZoom = prevState.map.zoom + 1;
         return {
           ...prevState,
-          zoom: newZoom,
+          map: { ...prevState.map, zoom: newZoom },
         };
       });
     } else if (e.currentTarget.id === "zoomOut") {
-      setMap((prevState) => {
-        newZoom = prevState.zoom - 1;
+      setGameState((prevState) => {
+        newZoom = prevState.map.zoom - 1;
         return {
           ...prevState,
-          zoom: newZoom,
+          map: { ...prevState.map, zoom: newZoom },
         };
       });
     }
@@ -350,7 +350,7 @@ const DungeonMap = ({
                 style={{
                   backgroundImage: `url(${gameState.map.imgSrc})`,
                   backgroundPosition: `${map.positionX}px ${map.positionY}px`,
-                  backgroundSize: `${map.zoom * 100}%`,
+                  backgroundSize: `${gameState.map.zoom * 100}%`,
                 }}
               >
                 {spriteFactory()}

@@ -139,7 +139,6 @@ const GameBoard = () => {
   const [map, setMap] = useState<MapProps>({
     positionX: 0,
     positionY: 0,
-    zoom: 6,
     hasLoaded: false,
   });
   const [initialStateCameraPosIsSet, setInitialStateCameraPosIsSet] =
