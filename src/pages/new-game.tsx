@@ -17,6 +17,7 @@ import useTryLoadImg from "~/hooks/useTryLoadImg";
 import debounce from "lodash/debounce";
 
 import { MapProps, Game, Character } from "~/types";
+import { indexOf } from "lodash";
 
 const defaultMap = "/img/dungeonmap.jpg";
 
@@ -31,6 +32,31 @@ const NewGame = () => {
     if (gameState.name === "") {
       alert("Must enter game name");
       return;
+    }
+
+    if (gameState.characters?.length > 0 && step === 0) {
+      setGameState((prevState) => {
+        const positions = prevState.characters.map((character) => {
+          console.log(map.positionX);
+          return {
+            ...character,
+            positionX:
+              Math.abs(map.positionX) +
+              (gameState.characters.indexOf(character) + 1) * 50,
+            positionY:
+              Math.abs(map.positionY) +
+              (gameState.characters.indexOf(character) + 1) * 20,
+            prevPositionX:
+              Math.abs(map.positionX) +
+              (gameState.characters.indexOf(character) + 1) * 50,
+            prevPositionY:
+              Math.abs(map.positionY) +
+              (gameState.characters.indexOf(character) + 1) * 20,
+          };
+        });
+
+        return { ...prevState, characters: positions };
+      });
     }
 
     setStep((prev) => prev + 1);
@@ -258,10 +284,10 @@ const NewGame = () => {
       characterId: uuidv4(),
       name: `${NPCNameInput}`,
       imgSrc: `${NPCSrcInput}`,
-      positionX: mapRectWidth,
-      positionY: mapRectHeight,
-      prevPositionX: mapRectWidth,
-      prevPositionY: mapRectHeight,
+      positionX: Math.abs(map.positionX) + mapRectHeight,
+      positionY: Math.abs(map.positionY) + mapRectWidth,
+      prevPositionX: Math.abs(map.positionX) + mapRectHeight,
+      prevPositionY: Math.abs(map.positionY) + mapRectWidth,
       controllerId: currentUser.id,
       initiative: 0,
       isDead: false,
