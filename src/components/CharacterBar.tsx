@@ -91,10 +91,9 @@ const CharacterBar = ({
               src={sprite.imgSrc}
             />
             <p>{sprite.name}</p>
-
+            <p>{`Initiative: ${sprite.initiative}`}</p>
             {!createMode && currentUser?.id === gameState?.dungeonMaster && (
               <>
-                <p>{`Initiative: ${sprite.initiative}`}</p>
                 <button
                   id={sprite.characterId}
                   onClick={(e) => handleSetDeathStatus(e, sprite.characterId)}
