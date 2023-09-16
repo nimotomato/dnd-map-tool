@@ -144,6 +144,8 @@ const GameBoard = () => {
     zoom: 6,
     hasLoaded: false,
   });
+  const [initialStateCameraPosIsSet, setInitialStateCameraPosIsSet] =
+    useState(false);
 
   // Local game state
   const [localGameState, setLocalGameState] = useState<Game>({
@@ -220,7 +222,33 @@ const GameBoard = () => {
       characters: characterData,
     }));
 
-    setMap((prev) => ({ ...prev, zoom: data.mapZoom }));
+    // Set initial camera position
+    localGameState.characters.map((sprite) => {
+      if (currentUser?.id !== sprite.controllerId) return;
+      if (!mapRect) return;
+      if (initialStateCameraPosIsSet) return;
+      // || !isDMRef.current
+
+      // Calculate relative positioning of map
+      let newX = -sprite.positionX + mapRect.width / 2;
+      let newY = -sprite.positionY + mapRect.height / 2;
+
+      // Contain bounds of map
+      if (newX > 0) newX = 0;
+      if (newY > 0) newY = 0;
+
+      // Lazy divider
+      const lazyConstantX = 1.3;
+      const lazyConstantY = 1.2;
+      if (newX < -mapRect.fullWidth)
+        newX = -sprite.positionX + mapRect.width / lazyConstantX;
+
+      if (newY < -mapRect.fullWidth)
+        newY = -sprite.positionY + mapRect.height / lazyConstantY;
+
+      setMap((prevMap) => ({ ...prevMap, positionX: newX, positionY: newY }));
+      setInitialStateCameraPosIsSet(true);
+    });
 
     setModalIsOpen(data.isPaused);
   }, [gameData.data]);
