@@ -276,7 +276,6 @@ const GameBoard = () => {
   );
 
   // Keep track of whose turn it is.
-  const [userTurnIndex, setUserTurnIndex] = useState(0);
   const patchTurnIndex = api.game.patchTurnIndex.useMutation();
   const patchPrevPosition = api.character.patchPrevPosition.useMutation();
 
@@ -293,21 +292,21 @@ const GameBoard = () => {
       return;
     }
 
-    setUserTurnIndex((prev) => {
-      let nextIndex = 0;
+    setLocalGameState((prevState) => {
+      let nextIndex: number;
 
-      if (prev >= charactersInGame.data.length - 1) {
-        return nextIndex;
+      if (prevState.turnIndex >= charactersInGame.data.length - 1) {
+        nextIndex = 0;
+      } else {
+        nextIndex = prevState.turnIndex + 1;
       }
-
-      nextIndex = prev + 1;
 
       patchTurnIndex.mutate({
         turnIndex: nextIndex,
         gameId: localGameState.id,
       });
 
-      return nextIndex;
+      return { ...prevState, turnIndex: nextIndex };
     });
 
     patchPrevPosition.mutate({
