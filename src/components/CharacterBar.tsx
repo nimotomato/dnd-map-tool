@@ -81,28 +81,39 @@ const CharacterBar = ({
 
   return (
     <div className="flex w-20 flex-col">
-      {gameState.characters?.map((sprite) => {
-        return (
-          <div className="m-2" key={sprite.characterId}>
-            <img
-              id={sprite.characterId}
-              onClick={handleOnClick}
-              className="h-14 w-14"
-              src={sprite.imgSrc}
-            />
-            <p>{sprite.name}</p>
-            <p>{`Initiative: ${sprite.initiative}`}</p>
-            {!createMode && currentUser?.id === gameState?.dungeonMaster && (
-              <>
-                <button
-                  id={sprite.characterId}
-                  onClick={(e) => handleSetDeathStatus(e, sprite.characterId)}
-                >{`${sprite.isDead ? "Resurrect" : "Kill"}`}</button>
-              </>
-            )}
-          </div>
-        );
-      })}
+      {gameState.characters
+        ?.filter((sprite) => {
+          if (currentUser?.id === gameState?.dungeonMaster) {
+            return sprite;
+          } else if (
+            currentUser?.id !== gameState?.dungeonMaster &&
+            sprite.controllerId !== gameState?.dungeonMaster
+          ) {
+            return sprite;
+          }
+        })
+        .map((sprite) => {
+          return (
+            <div className="m-2" key={sprite.characterId}>
+              <img
+                id={sprite.characterId}
+                onClick={handleOnClick}
+                className="h-14 w-14"
+                src={sprite.imgSrc}
+              />
+              <p>{sprite.name}</p>
+              <p>{`Initiative: ${sprite.initiative}`}</p>
+              {!createMode && currentUser?.id === gameState?.dungeonMaster && (
+                <>
+                  <button
+                    id={sprite.characterId}
+                    onClick={(e) => handleSetDeathStatus(e, sprite.characterId)}
+                  >{`${sprite.isDead ? "Resurrect" : "Kill"}`}</button>
+                </>
+              )}
+            </div>
+          );
+        })}
     </div>
   );
 };
