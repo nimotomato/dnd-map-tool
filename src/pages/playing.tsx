@@ -406,15 +406,15 @@ const GameBoard = () => {
             isDm={true}
             sprites={localGameState.characters}
             createMode={false}
-            userTurnIndex={userTurnIndex}
-            setUserTurnIndex={setUserTurnIndex}
+            userTurnIndex={localGameState.turnIndex}
             userQueue={userQueue}
           />
           <div>
-            <p>{`Current turn: ${userQueue[userTurnIndex]?.name}`} </p>
-            {userQueue[userTurnIndex]?.controllerId === currentUser?.id && (
-              <button onClick={endTurn}>End turn</button>
-            )}
+            <p>
+              {`Current turn: ${userQueue[localGameState.turnIndex]?.name}`}{" "}
+            </p>
+            {userQueue[localGameState.turnIndex]?.controllerId ===
+              currentUser?.id && <button onClick={endTurn}>End turn</button>}
           </div>
         </div>
         <div className="m-12">

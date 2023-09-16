@@ -26,7 +26,6 @@ type Props = {
   setGameState: React.Dispatch<React.SetStateAction<Game>>;
   createMode: boolean;
   userTurnIndex?: number;
-  setUserTurnIndex?: React.Dispatch<React.SetStateAction<number>>;
   userQueue?: Character[];
   step?: number;
 };
@@ -42,7 +41,6 @@ const DungeonMap = ({
   setGameState,
   createMode,
   userTurnIndex,
-  setUserTurnIndex,
   userQueue,
   step,
 }: Props) => {
@@ -377,22 +375,25 @@ const DungeonMap = ({
               </>
               {createMode &&
                 (step === 0 ? (
-                  <>
-                    <button
-                      onClick={handleMapZoom}
-                      className="nav-btn"
-                      id="zoomIn"
-                    >
-                      <GoZoomIn />
-                    </button>
-                    <button
-                      onClick={handleMapZoom}
-                      className="nav-btn"
-                      id="zoomOut"
-                    >
-                      <GoZoomOut />
-                    </button>
-                  </>
+                  <div className="flex gap-2">
+                    <h1>Set map zoom </h1>
+                    <div>
+                      <button
+                        onClick={handleMapZoom}
+                        className="nav-btn"
+                        id="zoomIn"
+                      >
+                        <GoZoomIn />
+                      </button>
+                      <button
+                        onClick={handleMapZoom}
+                        className="nav-btn"
+                        id="zoomOut"
+                      >
+                        <GoZoomOut />
+                      </button>
+                    </div>
+                  </div>
                 ) : (
                   <>
                     <button
