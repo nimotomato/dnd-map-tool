@@ -278,12 +278,20 @@ const GameBoard = () => {
   // Keep track of whose turn it is.
   const [userTurnIndex, setUserTurnIndex] = useState(0);
   const patchTurnIndex = api.game.patchTurnIndex.useMutation();
+  const patchPrevPosition = api.character.patchPrevPosition.useMutation();
 
   // Allow user to end their turn.
   const endTurn = (e: React.MouseEvent) => {
     if (!localGameState || localGameState.isPaused) return;
 
     if (!charactersInGame || !charactersInGame.data) return;
+
+    const char = userQueue[localGameState.turnIndex];
+
+    if (!char) {
+      alert("Error with char un user queue");
+      return;
+    }
 
     setUserTurnIndex((prev) => {
       let nextIndex = 0;
@@ -300,6 +308,13 @@ const GameBoard = () => {
       });
 
       return nextIndex;
+    });
+
+    patchPrevPosition.mutate({
+      characterId: char.characterId,
+      gameId: localGameState.id,
+      prevPositionX: char.positionX,
+      prevPositionY: char.positionY,
     });
   };
 
