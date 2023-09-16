@@ -59,6 +59,7 @@ const GameBoard = () => {
   // Rolls initiative and updates to database
   const handleOnRollInitiative = (e: React.MouseEvent) => {
     e.preventDefault();
+    if (!gameIdParam || !currentUser) return;
 
     if (
       !charactersInGame ||
@@ -90,6 +91,12 @@ const GameBoard = () => {
 
     // Update inititative on DB
     updateInitiative.mutate(initiativeRolls);
+    unPauseGame.mutate({ gameId: gameIdParam });
+    setLocalGameState((prev) => ({
+      ...prev,
+      isPaused: false,
+    }));
+    setModalIsOpen(false);
   };
 
   // Allow DM to pause and unpause the game
@@ -369,8 +376,23 @@ const GameBoard = () => {
             <>
               {isDMRef.current ? (
                 <>
-                  <h1>Game is paused.</h1>
-                  <button onClick={handleOnPauseToggle}>Unpause game.</button>
+                  {localGameState.characters.every(
+                    (character) => character.initiative === 0
+                  ) ? (
+                    <>
+                      <h1>
+                        No initiative! Roll initiative to start the game.{" "}
+                      </h1>
+                      <button onClick={handleOnRollInitiative}>Roll</button>
+                    </>
+                  ) : (
+                    <>
+                      <h1>Game is paused.</h1>
+                      <button onClick={handleOnPauseToggle}>
+                        Unpause game.
+                      </button>
+                    </>
+                  )}
                 </>
               ) : (
                 <>
