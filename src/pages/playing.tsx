@@ -59,6 +59,7 @@ const GameBoard = () => {
   // Rolls initiative and updates to database
   const handleOnRollInitiative = (e: React.MouseEvent) => {
     e.preventDefault();
+    if (!gameIdParam || !currentUser) return;
 
     if (
       !charactersInGame ||
@@ -90,6 +91,12 @@ const GameBoard = () => {
 
     // Update inititative on DB
     updateInitiative.mutate(initiativeRolls);
+    unPauseGame.mutate({ gameId: gameIdParam });
+    setLocalGameState((prev) => ({
+      ...prev,
+      isPaused: false,
+    }));
+    setModalIsOpen(false);
   };
 
   // Allow DM to pause and unpause the game
@@ -139,7 +146,6 @@ const GameBoard = () => {
   const [map, setMap] = useState<MapProps>({
     positionX: 0,
     positionY: 0,
-    zoom: 6,
     hasLoaded: false,
   });
   const [initialStateCameraPosIsSet, setInitialStateCameraPosIsSet] =
@@ -276,8 +282,8 @@ const GameBoard = () => {
   );
 
   // Keep track of whose turn it is.
-  const [userTurnIndex, setUserTurnIndex] = useState(0);
   const patchTurnIndex = api.game.patchTurnIndex.useMutation();
+  const patchPrevPosition = api.character.patchPrevPosition.useMutation();
 
   // Allow user to end their turn.
   const endTurn = (e: React.MouseEvent) => {
@@ -285,21 +291,35 @@ const GameBoard = () => {
 
     if (!charactersInGame || !charactersInGame.data) return;
 
-    setUserTurnIndex((prev) => {
-      let nextIndex = 0;
+    const char = userQueue[localGameState.turnIndex];
 
-      if (prev >= charactersInGame.data.length - 1) {
-        return nextIndex;
+    if (!char) {
+      alert("Error with char un user queue");
+      return;
+    }
+
+    setLocalGameState((prevState) => {
+      let nextIndex: number;
+
+      if (prevState.turnIndex >= charactersInGame.data.length - 1) {
+        nextIndex = 0;
+      } else {
+        nextIndex = prevState.turnIndex + 1;
       }
-
-      nextIndex = prev + 1;
 
       patchTurnIndex.mutate({
         turnIndex: nextIndex,
         gameId: localGameState.id,
       });
 
-      return nextIndex;
+      return { ...prevState, turnIndex: nextIndex };
+    });
+
+    patchPrevPosition.mutate({
+      characterId: char.characterId,
+      gameId: localGameState.id,
+      prevPositionX: char.positionX,
+      prevPositionY: char.positionY,
     });
   };
 
@@ -356,8 +376,23 @@ const GameBoard = () => {
             <>
               {isDMRef.current ? (
                 <>
-                  <h1>Game is paused.</h1>
-                  <button onClick={handleOnPauseToggle}>Unpause game.</button>
+                  {localGameState.characters.every(
+                    (character) => character.initiative === 0
+                  ) ? (
+                    <>
+                      <h1>
+                        No initiative! Roll initiative to start the game.{" "}
+                      </h1>
+                      <button onClick={handleOnRollInitiative}>Roll</button>
+                    </>
+                  ) : (
+                    <>
+                      <h1>Game is paused.</h1>
+                      <button onClick={handleOnPauseToggle}>
+                        Unpause game.
+                      </button>
+                    </>
+                  )}
                 </>
               ) : (
                 <>

@@ -114,7 +114,7 @@ const Sprite = ({
       width:
         (mapRect.width * gameState.map.spriteSize * zoomCoefficient.x) / 100,
     });
-  }, [mapRect?.height, mapRect?.width, gameState.map, map.zoom]);
+  }, [mapRect?.height, mapRect?.width, gameState.map, gameState.map.zoom]);
 
   const handleMouseMove = (e: MouseEvent) => {
     if (!mapRect || !spriteRect) return;
