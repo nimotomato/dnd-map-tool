@@ -9,9 +9,7 @@ import React, {
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { v4 as uuidv4 } from "uuid";
-
 import { api } from "~/utils/api";
-
 import DungeonMap from "~/components/DungeonMap";
 import CharacterBar from "~/components/CharacterBar";
 import useGetMapRect from "../hooks/useGetMapRect";

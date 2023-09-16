@@ -4,7 +4,6 @@ import { api } from "~/utils/api";
 import debounce from "lodash/debounce";
 
 import { Maprect, MapProps, Game, Character } from "~/types";
-
 type Rect = {
   x: number;
   y: number;
@@ -15,7 +14,6 @@ type Rect = {
 type Props = {
   positionX: number;
   positionY: number;
-  controller: string;
   id: string;
   mapRect: Maprect | null;
   imgSrc: string;
@@ -25,7 +23,6 @@ type Props = {
   setGameState: React.Dispatch<React.SetStateAction<Game>>;
   createMode: boolean;
   userTurnIndex?: number;
-  setUserTurnIndex?: React.Dispatch<React.SetStateAction<number>>;
   userQueue?: Character[];
   zoomCoefficient: { x: number; y: number };
 };
@@ -34,7 +31,6 @@ const Sprite = ({
   positionX,
   positionY,
   id,
-  controller,
   imgSrc,
   map,
   gameState,
@@ -42,7 +38,6 @@ const Sprite = ({
   sprites,
   createMode,
   userTurnIndex,
-  setUserTurnIndex,
   userQueue,
   zoomCoefficient,
 }: Props) => {

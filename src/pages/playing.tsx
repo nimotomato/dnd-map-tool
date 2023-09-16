@@ -3,15 +3,13 @@ import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import Head from "next/head";
 import React, { useEffect, useRef, useState } from "react";
-
 import { api } from "~/utils/api";
-
 import DungeonMap from "~/components/DungeonMap";
 import Modal from "~/components/Modal";
 import useGetMapRect from "../hooks/useGetMapRect";
-import { MapProps, Game, Character } from "~/types";
 import CharacterBar from "~/components/CharacterBar";
 import { useRouter } from "next/router";
+import { MapProps, Game } from "~/types";
 
 const GameBoard = () => {
   const session = useSession();

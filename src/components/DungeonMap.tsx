@@ -1,16 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
-import type {
-  ButtonHTMLAttributes,
-  MouseEvent,
-  MutableRefObject,
-  SetStateAction,
-} from "react";
-
+import { useSession } from "next-auth/react";
 import Sprite from "./Sprite";
 import useTryLoadImg from "~/hooks/useTryLoadImg";
-import { MapProps, Maprect, Game, Character } from "~/types";
-import { useSession } from "next-auth/react";
-
 import {
   FaArrowRight,
   FaArrowLeft,
@@ -19,9 +10,10 @@ import {
   FaPlus,
   FaMinus,
 } from "react-icons/fa6";
-import { api } from "~/utils/api";
-
 import { GoZoomIn, GoZoomOut } from "react-icons/go";
+
+import { MapProps, Maprect, Game, Character } from "~/types";
+import type { MouseEvent, MutableRefObject } from "react";
 
 type Props = {
   mapRef: MutableRefObject<HTMLDivElement | null>;
@@ -266,7 +258,6 @@ const DungeonMap = ({
             positionY={sprite.positionY}
             key={sprite.name}
             mapRect={mapRect}
-            controller={sprite.controllerId}
             imgSrc={sprite.imgSrc}
             id={sprite.characterId}
             sprites={sprites}
@@ -286,7 +277,6 @@ const DungeonMap = ({
             positionY={sprite.positionY}
             key={sprite.name}
             mapRect={mapRect}
-            controller={sprite.controllerId}
             imgSrc={sprite.imgSrc}
             id={sprite.characterId}
             sprites={sprites}
@@ -294,7 +284,6 @@ const DungeonMap = ({
             setGameState={setGameState}
             createMode={createMode}
             userTurnIndex={userTurnIndex}
-            setUserTurnIndex={setUserTurnIndex}
             userQueue={userQueue}
             zoomCoefficient={zoomCoefficient}
           />

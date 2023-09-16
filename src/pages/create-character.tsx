@@ -1,9 +1,8 @@
 import { useSession } from "next-auth/react";
 import Head from "next/head";
-import Image from "next/image";
 import Link from "next/link";
 import { api } from "~/utils/api";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import useTryLoadImg from "~/hooks/useTryLoadImg";
 import { useRouter } from "next/router";

@@ -1,8 +1,9 @@
 import React, { useRef } from "react";
-import type { MapProps, Maprect, Game } from "~/types";
 import { useSession } from "next-auth/react";
 import { api } from "~/utils/api";
 import debounce from "lodash/debounce";
+
+import type { MapProps, Maprect, Game } from "~/types";
 
 type Props = {
   gameState: Game;
@@ -23,17 +24,13 @@ const CharacterBar = ({
   const session = useSession();
   const currentUser = session.data?.user;
   const { mutate, error, isError } = api.character.patchIsDead.useMutation();
-
-  // Store debounced function in ref to ensure stability across lifecycle
-  const debouncedKillCharacterRef = useRef(debounce(mutate, 100));
+  const debouncedKillCharacterRef = useRef(debounce(mutate, 100)); // Store debounced function in ref to ensure stability across lifecycle
 
   const handleOnClick = (e: React.MouseEvent) => {
     e.preventDefault();
 
     gameState.characters.map((sprite) => {
       if (e.currentTarget.id !== sprite.characterId || !mapRect) return; // Find correct sprite
-      // TO DO:
-      // Check we are within bounds of map, eg 0.0 shouldnt be centered, but stay bound to left corner
 
       // Calculate relative positioning of map
       let newX = -sprite.positionX + mapRect.width / 2;

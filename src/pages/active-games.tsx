@@ -2,13 +2,9 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import Head from "next/head";
 import { useRouter } from "next/router";
-
 import { api } from "~/utils/api";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import Modal from "~/components/Modal";
-import { Character } from "~/types";
-import { Decimal } from "@prisma/client/runtime/library";
-import { ppid } from "process";
 
 const ActiveGames = () => {
   const session = useSession();
