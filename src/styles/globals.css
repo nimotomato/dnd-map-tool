@@ -1,3 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@font-face {
+    font-family: "Bookinsanity";
+    src: url("/fonts/Bookinsanity.otf") format("opentype");
+  }
+
+  @font-face {
+    font-family: "MrEaves";
+    src: url("/fonts/MrEaves.otf.otf") format("opentype");
+  }
