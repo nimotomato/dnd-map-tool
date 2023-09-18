@@ -101,7 +101,6 @@ export default function CreateCharacter() {
           </div>
           <button onClick={handleCreate}>Create character</button>
         </div>
-
         <Link href="/">Go back</Link>
       </main>
     </>
