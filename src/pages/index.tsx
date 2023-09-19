@@ -20,7 +20,7 @@ export default function Home() {
           <>
             <div className="mb-32 mt-20 flex h-52 flex-col items-center justify-center">
               <img src={dndLogo} width={800} />
-              <h2 className="text-2xl text-slate-200"> online map combat </h2>
+              <h2 className="text-2xl text-slate-200"> online combat map </h2>
             </div>
             <h2 className="pb-12 text-xl text-slate-200">{`Welcome ${user.name}!`}</h2>
             <div className="w-42 relative flex gap-52">
@@ -32,7 +32,7 @@ export default function Home() {
                   color: "rgba(0, 0, 0, 0)",
                 }}
               ></div>
-              <ul className="h-42 flex w-full flex-col items-center justify-center gap-2 rounded border-8 border-double border-stone-500 bg-stone-800 text-center font-light ">
+              <ul className="h-42 flex w-full flex-col items-center justify-center gap-2 rounded border-8 border-double border-stone-500 bg-stone-800 px-2 py-2 text-center font-light ">
                 <li
                   onClick={() => router.push("/new-game")}
                   className="w-full bg-stone-600 pl-6 pr-6 hover:cursor-pointer hover:bg-stone-700"
