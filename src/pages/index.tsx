@@ -42,25 +42,25 @@ export default function Home() {
               ></div>
               <ul className="h-42 flex w-full flex-col items-center justify-center gap-2 rounded border-8 border-double border-stone-500 bg-stone-800 px-2 py-2 text-center font-light ">
                 <li
-                  onClick={() => router.push("/new-game")}
+                  onClick={() => void router.push("/new-game")}
                   className="w-full bg-stone-600 pl-6 pr-6 hover:cursor-pointer hover:bg-stone-700"
                 >
                   <p>Start new game</p>
                 </li>
                 <li
-                  onClick={() => router.push("/active-games")}
+                  onClick={() => void router.push("/active-games")}
                   className="w-full bg-stone-600 pl-6 pr-6 hover:cursor-pointer hover:bg-stone-700"
                 >
                   <p>Active games</p>
                 </li>
                 <li
-                  onClick={() => router.push("/create-character")}
+                  onClick={() => void router.push("/create-character")}
                   className="w-full bg-stone-600 pl-6 pr-6 hover:cursor-pointer hover:bg-stone-700"
                 >
                   <p>Create character</p>
                 </li>
                 <li
-                  onClick={() => router.push("/characters")}
+                  onClick={() => void router.push("/characters")}
                   className="w-full bg-stone-600 pl-6 pr-6 hover:cursor-pointer hover:bg-stone-700"
                 >
                   <p>Characters</p>

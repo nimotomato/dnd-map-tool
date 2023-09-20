@@ -91,7 +91,7 @@ export default function CreateCharacter() {
             <h1 className="text-slate-800"> {errorMessage} </h1>
           )}
           <button
-            onClick={() => router.push("/")}
+            onClick={() => void router.push("/")}
             className="border-3 m-2 rounded border-2 border-solid border-slate-400 bg-stone-600 pl-6 pr-6 hover:bg-stone-700"
           >
             Main Menu
