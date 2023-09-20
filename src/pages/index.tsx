@@ -7,6 +7,7 @@ import { useRouter } from "next/router";
 
 const dndLogo = "/img/dnd.png";
 const torch = "/img/torch.gif";
+const bg = "/img/bg2.png";
 
 export default function Home() {
   const session = useSession();
@@ -15,7 +16,14 @@ export default function Home() {
 
   return (
     <>
-      <main className="justify-top flex min-h-screen flex-col items-center bg-stone-950">
+      <main
+        style={{
+          backgroundImage: `url(${bg})`,
+          backgroundPosition: "center",
+          backgroundSize: "cover",
+        }}
+        className="justify-top flex min-h-screen flex-col items-center bg-stone-950"
+      >
         {user != null ? (
           <>
             <div className="mb-32 mt-20 flex h-52 flex-col items-center justify-center">

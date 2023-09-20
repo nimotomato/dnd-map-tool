@@ -7,6 +7,7 @@ export default {
       fontFamily: {
         bookinsanity: ["Bookinsanity", "arial"],
         mrEaves: ["MrEaves", "arial"],
+        quentincaps: ["Quentincaps", "arial"],
       },
     },
   },

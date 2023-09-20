@@ -18,7 +18,6 @@ import debounce from "lodash/debounce";
 import { MapProps, Game, Character } from "~/types";
 const defaultMap = "/img/dungeonmap.jpg";
 const creategameLogo = "/img/creategame.png";
-const torch = "/img/torch.gif";
 
 const NewGame = () => {
   const session = useSession();
@@ -406,7 +405,16 @@ const NewGame = () => {
       <Head>
         <title>Create New Game</title>
       </Head>
-      <main className="justify-top flex min-h-screen flex-col items-center bg-stone-950 text-slate-200">
+      <main
+        className="justify-top flex min-h-screen flex-col items-center bg-stone-950 text-slate-200"
+        style={{
+          backgroundImage: `url(${
+            !useTryLoadImg(gameState.map.imgSrc) && gameState.map.imgSrc
+          })`,
+          backgroundPosition: "center",
+          backgroundSize: "cover",
+        }}
+      >
         <div className="mt-8 flex h-52 flex-col items-center justify-center">
           <img src={creategameLogo} width={400} />
         </div>
@@ -577,71 +585,69 @@ const NewGame = () => {
               coordinates.
             </h1>
             <div className="flex">
-              <div>
-                <CharacterBar
-                  gameState={gameState}
-                  setMap={setMap}
-                  map={map}
-                  mapRect={mapRect}
-                  setGameState={setGameState}
-                  createMode={true}
-                />
-              </div>
-              <div className="flex">
-                <div className="mr-1 rounded border-8 border-double border-emerald-900 bg-stone-900 px-5 pb-9 pt-2">
-                  <DungeonMap
-                    key={JSON.stringify(mapRect)}
-                    sprites={gameState.characters}
-                    mapRef={mapRef}
-                    mapRect={mapRect}
-                    map={map}
-                    setMap={setMap}
+              <div className="mr-1 rounded border-8 border-double border-emerald-900 bg-stone-900 px-5 pb-9 pt-2">
+                <div>
+                  <CharacterBar
                     gameState={gameState}
+                    setMap={setMap}
+                    map={map}
+                    mapRect={mapRect}
                     setGameState={setGameState}
-                    isDm={true}
                     createMode={true}
-                    step={step}
                   />
                 </div>
+                <DungeonMap
+                  key={JSON.stringify(mapRect)}
+                  sprites={gameState.characters}
+                  mapRef={mapRef}
+                  mapRect={mapRect}
+                  map={map}
+                  setMap={setMap}
+                  gameState={gameState}
+                  setGameState={setGameState}
+                  isDm={true}
+                  createMode={true}
+                  step={step}
+                />
+              </div>
+              <div className="flex flex-col">
+                <h2 className="w-full border-2 border-stone-600 bg-stone-900 text-center text-lg">
+                  Create NPCs
+                </h2>
+                <form className="flex h-fit flex-col items-center justify-start gap-2 border-2 border-stone-500 bg-stone-800 px-4 py-2  text-center font-light">
+                  <input
+                    onChange={handleOnChangeNPCName}
+                    className={` w-48 rounded-sm border-2 border-stone-600 indent-1 text-slate-800`}
+                    value={NPCNameInput}
+                    placeholder="NPC name"
+                  />
+                  <input
+                    onChange={handleOnChangeNPCSrc}
+                    className={`w-48 rounded-sm border-2 border-stone-600 indent-1 text-slate-800`}
+                    value={NPCSrcInput}
+                    placeholder="img url"
+                  />
+                  <button
+                    className="rounded border-2 border-solid border-slate-400 bg-stone-600 pb-1 pl-2 pr-2 pt-1 text-sm hover:bg-stone-700"
+                    onClick={handleOnLoadNPC}
+                  >
+                    Load NPC
+                  </button>
+                </form>
                 <div className="flex flex-col">
-                  <h2 className="w-full border-2 border-stone-600 bg-stone-900 text-center text-lg">
-                    Create NPCs
-                  </h2>
-                  <form className="flex h-fit flex-col items-center justify-start gap-2 border-2 border-stone-500 bg-stone-800 px-4 py-2  text-center font-light">
-                    <input
-                      onChange={handleOnChangeNPCName}
-                      className={` w-48 rounded-sm border-2 border-stone-600 indent-1 text-slate-800`}
-                      value={NPCNameInput}
-                      placeholder="NPC name"
-                    />
-                    <input
-                      onChange={handleOnChangeNPCSrc}
-                      className={`w-48 rounded-sm border-2 border-stone-600 indent-1 text-slate-800`}
-                      value={NPCSrcInput}
-                      placeholder="img url"
-                    />
-                    <button
-                      className="rounded border-2 border-solid border-slate-400 bg-stone-600 pb-1 pl-2 pr-2 pt-1 text-sm hover:bg-stone-700"
-                      onClick={handleOnLoadNPC}
-                    >
-                      Load NPC
-                    </button>
-                  </form>
-                  <div className="flex flex-col">
-                    <input
-                      value={`X: ${Math.abs(gameState.map.posX)}, Y: ${Math.abs(
-                        gameState.map.posY
-                      )}`}
-                      readOnly
-                      className={`w-full rounded-sm border-2 border-stone-500 text-center indent-1 text-slate-800`}
-                    ></input>
-                    <button
-                      className="border-3 rounded-sm  border-2 border-solid border-slate-400 bg-stone-600 pb-1 pl-2 pr-2 pt-1 text-sm hover:bg-stone-700"
-                      onClick={handleOnLockCoordinates}
-                    >
-                      Lock starting map coordinates.
-                    </button>
-                  </div>
+                  <input
+                    value={`X: ${Math.abs(gameState.map.posX)}, Y: ${Math.abs(
+                      gameState.map.posY
+                    )}`}
+                    readOnly
+                    className={`w-full rounded-sm border-2 border-stone-500 text-center indent-1 text-slate-800`}
+                  ></input>
+                  <button
+                    className="border-3 rounded-sm  border-2 border-solid border-slate-400 bg-stone-600 pb-1 pl-2 pr-2 pt-1 text-sm hover:bg-stone-700"
+                    onClick={handleOnLockCoordinates}
+                  >
+                    Lock starting map coordinates.
+                  </button>
                 </div>
               </div>
             </div>

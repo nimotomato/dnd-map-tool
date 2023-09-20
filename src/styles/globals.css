@@ -11,3 +11,8 @@
     font-family: "MrEaves";
     src: url("/fonts/MrEaves.otf.otf") format("opentype");
   }
+
+  @font-face {
+    font-family: "Quentincaps";
+    src: url("/fonts/Quentincaps.ttf") format("truetype");
+  }

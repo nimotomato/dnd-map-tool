@@ -7,6 +7,7 @@ import React, { useState, useRef } from "react";
 import Modal from "~/components/Modal";
 const gamesLogo = "/img/games.png";
 const torch = "/img/torch.gif";
+const bg = "/img/bg2.png";
 
 const ActiveGames = () => {
   const session = useSession();
@@ -163,7 +164,14 @@ const ActiveGames = () => {
       <Head>
         <title>Active Games</title>
       </Head>
-      <main className="justify-top flex min-h-screen flex-col items-center bg-stone-950 text-slate-200">
+      <main
+        style={{
+          backgroundImage: `url(${bg})`,
+          backgroundPosition: "center",
+          backgroundSize: "cover",
+        }}
+        className="justify-top flex min-h-screen flex-col items-center bg-stone-950 text-slate-200"
+      >
         <div className="mb-32 mt-20 flex h-52 flex-col items-center justify-center">
           <img src={gamesLogo} width={200} />
         </div>
@@ -221,34 +229,34 @@ const ActiveGames = () => {
             }}
           />
           {games?.data && games.data.length > 0 ? (
-            <ul className="flex h-52 flex-col items-center justify-start gap-4 overflow-y-auto rounded border-8 border-double border-stone-500 bg-stone-800 px-6 py-4  text-center font-light ">
+            <ul className="flex h-52 flex-col items-center justify-start gap-2 overflow-y-auto rounded border-8 border-double border-stone-500 bg-stone-800 px-6 py-4  text-center font-light ">
               {games.data.map((game) => {
                 return (
                   <div
-                    className="grid grid-cols-4 gap-1"
+                    className="grid grid-cols-4 items-center gap-1 text-center"
                     key={game.Game.gameId}
                   >
-                    <p className="w-full rounded  bg-stone-900">
+                    <p className="w-full rounded bg-slate-900 py-1">
                       {game.Game.name}
                     </p>
 
                     <button
                       onClick={(e) => handleOnJoin(e, game.Game.gameId)}
-                      className="w-full rounded border-2 border-solid border-slate-400 bg-stone-600 pl-6 pr-6 hover:bg-stone-700"
+                      className="z-10 rounded border-2 border-solid border-slate-400 bg-stone-600 px-2 pb-1 pt-1 text-sm hover:bg-stone-700"
                     >
                       Join game
                     </button>
 
                     <button
                       onClick={(e) => handleOnLeave(e, game.Game.gameId)}
-                      className="w-full rounded border-2 border-solid border-slate-400 bg-stone-600 hover:bg-stone-700"
+                      className="z-10 rounded border-2 border-solid border-slate-400 bg-stone-600 pb-1 pl-2 pr-2 pt-1 text-sm hover:bg-stone-700"
                     >
                       Leave game
                     </button>
 
                     {game.Game.dungeonMasterId === currentUser?.id && (
                       <button
-                        className="w-full rounded border-2 border-solid border-slate-400 bg-stone-600  hover:bg-stone-700"
+                        className="z-10 rounded border-2 border-solid border-slate-400 bg-stone-600 py-1 text-sm hover:bg-stone-700"
                         onClick={(e) => handleOnDelete(e, game.Game.gameId)}
                       >
                         Delete game

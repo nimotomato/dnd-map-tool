@@ -5,6 +5,7 @@ import { api } from "~/utils/api";
 import { useRef } from "react";
 const charactersBanner = "/img/characters.png";
 const torch = "/img/torch.gif";
+const bg = "/img/bg2.png";
 
 const Characters = () => {
   const session = useSession();
@@ -28,7 +29,14 @@ const Characters = () => {
 
   return (
     <>
-      <main className="justify-top flex min-h-screen flex-col items-center bg-stone-950 text-slate-200">
+      <main
+        style={{
+          backgroundImage: `url(${bg})`,
+          backgroundPosition: "center",
+          backgroundSize: "cover",
+        }}
+        className="justify-top flex min-h-screen flex-col items-center bg-stone-950 text-slate-200"
+      >
         <div className="mb-32 mt-20 flex h-52 flex-col items-center justify-center">
           <img src={charactersBanner} width={300} />
         </div>

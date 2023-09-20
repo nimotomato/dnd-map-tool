@@ -9,6 +9,7 @@ import { useRouter } from "next/router";
 import Modal from "~/components/Modal";
 const createchar = "/img/createchar.png";
 const torch = "/img/torch.gif";
+const bg = "/img/bg2.png";
 
 export default function CreateCharacter() {
   const session = useSession();
@@ -75,7 +76,14 @@ export default function CreateCharacter() {
       <Head>
         <title>Create Character</title>
       </Head>
-      <main className="justify-top flex min-h-screen flex-col items-center bg-stone-950 text-slate-200">
+      <main
+        style={{
+          backgroundImage: `url(${bg})`,
+          backgroundPosition: "center",
+          backgroundSize: "cover",
+        }}
+        className="justify-top flex min-h-screen flex-col items-center bg-stone-950 text-slate-200"
+      >
         <Modal open={modalIsOpen} setClose={() => setModalIsOpen(false)}>
           {!errorMessage ? (
             <h1 className="text-slate-800"> Character created! </h1>
@@ -107,7 +115,6 @@ export default function CreateCharacter() {
               color: "rgba(0, 0, 0, 0)",
             }}
           />
-
           <div className="flex flex-col items-center justify-start gap-4 rounded border-8 border-double border-stone-500 bg-stone-800 px-6 py-4 text-center font-light">
             <div className="mt-2">
               {!imgHasError ? (
@@ -144,7 +151,7 @@ export default function CreateCharacter() {
               </label>
             </div>
             <button
-              className="border-3 rounded border-2 border-solid border-slate-400 bg-stone-600 pb-1 pl-4 pr-4 pt-1 hover:bg-stone-700"
+              className="z-10 mt-1 rounded border-2 border-solid border-slate-400 bg-stone-600 pb-1 pl-2 pr-2 pt-1 text-sm hover:bg-stone-700"
               onClick={handleCreate}
             >
               Create character
