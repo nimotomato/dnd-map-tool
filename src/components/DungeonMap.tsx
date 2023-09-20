@@ -338,8 +338,8 @@ const DungeonMap = ({
         ref={mapRef}
         className={`relative`}
         style={{
-          height: `${25}rem`,
-          width: `${25}rem`,
+          height: `${45}rem`,
+          width: `${45}rem`,
         }}
       >
         {map.hasLoaded ? (
@@ -358,54 +358,65 @@ const DungeonMap = ({
             ) : (
               <div>error loading image</div>
             )}
-            <div>
-              <>
-                <button onClick={handleOnMapNav} className="nav-btn" id="up">
-                  <FaArrowUp />
-                </button>
-                <button onClick={handleOnMapNav} className="nav-btn" id="down">
-                  <FaArrowDown />
-                </button>
-                <button onClick={handleOnMapNav} className="nav-btn" id="left">
-                  <FaArrowLeft />
-                </button>
-                <button onClick={handleOnMapNav} className="nav-btn" id="right">
-                  <FaArrowRight />
-                </button>
-              </>
+            <div className="flex">
+              <button
+                onClick={handleOnMapNav}
+                className="border-3 m-1 rounded border border-solid border-slate-400 bg-stone-600 pb-1 pl-2 pr-2 pt-1 hover:bg-stone-700"
+                id="up"
+              >
+                <FaArrowUp />
+              </button>
+              <button
+                onClick={handleOnMapNav}
+                className="border-3 m-1 rounded border border-solid border-slate-400 bg-stone-600 pb-1 pl-2 pr-2 pt-1 hover:bg-stone-700"
+                id="down"
+              >
+                <FaArrowDown />
+              </button>
+              <button
+                onClick={handleOnMapNav}
+                className="border-3 m-1 rounded border border-solid border-slate-400 bg-stone-600 pb-1 pl-2 pr-2 pt-1 hover:bg-stone-700"
+                id="left"
+              >
+                <FaArrowLeft />
+              </button>
+              <button
+                onClick={handleOnMapNav}
+                className="border-3 m-1 rounded border border-solid border-slate-400 bg-stone-600 pb-1 pl-2 pr-2 pt-1 hover:bg-stone-700"
+                id="right"
+              >
+                <FaArrowRight />
+              </button>
               {createMode &&
                 (step === 0 ? (
-                  <div className="flex gap-2">
-                    <h1>Set map zoom </h1>
-                    <div>
-                      <button
-                        onClick={handleMapZoom}
-                        className="nav-btn"
-                        id="zoomIn"
-                      >
-                        <GoZoomIn />
-                      </button>
-                      <button
-                        onClick={handleMapZoom}
-                        className="nav-btn"
-                        id="zoomOut"
-                      >
-                        <GoZoomOut />
-                      </button>
-                    </div>
-                  </div>
+                  <>
+                    <button
+                      onClick={handleMapZoom}
+                      className="border-3 m-1 rounded border border-solid border-slate-400 bg-stone-600 pb-1 pl-2 pr-2 pt-1 hover:bg-stone-700"
+                      id="zoomIn"
+                    >
+                      <GoZoomIn />
+                    </button>
+                    <button
+                      onClick={handleMapZoom}
+                      className="border-3 m-1 rounded border border-solid border-slate-400 bg-stone-600 pb-1 pl-2 pr-2 pt-1 hover:bg-stone-700"
+                      id="zoomOut"
+                    >
+                      <GoZoomOut />
+                    </button>
+                  </>
                 ) : (
                   <>
                     <button
                       onClick={handleOnSpritesizeChange}
-                      className="nav-btn"
+                      className="border-3 m-1 rounded border border-solid border-slate-400 bg-stone-600 pb-1 pl-2 pr-2 pt-1 hover:bg-stone-700"
                       id="increase"
                     >
                       <FaPlus />
                     </button>
                     <button
                       onClick={handleOnSpritesizeChange}
-                      className="nav-btn"
+                      className="border-3 m-1 rounded border border-solid border-slate-400 bg-stone-600 pb-1 pl-2 pr-2 pt-1 hover:bg-stone-700"
                       id="decrease"
                     >
                       <FaMinus />

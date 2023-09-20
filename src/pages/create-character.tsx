@@ -111,11 +111,14 @@ export default function CreateCharacter() {
           <div className="flex flex-col items-center justify-start gap-4 rounded border-8 border-double border-stone-500 bg-stone-800 px-6 py-4 text-center font-light">
             <div className="mt-2">
               {!imgHasError ? (
-                <div className="w-48 border-2 border-solid border-slate-800">
+                <div className="w-48 border-2 border-solid border-slate-500">
                   <img src={imgInput} className="h-full" alt="Character" />{" "}
                 </div>
               ) : (
-                <div className="h-52 w-48 border-2 border-solid border-slate-800"></div>
+                <div
+                  className="h-52 w-48 border-2 border-solid
+                border-slate-500"
+                ></div>
               )}
             </div>
             <div>
@@ -123,7 +126,7 @@ export default function CreateCharacter() {
                 Character name <br />
                 <input
                   type="text"
-                  className="w-48 indent-1 text-slate-800"
+                  className="w-48 rounded-sm border-2 border-stone-600 indent-1 text-slate-800"
                   value={characterName}
                   onChange={(e) => setCharacterName(e.target.value)}
                 />
@@ -134,7 +137,7 @@ export default function CreateCharacter() {
                 Character image source <br />
                 <input
                   type="text"
-                  className="w-48 indent-1 text-slate-800"
+                  className="w-48 rounded-sm border-2 border-stone-600 indent-1 text-slate-800"
                   value={imgInput}
                   onChange={(e) => setImgInput(e.target.value)}
                 />

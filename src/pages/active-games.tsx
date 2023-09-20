@@ -168,20 +168,23 @@ const ActiveGames = () => {
           <img src={gamesLogo} width={200} />
         </div>
         <Modal open={modalIsOpen} setClose={() => setModalIsOpen(false)}>
-          <div className="h-auto w-56 items-center text-center"></div>
+          <div className="h-auto w-56 items-center justify-center text-center"></div>
           {showCreateNewChar ? (
             <>
-              {
-                "You have no characters, please create a new one before joining a game."
-              }
+              <p className="text-stone-900">
+                You have no characters, please create a new one before joining a
+                game.
+              </p>
               <br />
               <button onClick={onCreateNewChar}> create new character </button>
             </>
           ) : (
-            <>
-              {"You have no characters in this game."}
+            <div className="flex flex-col items-center justify-center overflow-y-auto overflow-x-hidden">
+              <p className="text-stone-900">
+                You have no characters in this game.
+              </p>
+              <p className="text-stone-900">Choose a character to play with.</p>
               <br />
-              {"Choose a character to play with. "}
               {characters
                 ?.filter(
                   (character) =>
@@ -194,18 +197,18 @@ const ActiveGames = () => {
                       onClick={(e) =>
                         selectCharacter(e, character, activeGameId)
                       }
-                      className="h-22 flex w-20 flex-col items-center justify-center rounded-lg p-2 hover:bg-slate-400"
+                      className="h-22 m-2 flex min-w-full flex-col items-center justify-center rounded-lg bg-slate-300 p-2 hover:bg-slate-400"
                     >
                       <img
                         src={`${character.imgSrc}`}
                         alt="char image"
-                        className="h-14 w-14"
+                        className="h-16 w-16 p-2"
                       ></img>
-                      <p>{`${character.name}`}</p>
+                      <p className="text-stone-900">{`${character.name}`}</p>
                     </div>
                   );
                 })}
-            </>
+            </div>
           )}
         </Modal>
         <div className="w-46 relative flex gap-52">

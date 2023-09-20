@@ -102,7 +102,8 @@ const CharacterBar = ({
                 src={sprite.imgSrc}
               />
               <p>{sprite.name}</p>
-              <p>{`Initiative: ${sprite.initiative}`}</p>
+              {!createMode && <p>{`Initiative: ${sprite.initiative}`}</p>}
+
               {!createMode && currentUser?.id === gameState?.dungeonMaster && (
                 <>
                   <button

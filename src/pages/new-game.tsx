@@ -17,6 +17,8 @@ import useTryLoadImg from "~/hooks/useTryLoadImg";
 import debounce from "lodash/debounce";
 import { MapProps, Game, Character } from "~/types";
 const defaultMap = "/img/dungeonmap.jpg";
+const creategameLogo = "/img/creategame.png";
+const torch = "/img/torch.gif";
 
 const NewGame = () => {
   const session = useSession();
@@ -101,6 +103,7 @@ const NewGame = () => {
 
   const mapRef = useRef<HTMLDivElement | null>(null);
   const mapRect = useGetMapRect(gameState.map.imgSrc, mapRef);
+  const [coordinatesLocked, setCoordinatesLocked] = useState(false);
 
   const handleOnLockCoordinates = (e: React.MouseEvent) => {
     // Loads local state to game state to "save"
@@ -113,6 +116,8 @@ const NewGame = () => {
         zoom: gameState.map.zoom,
       },
     }));
+
+    setCoordinatesLocked(true);
   };
 
   const handleOnAddMap = (e: ReactMouseEvent<HTMLButtonElement>) => {
@@ -334,6 +339,11 @@ const NewGame = () => {
       return;
     }
 
+    if (!coordinatesLocked) {
+      alert("Coordinates not locked.");
+      return;
+    }
+
     // really make sure ids are unique
     const playerIds = Array.from(
       new Set(gameState.players.map((player) => player.id))
@@ -394,27 +404,44 @@ const NewGame = () => {
   return (
     <>
       <Head>
-        <title>DND map</title>
+        <title>Create New Game</title>
       </Head>
-      <main className="flex min-h-screen flex-col items-center justify-center bg-slate-600">
+      <main className="justify-top flex min-h-screen flex-col items-center bg-stone-950 text-slate-200">
+        <div className="mt-8 flex h-52 flex-col items-center justify-center">
+          <img src={creategameLogo} width={400} />
+        </div>
         {step === 0 && (
           <>
-            <h1>Create new game!</h1>
-            <form>
-              <label>Game Name: </label>
-              <input
-                placeholder="game name here"
-                onChange={handleGameName}
-                value={gameState.name}
-              ></input>
-              <label>Select map</label>
-              <input
-                placeholder="img url here"
-                onChange={handleOnMapChange}
-                value={mapInput}
-              ></input>
-              <button onClick={handleOnAddMap}>Fetch</button>
-              <div className="m-6">
+            <h1>Select map, set map zoom and add players.</h1>
+            <div className="flex">
+              <div className="mr-1 rounded border-8 border-double border-emerald-900 bg-stone-900 px-5 pb-9 pt-2">
+                <form className="mb-2 flex  justify-between">
+                  <div className="flex-grow">
+                    <label>Game Name: </label>
+                    <input
+                      className={`${border.size} ${border.color} w-48 rounded-sm border-2 border-stone-600 indent-1 text-slate-800`}
+                      placeholder="game name"
+                      onChange={handleGameName}
+                      value={gameState.name}
+                    ></input>
+                  </div>
+                  <div className="">
+                    <label>Select map: </label>
+                    <input
+                      className={`${border.size} ${border.color} w-48 rounded-sm border-2 border-stone-600 indent-1 text-slate-800`}
+                      placeholder="img url"
+                      onChange={handleOnMapChange}
+                      value={mapInput}
+                    ></input>
+                    <button
+                      className="rounded border-2 border-solid border-slate-400 bg-stone-600 pb-1 pl-2 pr-2 pt-1 text-sm hover:bg-stone-700"
+                      onClick={handleOnAddMap}
+                    >
+                      Fetch
+                    </button>
+                  </div>
+                  <br></br>
+                </form>
                 <DungeonMap
                   key={JSON.stringify(mapRect)}
                   mapRef={mapRef}
@@ -428,51 +455,76 @@ const NewGame = () => {
                   step={step}
                 />
               </div>
-              <br></br>
-              <label>Invite players</label>
-              <div>
-                {gameState.players.length > 0 &&
-                  gameState.players.map((player) => {
-                    return (
-                      <div key={gameState.players.indexOf(player)}>
-                        {gameState.players.indexOf(player) === 0 ? (
-                          <p>{`Dungeon Master: ${player.name}`} </p>
-                        ) : (
-                          <>
-                            <p>
-                              {`Player ${gameState.players.indexOf(player)}: `}
-                              {player.name}
-                            </p>
-                            <button
-                              onClick={(e) => handleOnRemove(e, player.name)}
-                            >
-                              Remove player
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    );
-                  })}
-                <input
-                  type="text"
-                  placeholder="discord email here"
-                  className={`${border.size} ${border.color}`}
-                  value={playerInput}
-                  onChange={handleOnPlayerChange}
-                ></input>
-                {errorText && <p>{errorText}</p>}
-                <button onClick={handleOnAddPlayer}>Add player</button>
+              <div className="flex flex-col">
+                <h2 className="w-full border-2 border-stone-600 bg-stone-900 text-center text-lg">
+                  Invite players
+                </h2>
+                <div className="flex h-fit flex-col items-center justify-start gap-2 border-2 border-stone-500 bg-stone-800 px-4 py-2  text-center font-light">
+                  {gameState.players.length > 0 &&
+                    gameState.players.map((player) => {
+                      return (
+                        <div key={gameState.players.indexOf(player)}>
+                          {gameState.players.indexOf(player) === 0 ? (
+                            <>
+                              <p>Dungeon Master</p>
+                              <p>{`${player.name}`} </p>
+                            </>
+                          ) : (
+                            <>
+                              <p>
+                                {`Player ${gameState.players.indexOf(
+                                  player
+                                )}: `}
+                                {player.name}
+                              </p>
+                              <button
+                                onClick={(e) => handleOnRemove(e, player.name)}
+                                className="border-3 rounded border-2 border-solid border-slate-400 bg-stone-600 pb-1 pl-2 pr-2 pt-1 text-sm hover:bg-stone-700"
+                              >
+                                Remove player
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      );
+                    })}
+                  <input
+                    type="text"
+                    placeholder="discord email"
+                    className={`${border.size} ${border.color} mt-8 w-48 rounded-sm border-2 border-stone-600 indent-1 text-slate-800`}
+                    value={playerInput}
+                    onChange={handleOnPlayerChange}
+                  ></input>
+                  {errorText && <p>{errorText}</p>}
+                  <button
+                    className="border-3 rounded border-2 border-solid border-slate-400 bg-stone-600 pb-1 pl-2 pr-2 pt-1 text-sm hover:bg-stone-700"
+                    onClick={handleOnAddPlayer}
+                  >
+                    Add player
+                  </button>
+                </div>
               </div>
-            </form>
+            </div>
+
             <div className="flex space-x-1">
-              <Link href="/">Go back</Link>
-              <button onClick={nextStep}>Next step</button>
+              <Link
+                className="border-3 m-2 rounded border-2 border-solid border-slate-400 bg-stone-600 pl-6 pr-6 hover:bg-stone-700"
+                href="/"
+              >
+                Go back
+              </Link>
+              <button
+                className="border-3 m-2 rounded border-2 border-solid border-slate-400 bg-stone-600 pl-6 pr-6 hover:bg-stone-700"
+                onClick={nextStep}
+              >
+                Next step
+              </button>
             </div>
           </>
         )}
         {step === 1 && (
           <>
-            <h1>Set player starting positions</h1>
+            <h1>Set player starting positions and unit size.</h1>
             <div className="flex">
               <div>
                 <CharacterBar
@@ -485,7 +537,7 @@ const NewGame = () => {
                 />
               </div>
               <div>
-                <div>
+                <div className="mr-1 rounded border-8 border-double border-emerald-900 bg-stone-900 px-5 pb-9 pt-2">
                   <DungeonMap
                     key={JSON.stringify(mapRect)}
                     sprites={gameState.characters}
@@ -500,19 +552,30 @@ const NewGame = () => {
                     step={step}
                   />
                 </div>
-                <div className="mt-6">
-                  <button className="m-2" onClick={prevStep}>
-                    Go back
-                  </button>
-                  <button onClick={nextStep}>Next step</button>
-                </div>
               </div>
+            </div>
+            <div className="flex">
+              <button
+                className="border-3 m-2 rounded border-2 border-solid border-slate-400 bg-stone-600 pl-6 pr-6 hover:bg-stone-700"
+                onClick={prevStep}
+              >
+                Go back
+              </button>
+              <button
+                className="border-3 m-2 rounded border-2 border-solid border-slate-400 bg-stone-600 pl-6 pr-6 hover:bg-stone-700"
+                onClick={nextStep}
+              >
+                Next step
+              </button>
             </div>
           </>
         )}
         {step === 2 && (
           <>
-            <h1>Set NPC starting positions</h1>
+            <h1>
+              Create NPCs, set starting positions and lock starting map
+              coordinates.
+            </h1>
             <div className="flex">
               <div>
                 <CharacterBar
@@ -524,8 +587,8 @@ const NewGame = () => {
                   createMode={true}
                 />
               </div>
-              <div>
-                <div>
+              <div className="flex">
+                <div className="mr-1 rounded border-8 border-double border-emerald-900 bg-stone-900 px-5 pb-9 pt-2">
                   <DungeonMap
                     key={JSON.stringify(mapRect)}
                     sprites={gameState.characters}
@@ -540,37 +603,61 @@ const NewGame = () => {
                     step={step}
                   />
                 </div>
-                <div className="mt-6">
-                  <form>
+                <div className="flex flex-col">
+                  <h2 className="w-full border-2 border-stone-600 bg-stone-900 text-center text-lg">
+                    Create NPCs
+                  </h2>
+                  <form className="flex h-fit flex-col items-center justify-start gap-2 border-2 border-stone-500 bg-stone-800 px-4 py-2  text-center font-light">
                     <input
                       onChange={handleOnChangeNPCName}
+                      className={` w-48 rounded-sm border-2 border-stone-600 indent-1 text-slate-800`}
                       value={NPCNameInput}
                       placeholder="NPC name"
                     />
                     <input
                       onChange={handleOnChangeNPCSrc}
+                      className={`w-48 rounded-sm border-2 border-stone-600 indent-1 text-slate-800`}
                       value={NPCSrcInput}
                       placeholder="img url"
                     />
-                    <button onClick={handleOnLoadNPC}>Load NPC</button>
+                    <button
+                      className="rounded border-2 border-solid border-slate-400 bg-stone-600 pb-1 pl-2 pr-2 pt-1 text-sm hover:bg-stone-700"
+                      onClick={handleOnLoadNPC}
+                    >
+                      Load NPC
+                    </button>
                   </form>
-                  <input
-                    value={`X: ${Math.abs(gameState.map.posX)}, Y: ${Math.abs(
-                      gameState.map.posY
-                    )}, Zoom: ${Math.abs(gameState.map.zoom)}`}
-                    readOnly
-                  ></input>
-                  <button onClick={handleOnLockCoordinates}>
-                    Lock starting map coordinates.
-                  </button>
+                  <div className="flex flex-col">
+                    <input
+                      value={`X: ${Math.abs(gameState.map.posX)}, Y: ${Math.abs(
+                        gameState.map.posY
+                      )}`}
+                      readOnly
+                      className={`w-full rounded-sm border-2 border-stone-500 text-center indent-1 text-slate-800`}
+                    ></input>
+                    <button
+                      className="border-3 rounded-sm  border-2 border-solid border-slate-400 bg-stone-600 pb-1 pl-2 pr-2 pt-1 text-sm hover:bg-stone-700"
+                      onClick={handleOnLockCoordinates}
+                    >
+                      Lock starting map coordinates.
+                    </button>
+                  </div>
                 </div>
-                <button className="m-2" onClick={prevStep}>
-                  Go back
-                </button>
               </div>
             </div>
             <div>
-              <button onClick={createGame}>Create game</button>
+              <button
+                className="border-3 m-2 rounded border-2 border-solid border-slate-400 bg-stone-600 pl-6 pr-6 hover:bg-stone-700"
+                onClick={prevStep}
+              >
+                Go back
+              </button>
+              <button
+                className="border-3 m-2 rounded border-2 border-solid border-slate-400 bg-stone-600 pl-6 pr-6 hover:bg-stone-700"
+                onClick={createGame}
+              >
+                Create game
+              </button>
             </div>
           </>
         )}
