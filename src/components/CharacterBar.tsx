@@ -80,7 +80,7 @@ const CharacterBar = ({
   };
 
   return (
-    <div className="flex w-20 flex-col">
+    <div className="mr-2 flex h-full w-28 flex-col overflow-y-auto text-sm text-slate-200">
       {gameState.characters
         ?.filter((sprite) => {
           if (currentUser?.id === gameState?.dungeonMaster) {
@@ -94,18 +94,25 @@ const CharacterBar = ({
         })
         .map((sprite) => {
           return (
-            <div className="m-2" key={sprite.characterId}>
+            <div
+              className=" my-2 flex w-28 flex-col items-center justify-center rounded border-2 border-stone-600 bg-stone-900"
+              key={sprite.characterId}
+            >
               <img
                 id={sprite.characterId}
                 onClick={handleOnClick}
-                className="h-14 w-14"
+                className="my-2 h-16 w-16 rounded border-2 border-stone-600 bg-stone-900"
                 src={sprite.imgSrc}
               />
               <p>{sprite.name}</p>
-              <p>{`Initiative: ${sprite.initiative}`}</p>
+              {!createMode && (
+                <p className="w-fit">{`Initiative: ${sprite.initiative}`}</p>
+              )}
+
               {!createMode && currentUser?.id === gameState?.dungeonMaster && (
                 <>
                   <button
+                    className="z-10 m-1 rounded border-2 border-solid border-slate-400 bg-stone-600 px-2 text-sm hover:bg-stone-700"
                     id={sprite.characterId}
                     onClick={(e) => handleSetDeathStatus(e, sprite.characterId)}
                   >{`${sprite.isDead ? "Resurrect" : "Kill"}`}</button>
