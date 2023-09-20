@@ -85,9 +85,14 @@ export default function Home() {
           </>
         ) : (
           <>
-            <button className="text-slate-200" onClick={() => void signIn()}>
-              Log in
-            </button>
+            <div className="flex h-screen items-center justify-center">
+              <button
+                className="w-full rounded-sm border-2 border-emerald-900 bg-stone-600 pl-6 pr-6 text-slate-300 hover:cursor-pointer hover:bg-stone-700"
+                onClick={() => void signIn()}
+              >
+                Log in
+              </button>
+            </div>
           </>
         )}
       </main>
