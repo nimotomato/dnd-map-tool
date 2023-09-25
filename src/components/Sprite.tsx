@@ -25,6 +25,7 @@ type Props = {
   userTurnIndex?: number;
   userQueue?: Character[];
   zoomCoefficient: { x: number; y: number };
+  setIsMoving?: React.Dispatch<React.SetStateAction<boolean>>;
 };
 const Sprite = ({
   mapRect,
@@ -40,6 +41,7 @@ const Sprite = ({
   userTurnIndex,
   userQueue,
   zoomCoefficient,
+  setIsMoving,
 }: Props) => {
   const session = useSession();
   const currentUser = session.data?.user;
@@ -120,7 +122,6 @@ const Sprite = ({
     if (!mapRect || !spriteRect) return;
     e.preventDefault();
 
-    // Local movement
     if (
       e.clientX - offsetX - mapRect.x > 0 &&
       e.clientX + spriteRect.width - offsetX < mapRect.x + mapRect.width
@@ -144,6 +145,10 @@ const Sprite = ({
 
         return newGameState;
       });
+
+      if (!createMode && setIsMoving) {
+        setIsMoving(true);
+      }
     }
 
     if (
@@ -176,6 +181,9 @@ const Sprite = ({
   const handleDocumentMouseUp = () => {
     document.removeEventListener("mousemove", handleMouseMove);
     document.removeEventListener("mouseup", handleDocumentMouseUp);
+    if (!createMode && setIsMoving) {
+      setIsMoving(false);
+    }
   };
 
   const handleMouseDown = (
