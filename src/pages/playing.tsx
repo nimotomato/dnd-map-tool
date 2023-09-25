@@ -336,18 +336,18 @@ const GameBoard = () => {
 
   const [isMoving, setIsMoving] = useState(false);
 
-  //Refreshes game and character data
-  // useEffect(() => {
-  //if (isMoving) return;
-  //   const timer = setInterval(() => {
-  //     void gameData.refetch();
-  //     void charactersInGame.refetch();
-  //   }, 500);
+  // Refreshes game and character data
+  useEffect(() => {
+    if (isMoving) return;
+    const timer = setInterval(() => {
+      void gameData.refetch();
+      void charactersInGame.refetch();
+    }, 1500);
 
-  //   return () => {
-  //     clearInterval(timer);
-  //   };
-  // }, []);
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
 
   if (!gameData.data) {
     return (
@@ -437,7 +437,7 @@ const GameBoard = () => {
                     </>
                   ) : (
                     <>
-                      <div className="h-auto w-56 items-center text-center">
+                      <div className="h-auto w-56 items-center text-center text-stone-700">
                         <h1>Game is paused.</h1>
                         <h2>Wait for DM to unpause.</h2>
                       </div>
