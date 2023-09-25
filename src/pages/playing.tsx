@@ -336,13 +336,13 @@ const GameBoard = () => {
 
   const [isMoving, setIsMoving] = useState(false);
 
-  // Refreshes game and character data
+  //Refreshes game and character data
   useEffect(() => {
     if (isMoving) return;
     const timer = setInterval(() => {
       void gameData.refetch();
       void charactersInGame.refetch();
-    }, 1500);
+    }, 2000);
 
     return () => {
       clearInterval(timer);

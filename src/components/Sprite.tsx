@@ -78,6 +78,7 @@ const Sprite = ({
 
     gameState.characters.map((sprite) => {
       if (sprite.characterId !== id) return; // Make sure it is the correct sprite
+
       debouncedUpdateCharacterRef.current({
         ...sprite,
         gameId: gameState.id,
