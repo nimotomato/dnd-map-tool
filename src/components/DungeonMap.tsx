@@ -28,6 +28,7 @@ type Props = {
   userTurnIndex?: number;
   userQueue?: Character[];
   step?: number;
+  setIsMoving?: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const DungeonMap = ({
@@ -43,6 +44,7 @@ const DungeonMap = ({
   userTurnIndex,
   userQueue,
   step,
+  setIsMoving,
 }: Props) => {
   const session = useSession();
   const currentUser = session.data?.user;
@@ -284,6 +286,7 @@ const DungeonMap = ({
             userTurnIndex={userTurnIndex}
             userQueue={userQueue}
             zoomCoefficient={zoomCoefficient}
+            setIsMoving={setIsMoving}
           />
         );
       });

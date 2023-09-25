@@ -334,8 +334,11 @@ const GameBoard = () => {
     );
   }, [localGameState.characters]);
 
+  const [isMoving, setIsMoving] = useState(false);
+
   //Refreshes game and character data
   // useEffect(() => {
+  //if (isMoving) return;
   //   const timer = setInterval(() => {
   //     void gameData.refetch();
   //     void charactersInGame.refetch();
