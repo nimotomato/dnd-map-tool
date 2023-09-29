@@ -337,17 +337,17 @@ const GameBoard = () => {
   const [isMoving, setIsMoving] = useState(false);
 
   //Refreshes game and character data
-  useEffect(() => {
-    if (isMoving) return;
-    const timer = setInterval(() => {
-      void gameData.refetch();
-      void charactersInGame.refetch();
-    }, 2000);
+  // useEffect(() => {
+  //   if (isMoving) return;
+  //   const timer = setInterval(() => {
+  //     void gameData.refetch();
+  //     void charactersInGame.refetch();
+  //   }, 2000);
 
-    return () => {
-      clearInterval(timer);
-    };
-  }, []);
+  //   return () => {
+  //     clearInterval(timer);
+  //   };
+  // }, []);
 
   if (!gameData.data) {
     return (

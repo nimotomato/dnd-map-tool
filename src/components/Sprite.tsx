@@ -4,6 +4,7 @@ import { api } from "~/utils/api";
 import debounce from "lodash/debounce";
 
 import { Maprect, MapProps, Game, Character } from "~/types";
+import { useSearchParams } from "next/navigation";
 type Rect = {
   x: number;
   y: number;
@@ -53,6 +54,7 @@ const Sprite = ({
   const [show, setShow] = useState(true);
   const [dimensions, setDimensions] = useState({ height: 0, width: 0 });
   const [isDead, setIsDead] = useState(false);
+  const backupUrlRef = useRef(useSearchParams().get("data")?.replace(/"/g, ""));
 
   useEffect(() => {
     sprites.map((sprite) => {
@@ -74,14 +76,14 @@ const Sprite = ({
 
   // Send sprite data to db
   useEffect(() => {
-    if (createMode) return;
+    if (createMode || (!gameState.id && !backupUrlRef.current)) return;
 
     gameState.characters.map((sprite) => {
       if (sprite.characterId !== id) return; // Make sure it is the correct sprite
 
       debouncedUpdateCharacterRef.current({
         ...sprite,
-        gameId: gameState.id,
+        gameId: backupUrlRef.current ?? gameState.id,
       });
     });
 
@@ -89,10 +91,6 @@ const Sprite = ({
       debouncedUpdateCharacterRef.current.cancel();
     };
   }, [gameState.characters]);
-
-  if (isError) {
-    console.error("An error occurred:", error);
-  }
 
   useEffect(() => {
     if (spriteRef.current) {
