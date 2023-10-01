@@ -11,6 +11,7 @@ const characterSchema = z.object({
   imgSrc: z.string(),
   initiative: z.number(),
   controllerId: z.string(),
+  dexModifier: z.number(),
 });
 
 const characterInGameSchema = z.object({
@@ -31,6 +32,7 @@ const putCharacterSchema = z.object({
   name: z.string(),
   imgSrc: z.string(),
   controllerId: z.string(),
+  dexModifier: z.number(),
 });
 
 const deleteOneAddOneSchema = characterInGameSchema.extend({

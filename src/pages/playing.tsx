@@ -83,10 +83,11 @@ const GameBoard = () => {
       const initiativeRoll = Math.floor(
         Math.random() * (maxRoll - minRoll + 1) + minRoll
       );
+      console.log(initiativeRoll);
 
       return {
         characterId: character.characterId,
-        initiative: initiativeRoll,
+        initiative: initiativeRoll + character.dexModifier,
         gameId: gameIdParam ?? "",
       };
     });
@@ -296,7 +297,7 @@ const GameBoard = () => {
     const char = userQueue[localGameState.turnIndex];
 
     if (!char) {
-      alert("Error with char un user queue");
+      alert("Error with char in user queue");
       return;
     }
 
@@ -336,18 +337,18 @@ const GameBoard = () => {
 
   const [isMoving, setIsMoving] = useState(false);
 
-  //Refreshes game and character data
-  // useEffect(() => {
-  //   if (isMoving) return;
-  //   const timer = setInterval(() => {
-  //     void gameData.refetch();
-  //     void charactersInGame.refetch();
-  //   }, 2000);
+  //  Refreshes game and character data
+  useEffect(() => {
+    if (isMoving) return;
+    const timer = setInterval(() => {
+      void gameData.refetch();
+      void charactersInGame.refetch();
+    }, 2000);
 
-  //   return () => {
-  //     clearInterval(timer);
-  //   };
-  // }, []);
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
 
   if (!gameData.data) {
     return (

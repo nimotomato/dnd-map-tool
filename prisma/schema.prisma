@@ -32,6 +32,7 @@ model Character {
     name            String
     imgSrc          String            @db.Text
     controllerId    String
+    dexModifier     Int
     controller      User              @relation(fields: [controllerId], references: [id], onDelete: Cascade)
     CharacterInGame CharacterInGame[]
 }

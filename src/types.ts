@@ -43,5 +43,6 @@ export type Character = {
   imgSrc: string;
   initiative: number;
   controllerId: string;
+  dexModifier: number;
   isDead: boolean;
 };
