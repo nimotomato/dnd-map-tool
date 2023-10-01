@@ -207,6 +207,7 @@ const NewGame = () => {
       prevPositionX: 10 * gameState.players.length * 4,
       prevPositionY: 10,
       imgSrc: `/img/${gameState.players.length}.png`,
+      dexModifier: 0,
       isDead: false,
       initiative: 0,
       controllerId: userData.id,
@@ -271,7 +272,7 @@ const NewGame = () => {
       mapRectHeight = mapRectHeight / 2;
     }
 
-    if (NPCNameInput === "" || NPCSrcInput === "") {
+    if (NPCNameInput === "" || NPCSrcInput === "" || dexModInput === "") {
       alert("invalid entry");
       return;
     }
@@ -289,6 +290,7 @@ const NewGame = () => {
       prevPositionX: Math.abs(map.positionX) + mapRectHeight,
       prevPositionY: Math.abs(map.positionY) + mapRectWidth,
       controllerId: currentUser.id,
+      dexModifier: Number(dexModInput),
       initiative: 0,
       isDead: false,
     };
@@ -301,6 +303,7 @@ const NewGame = () => {
 
     setNPCNameInput("");
     setNPCSrcInput("");
+    setDexModInput("");
   };
 
   // has error might not work
@@ -312,6 +315,14 @@ const NewGame = () => {
 
   const handleOnChangeNPCName = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNPCNameInput(e.target.value);
+  };
+
+  const [dexModInput, setDexModInput] = useState("");
+
+  const handleDexInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (/^[0-9]*$/.test(e.target.value)) {
+      setDexModInput(e.target.value);
+    }
   };
 
   // DB queries to create a new gaMe
@@ -355,6 +366,7 @@ const NewGame = () => {
         name: character.name,
         imgSrc: character.imgSrc,
         controllerId: character.controllerId,
+        dexModifier: character.dexModifier,
       };
     });
 
@@ -513,7 +525,6 @@ const NewGame = () => {
                 </div>
               </div>
             </div>
-
             <div className="flex space-x-1">
               <Link
                 className="border-3 m-2 rounded border-2 border-solid border-slate-400 bg-stone-600 pl-6 pr-6 hover:bg-stone-700"
@@ -585,17 +596,17 @@ const NewGame = () => {
               coordinates.
             </h1>
             <div className="flex">
+              <div>
+                <CharacterBar
+                  gameState={gameState}
+                  setMap={setMap}
+                  map={map}
+                  mapRect={mapRect}
+                  setGameState={setGameState}
+                  createMode={true}
+                />
+              </div>
               <div className="mr-1 rounded border-8 border-double border-emerald-900 bg-stone-900 px-5 pb-9 pt-2">
-                <div>
-                  <CharacterBar
-                    gameState={gameState}
-                    setMap={setMap}
-                    map={map}
-                    mapRect={mapRect}
-                    setGameState={setGameState}
-                    createMode={true}
-                  />
-                </div>
                 <DungeonMap
                   key={JSON.stringify(mapRect)}
                   sprites={gameState.characters}
@@ -627,6 +638,15 @@ const NewGame = () => {
                     value={NPCSrcInput}
                     placeholder="img url"
                   />
+                  <label>
+                    Dexterity modifier <br />
+                    <input
+                      type="text"
+                      className="w-10 rounded-sm border-2 border-stone-600 indent-1 text-slate-800"
+                      value={dexModInput}
+                      onChange={handleDexInput}
+                    />
+                  </label>
                   <button
                     className="rounded border-2 border-solid border-slate-400 bg-stone-600 pb-1 pl-2 pr-2 pt-1 text-sm hover:bg-stone-700"
                     onClick={handleOnLoadNPC}

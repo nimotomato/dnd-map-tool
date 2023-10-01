@@ -8,6 +8,7 @@ const characterSchema = z.array(
     name: z.string(),
     imgSrc: z.string(),
     controllerId: z.string(),
+    dexModifier: z.number(),
   })
 );
 

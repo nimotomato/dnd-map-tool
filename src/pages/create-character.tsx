@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from "uuid";
 import useTryLoadImg from "~/hooks/useTryLoadImg";
 import { useRouter } from "next/router";
 import Modal from "~/components/Modal";
+import { types } from "util";
 const createchar = "/img/createchar.png";
 const torch = "/img/torch.gif";
 const bg = "/img/bg2.png";
@@ -20,10 +21,17 @@ export default function CreateCharacter() {
   const [characterName, setCharacterName] = useState("");
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [dexModInput, setDexModInput] = useState("");
 
   const imgHasError = useTryLoadImg(imgInput);
 
   const createCharacter = api.character.postCharacter.useMutation();
+
+  const handleDexInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (/^[0-9]*$/.test(e.target.value)) {
+      setDexModInput(e.target.value);
+    }
+  };
 
   const handleCreate = (e: React.MouseEvent) => {
     if (!currentUser) {
@@ -49,15 +57,23 @@ export default function CreateCharacter() {
       return;
     }
 
+    if (!dexModInput || Number(dexModInput) > 10) {
+      setErrorMessage("Invalid dex input...");
+      setModalIsOpen(true);
+      return;
+    }
+
     const input = {
       controllerId: currentUser.id,
       characterId: uuidv4(),
       name: characterName,
       imgSrc: imgInput,
+      dexModifier: Number(dexModInput),
     };
 
     setCharacterName("");
     setImgInput("");
+    setDexModInput("");
 
     createCharacter.mutate(input, {
       onSuccess: (data, variables, context) => {
@@ -147,6 +163,17 @@ export default function CreateCharacter() {
                   className="w-48 rounded-sm border-2 border-stone-600 indent-1 text-slate-800"
                   value={imgInput}
                   onChange={(e) => setImgInput(e.target.value)}
+                />
+              </label>
+            </div>
+            <div>
+              <label>
+                Dexterity modifier <br />
+                <input
+                  type="text"
+                  className="w-10 rounded-sm border-2 border-stone-600 indent-1 text-slate-800"
+                  value={dexModInput}
+                  onChange={handleDexInput}
                 />
               </label>
             </div>
