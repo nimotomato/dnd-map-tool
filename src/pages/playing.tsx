@@ -312,7 +312,7 @@ const GameBoard = () => {
 
       patchTurnIndex.mutate({
         turnIndex: nextIndex,
-        gameId: localGameState.id,
+        gameId: gameIdParam ?? "",
       });
 
       return { ...prevState, turnIndex: nextIndex };
@@ -320,7 +320,7 @@ const GameBoard = () => {
 
     patchPrevPosition.mutate({
       characterId: char.characterId,
-      gameId: localGameState.id,
+      gameId: gameIdParam ?? "",
       prevPositionX: char.positionX,
       prevPositionY: char.positionY,
     });
