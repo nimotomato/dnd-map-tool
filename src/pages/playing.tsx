@@ -340,6 +340,7 @@ const GameBoard = () => {
   //  Refreshes game and character data
   useEffect(() => {
     if (isMoving) return;
+
     const timer = setInterval(() => {
       void gameData.refetch();
       void charactersInGame.refetch();
@@ -348,7 +349,7 @@ const GameBoard = () => {
     return () => {
       clearInterval(timer);
     };
-  }, []);
+  }, [isMoving]);
 
   if (!gameData.data) {
     return (
@@ -473,6 +474,7 @@ const GameBoard = () => {
                 createMode={false}
                 userTurnIndex={localGameState.turnIndex}
                 userQueue={userQueue}
+                setIsMoving={setIsMoving}
               />
 
               <div className="flex justify-end text-right">
