@@ -234,7 +234,6 @@ const GameBoard = () => {
       if (currentUser?.id !== sprite.controllerId) return;
       if (!mapRect) return;
       if (initialStateCameraPosIsSet) return;
-      // || !isDMRef.current
 
       // Calculate relative positioning of map
       let newX = -sprite.positionX + mapRect.width / 2;
@@ -344,7 +343,7 @@ const GameBoard = () => {
     const timer = setInterval(() => {
       void gameData.refetch();
       void charactersInGame.refetch();
-    }, 2000);
+    }, 1000);
 
     return () => {
       clearInterval(timer);
