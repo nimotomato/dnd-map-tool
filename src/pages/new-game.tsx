@@ -320,7 +320,7 @@ const NewGame = () => {
   const [dexModInput, setDexModInput] = useState("");
 
   const handleDexInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (/^[0-9]*$/.test(e.target.value)) {
+    if (/^-?[0-9]*$/.test(e.target.value)) {
       setDexModInput(e.target.value);
     }
   };
