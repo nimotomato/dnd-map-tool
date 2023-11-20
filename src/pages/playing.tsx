@@ -83,14 +83,15 @@ const GameBoard = () => {
       const initiativeRoll = Math.floor(
         Math.random() * (maxRoll - minRoll + 1) + minRoll
       );
-      console.log(initiativeRoll);
 
       return {
         characterId: character.characterId,
         initiative: initiativeRoll + character.dexModifier,
-        gameId: gameIdParam ?? "",
+        gameId: gameIdParam ?? localGameState.id,
       };
     });
+
+    console.log(initiativeRolls);
 
     // Update inititative on DB
     updateInitiative.mutate(initiativeRolls);
@@ -336,19 +337,19 @@ const GameBoard = () => {
 
   const [isMoving, setIsMoving] = useState(false);
 
-  //  Refreshes game and character data
-  useEffect(() => {
-    if (isMoving) return;
+  // //  Refreshes game and character data
+  // useEffect(() => {
+  //   if (isMoving) return;
 
-    const timer = setInterval(() => {
-      void gameData.refetch();
-      void charactersInGame.refetch();
-    }, 1000);
+  //   const timer = setInterval(() => {
+  //     void gameData.refetch();
+  //     void charactersInGame.refetch();
+  //   }, 1000);
 
-    return () => {
-      clearInterval(timer);
-    };
-  }, [isMoving]);
+  //   return () => {
+  //     clearInterval(timer);
+  //   };
+  // }, [isMoving]);
 
   if (!gameData.data) {
     return (

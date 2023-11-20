@@ -127,11 +127,7 @@ const Sprite = ({
     ) {
       setGameState((prevGameState) => {
         const newCharacterState = prevGameState.characters.map((character) => {
-          if (
-            character.controllerId !== gameState.dungeonMaster &&
-            character.characterId !== id
-          )
-            return character;
+          if (character.characterId !== id) return character;
 
           const newXPosition = e.clientX - mapRect.x - offsetX - map.positionX;
 
@@ -160,11 +156,7 @@ const Sprite = ({
     ) {
       setGameState((prevGameState) => {
         const newCharacterState = prevGameState.characters.map((character) => {
-          if (
-            character.controllerId !== gameState.dungeonMaster &&
-            character.characterId !== id
-          )
-            return character;
+          if (character.characterId !== id) return character;
 
           const newYPosition = e.clientY - mapRect.y - offsetY - map.positionY;
 
