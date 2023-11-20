@@ -127,7 +127,11 @@ const Sprite = ({
     ) {
       setGameState((prevGameState) => {
         const newCharacterState = prevGameState.characters.map((character) => {
-          if (character.characterId !== id) return character;
+          if (
+            character.controllerId !== gameState.dungeonMaster &&
+            character.characterId !== id
+          )
+            return character;
 
           const newXPosition = e.clientX - mapRect.x - offsetX - map.positionX;
 
@@ -156,7 +160,11 @@ const Sprite = ({
     ) {
       setGameState((prevGameState) => {
         const newCharacterState = prevGameState.characters.map((character) => {
-          if (character.characterId !== id) return character;
+          if (
+            character.controllerId !== gameState.dungeonMaster &&
+            character.characterId !== id
+          )
+            return character;
 
           const newYPosition = e.clientY - mapRect.y - offsetY - map.positionY;
 
@@ -190,7 +198,7 @@ const Sprite = ({
   ) => {
     if (!spriteRect) return;
 
-    if (!createMode) {
+    if (!createMode && gameState.dungeonMaster !== currentUser?.id) {
       if (gameState.isPaused) {
         return;
       }
@@ -208,7 +216,10 @@ const Sprite = ({
       sprites.map((sprite) => {
         if (sprite.characterId !== id) return;
 
-        if (sprite.characterId === userQueue[userTurnIndex]?.characterId) {
+        if (
+          sprite.characterId === userQueue[userTurnIndex]?.characterId ||
+          sprite.controllerId === gameState.dungeonMaster
+        ) {
           thisSprite = true;
         }
       });
